@@ -148,10 +148,6 @@ int main()
         ClearBackground(WHITE);
         BeginDrawing();
 
-            // todo: scroll the background
-            // todo: debug collision behaviour wrt padding
-            // todo: tidy and finish the game
-
             float timeSinceLastFrame = GetFrameTime();
             bool playerIsHit = evaluateCollision(player, nebulae);
             if (playerIsHit) {
@@ -166,7 +162,7 @@ int main()
             if (!gameOver){
                 drawObject(player);
             }
-            for (int i = 0; i < 2; i++) // todo: remove hard-coded array length
+            for (int i = 0; i < 2; i++)
             {
                 nebulaIsAvoided = updateObject(nebulae[i], timeSinceLastFrame, window);
                 if (!gameOver){
