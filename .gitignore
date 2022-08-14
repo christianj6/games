@@ -1,0 +1,7 @@
+/res
+.vscode/
+*.exe
+*.dsym
+main
+*.dll
+_archive/
