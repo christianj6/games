@@ -1,4 +1,5 @@
 #pragma once
+#include "obstacle.h"
 
 class Player {
 private:
@@ -10,4 +11,5 @@ public:
   Player();
   void update();
   void draw();
+  bool is_hit(const Obstacle &obstacle) const;
 };
