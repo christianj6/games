@@ -2,8 +2,12 @@
 
 set -e 
 
+# autoformat
+cd src/00_jump/src 
+clang-format -i -- **.cpp **.h
+
 # change the project dir to build different games
-cd src/00_jump/build
+cd ../build
 ./premake5.osx gmake2
 
 # generate compile_commands.json using bear

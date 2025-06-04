@@ -1,54 +1,49 @@
-/*
-Raylib example file.
-This is an example main file for a simple raylib project.
-Use this as a starting point or replace it with your code.
-
-by Jeffery Myers is marked with CC0 1.0. To view a copy of this license, visit https://creativecommons.org/publicdomain/zero/1.0/
-
-*/
-
+#include "obstacle.h"
+#include "player.h"
 #include "raylib.h"
+#include "resource_dir.h"
+#include <vector>
 
-#include "resource_dir.h"	// utility header for SearchAndSetResourceDir
+int main() {
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+  InitWindow(1280, 800, "Jump");
+  SearchAndSetResourceDir("resources");
 
-int main ()
-{
-	// Tell the window to use vsync and work on high DPI displays
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+  Player player = Player();
+  std::vector<Obstacle> obstacles;
 
-	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+  const int NUM_OBSTACLES = 3;
+  for (size_t i = 0; i < NUM_OBSTACLES; i++) {
+    obstacles.emplace_back(i);
+  }
+  bool game_over = false;
+  while (!WindowShouldClose()) {
+    player.update();
+    for (auto &obj : obstacles) {
+      obj.update();
+      if (player.is_hit(obj)) {
+        game_over = true;
+      }
+    }
 
-	// Utility function from resource_dir.h to find the resources folder and set it as the current working directory so we can load from it
-	SearchAndSetResourceDir("resources");
+    BeginDrawing();
+    ClearBackground(BLACK);
+    if (!game_over) {
+      player.draw();
+      for (auto &obj : obstacles) {
+        obj.draw();
+      }
+    } else {
+      const char *text = "GAME OVER";
+      DrawText(text, GetScreenWidth() / 2 - MeasureText(text, 60) / 2,
+               GetScreenHeight() / 2 - 30, 60, RED);
+      DrawText("Press ESC to exit",
+               GetScreenWidth() / 2 - MeasureText("Press ESC to exit", 20) / 2,
+               GetScreenHeight() / 2 + 40, 20, GRAY);
+    }
+    EndDrawing();
+  }
 
-	// Load a texture from the resources directory
-	Texture wabbit = LoadTexture("wabbit_alpha.png");
-	
-	// game loop
-	while (!WindowShouldClose())		// run the loop untill the user presses ESCAPE or presses the Close button on the window
-	{
-		// drawing
-		BeginDrawing();
-
-		// Setup the back buffer for drawing (clear color and depth buffers)
-		ClearBackground(BLACK);
-
-		// draw some text using the default font
-		DrawText("Hello Raylib", 200,200,20,WHITE);
-
-		// draw our texture to the screen
-		DrawTexture(wabbit, 400, 200, WHITE);
-		
-		// end the frame and get ready for the next one  (display frame, poll input, etc...)
-		EndDrawing();
-	}
-
-	// cleanup
-	// unload our texture so it can be cleaned up
-	UnloadTexture(wabbit);
-
-	// destroy the window and cleanup the OpenGL context
-	CloseWindow();
-	return 0;
+  CloseWindow();
+  return 0;
 }
