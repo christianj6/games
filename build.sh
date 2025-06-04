@@ -3,7 +3,7 @@
 set -e 
 
 # change the project dir to build different games
-cd src/?/build
+cd src/00_jump/build
 ./premake5.osx gmake2
 
 # generate compile_commands.json using bear
@@ -13,4 +13,4 @@ cd ..
 make
 
 # run the game 
-./bin/Debug/?
+./bin/Debug/00_jump
