@@ -1,13 +1,12 @@
 #include "enemy.h"
 #include "player.h"
 #include "raylib.h"
-#include "resource_dir.h" // utility header for SearchAndSetResourceDir
+
+// TODO: add coin that the player can try to pick up
 
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   InitWindow(1280, 800, "Coins");
-  SearchAndSetResourceDir("resources");
-  Texture wabbit = LoadTexture("wabbit_alpha.png");
 
   Player player = Player();
   Enemy enemy = Enemy();

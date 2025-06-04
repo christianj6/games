@@ -24,4 +24,5 @@ Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and work
 #### To Do 
 - [x] Jump
 - [ ] Coins
+- [ ] GOAP
 - [ ] ?
