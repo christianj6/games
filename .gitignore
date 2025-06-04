@@ -5,3 +5,9 @@
 main
 *.dll
 _archive/
+**/bin
+**/build/bin
+.aider*
+.env
+**/.cache
+.DS_Store
