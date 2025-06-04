@@ -21,6 +21,11 @@ Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and work
 
 ***
 
+#### 01_coins
+Top-down coin collecting game with an enemy that chases the player.
+
+***
+
 #### To Do 
 - [x] Jump
 - [ ] Coins
