@@ -11,4 +11,6 @@ void Obstacle::update() {
   // todo
 }
 
-void Obstacle::draw() { DrawCircle((int)position_x, (int)position_y, 25, BLUE); }
+void Obstacle::draw() {
+  DrawCircle((int)position_x, (int)position_y, 25, BLUE);
+}

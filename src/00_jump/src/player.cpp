@@ -9,8 +9,9 @@ Player::Player() {
 
 void Player::update() {
   // Update player position and handle input
-  if (IsKeyDown(KEY_SPACE)) {
-    velocity = -5.0f;
+  if (IsKeyDown(KEY_SPACE) && position_y == 700.f) {
+    // just use a simple check to make sure can only jump from the ground
+    velocity = -10.0f;
   }
 
   velocity += 0.2f; // Gravity
