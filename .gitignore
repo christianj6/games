@@ -7,3 +7,7 @@ main
 _archive/
 **/bin
 **/build
+.aider*
+.env
+**/.cache
+.DS_Store
