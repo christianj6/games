@@ -2,20 +2,22 @@
 #include "raylib.h"
 
 Player::Player() {
-  x = GetScreenWidth() / 2.0f;
-  y = GetScreenHeight() / 2.0f;
+  float x = GetScreenWidth() / 2.0f;
+  float y = GetScreenHeight() / 2.0f;
+  position = {x, y};
 }
 
 void Player::update() {
   const float speed = 5.0f;
   if (IsKeyDown(KEY_W))
-    y -= speed;
+    position.y -= speed;
   if (IsKeyDown(KEY_S))
-    y += speed;
+    position.y += speed;
   if (IsKeyDown(KEY_A))
-    x -= speed;
+    position.x -= speed;
   if (IsKeyDown(KEY_D))
-    x += speed;
+    position.x += speed;
 }
 
-void Player::draw() { DrawCircle(x, y, 50, BLUE); }
+void Player::draw() { DrawCircle(position.x, position.y, 50, BLUE); }
+Vector2 Player::get_position() { return position; }

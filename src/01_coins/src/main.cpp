@@ -1,3 +1,4 @@
+#include "enemy.h"
 #include "player.h"
 #include "raylib.h"
 #include "resource_dir.h" // utility header for SearchAndSetResourceDir
@@ -9,13 +10,16 @@ int main() {
   Texture wabbit = LoadTexture("wabbit_alpha.png");
 
   Player player = Player();
+  Enemy enemy = Enemy();
   while (!WindowShouldClose()) // run the loop untill the user presses ESCAPE or
   {
     player.update();
+    enemy.update(player.get_position());
 
     BeginDrawing();
     ClearBackground(BLACK);
     player.draw();
+    enemy.draw();
     EndDrawing();
   }
 

@@ -1,12 +1,12 @@
 #pragma once
 #include "raylib.h"
 
-class Player {
+
+class Enemy {
 public:
-  Player();
-  void update();
+  Enemy();
+  void update(Vector2 player_position);
   void draw();
-  Vector2 get_position();
 
 private:
   Vector2 position;
