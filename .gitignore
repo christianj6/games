@@ -6,7 +6,7 @@ main
 *.dll
 _archive/
 **/bin
-**/build
+**/build/bin
 .aider*
 .env
 **/.cache
