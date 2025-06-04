@@ -5,3 +5,5 @@
 main
 *.dll
 _archive/
+**/bin
+**/build
