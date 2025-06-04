@@ -2,8 +2,8 @@
 #include "raylib.h"
 
 Player::Player() {
-  positionX = 100.0f;
-  positionY = 100.0f;
+  position_x = 100.0f;
+  position_y = 100.0f;
   velocity = 0.0f;
 }
 
@@ -14,16 +14,16 @@ void Player::update() {
   }
 
   velocity += 0.2f; // Gravity
-  positionY += velocity;
+  position_y += velocity;
 
   // Simple ground collision
-  if (positionY > 700.0f) {
-    positionY = 700.0f;
+  if (position_y > 700.0f) {
+    position_y = 700.0f;
     velocity = 0.0f;
   }
 }
 
 void Player::draw() {
   // Draw the player as a simple rectangle
-  DrawRectangle((int)positionX, (int)positionY, 50, 50, RED);
+  DrawRectangle((int)position_x, (int)position_y, 50, 50, RED);
 }

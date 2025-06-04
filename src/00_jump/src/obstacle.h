@@ -7,7 +7,7 @@ public:
   void draw();
 
 private:
-  float positionX;
-  float positionY;
+  float position_x;
+  float position_y;
   float velocity;
 };
