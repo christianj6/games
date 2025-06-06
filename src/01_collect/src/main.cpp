@@ -1,0 +1,34 @@
+#include "coin.h"
+#include "enemy.h"
+#include "player.h"
+#include "raylib.h"
+#include <cstdio>
+
+int main() {
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+  InitWindow(1280, 800, "Coins");
+
+  Player player = Player();
+  Enemy enemy = Enemy();
+  Coin coin = Coin();
+  while (!WindowShouldClose()) // run the loop untill the user presses ESCAPE or
+  {
+    player.update();
+    coin.update(player.get_position());
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+    if (enemy.update(player.get_position())) {
+      // game over
+      DrawText("loser", GetScreenWidth() / 2, GetScreenHeight() / 2, 20, RED);
+    } else {
+      player.draw();
+      enemy.draw();
+      coin.draw();
+    }
+    EndDrawing();
+  }
+
+  CloseWindow();
+  return 0;
+}
