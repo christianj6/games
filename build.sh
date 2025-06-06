@@ -3,7 +3,7 @@
 set -e 
 
 # autoformat
-cd src/01_collect/src 
+cd src/02_hide/src 
 clang-format -i -- **.cpp #**.h
 
 # change the project dir to build different games
@@ -17,4 +17,4 @@ cd ..
 make
 
 # run the game 
-./bin/Debug/01_collect
+./bin/Debug/02_hide
