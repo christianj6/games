@@ -9,7 +9,7 @@ int main() {
   // use a world object to manage update and rendering for all game objects
   World world;
   // use smart pointer for better memory management
-  world.set_player(std::make_unique<Player>(Vector2{640, 400}));
+  world.set_player(std::make_unique<Player>());
 
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
