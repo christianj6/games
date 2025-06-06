@@ -6,21 +6,23 @@ int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   InitWindow(1280, 800, "Hide");
 
+  // use a world object to manage update and rendering for all game objects
   World world;
-  world.add_object(std::make_unique<Player>(Vector2{640, 400}));
+  // use smart pointer for better memory management
+  world.set_player(std::make_unique<Player>(Vector2{640, 400}));
 
-  while (!WindowShouldClose()) { 
-    float dt = GetFrameTime();   
+  while (!WindowShouldClose()) {
+    float dt = GetFrameTime();
 
-    BeginDrawing();         
-    ClearBackground(BLACK); 
+    BeginDrawing();
+    ClearBackground(BLACK);
 
-    world.update(dt); 
-    world.draw();    
+    world.update(dt);
+    world.draw();
 
-    EndDrawing(); 
+    EndDrawing();
   }
 
-  CloseWindow(); 
-  return 0;     
+  CloseWindow();
+  return 0;
 }
