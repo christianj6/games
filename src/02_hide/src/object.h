@@ -3,7 +3,8 @@
 
 class GameObject {
   public:
-    GameObject(Vector2 starting_position = {0,0});
+    // special way to intialize
+    GameObject(Vector2 starting_position = {0,0}) : position(starting_position) {}
     virtual void draw() = 0;
     virtual void update(float dt) = 0;
   protected:
