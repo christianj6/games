@@ -8,7 +8,7 @@ Enemy::Enemy() {
 }
 
 void Enemy::update(Vector2 player_position) {
-  const float speed = 3.0f; // Slower than player for fairness
+  const float speed = 2.0f; // Slower than player for fairness
 
   // Calculate direction to player
   Vector2 direction = {player_position.x - position.x,

@@ -1,10 +1,7 @@
 #include "coin.h"
 #include "raylib.h"
 
-Coin::Coin() {
-  // TODO: coin cannot spawn on top of player
-  reset_position();
-}
+Coin::Coin() { reset_position(); }
 
 void Coin::update(Vector2 player_position) {
   if (is_collected(player_position)) {
