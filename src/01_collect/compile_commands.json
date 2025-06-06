@@ -15,9 +15,9 @@
       "obj/x64/Debug/raylib/raudio.o",
       "../external/raylib-master/src/raudio.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/raudio.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/raudio.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/raudio.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/raudio.o"
   },
   {
     "arguments": [
@@ -35,9 +35,9 @@
       "obj/x64/Debug/raylib/rcore.o",
       "../external/raylib-master/src/rcore.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rcore.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rcore.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rcore.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rcore.o"
   },
   {
     "arguments": [
@@ -57,9 +57,9 @@
       "obj/x64/Debug/raylib/rglfw.o",
       "../external/raylib-master/src/rglfw.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rglfw.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rglfw.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rglfw.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rglfw.o"
   },
   {
     "arguments": [
@@ -77,9 +77,9 @@
       "obj/x64/Debug/raylib/rmodels.o",
       "../external/raylib-master/src/rmodels.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rmodels.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rmodels.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rmodels.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rmodels.o"
   },
   {
     "arguments": [
@@ -97,9 +97,9 @@
       "obj/x64/Debug/raylib/rshapes.o",
       "../external/raylib-master/src/rshapes.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rshapes.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rshapes.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rshapes.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rshapes.o"
   },
   {
     "arguments": [
@@ -117,9 +117,9 @@
       "obj/x64/Debug/raylib/rtext.o",
       "../external/raylib-master/src/rtext.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rtext.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rtext.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rtext.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rtext.o"
   },
   {
     "arguments": [
@@ -137,9 +137,9 @@
       "obj/x64/Debug/raylib/rtextures.o",
       "../external/raylib-master/src/rtextures.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/rtextures.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/rtextures.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/rtextures.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/rtextures.o"
   },
   {
     "arguments": [
@@ -157,9 +157,34 @@
       "obj/x64/Debug/raylib/utils.o",
       "../external/raylib-master/src/utils.c"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/external/raylib-master/src/utils.c",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/raylib/utils.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/external/raylib-master/src/utils.c",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/raylib/utils.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-DDEBUG",
+      "-DPLATFORM_DESKTOP",
+      "-DGRAPHICS_API_OPENGL_33",
+      "-I../../src",
+      "-I../../include",
+      "-I../external/raylib-master/src",
+      "-I../external/raylib-master/src/external",
+      "-I../external/raylib-master/src/external/glfw/include",
+      "-m64",
+      "-Wshadow",
+      "-g",
+      "-std=c++17",
+      "-Wno-deprecated-declarations",
+      "-c",
+      "-o",
+      "obj/x64/Debug/01_coins/enemy.o",
+      "../../src/enemy.cpp"
+    ],
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/src/enemy.cpp",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/01_coins/enemy.o"
   },
   {
     "arguments": [
@@ -182,8 +207,33 @@
       "obj/x64/Debug/01_coins/main.o",
       "../../src/main.cpp"
     ],
-    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files",
-    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/src/main.cpp",
-    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_coins/build/build_files/obj/x64/Debug/01_coins/main.o"
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/src/main.cpp",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/01_coins/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang++",
+      "-DDEBUG",
+      "-DPLATFORM_DESKTOP",
+      "-DGRAPHICS_API_OPENGL_33",
+      "-I../../src",
+      "-I../../include",
+      "-I../external/raylib-master/src",
+      "-I../external/raylib-master/src/external",
+      "-I../external/raylib-master/src/external/glfw/include",
+      "-m64",
+      "-Wshadow",
+      "-g",
+      "-std=c++17",
+      "-Wno-deprecated-declarations",
+      "-c",
+      "-o",
+      "obj/x64/Debug/01_coins/player.o",
+      "../../src/player.cpp"
+    ],
+    "directory": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files",
+    "file": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/src/player.cpp",
+    "output": "/Users/christianjohnson/Desktop/bauer/repos/_sandbox/games/src/01_collect/build/build_files/obj/x64/Debug/01_coins/player.o"
   }
 ]
