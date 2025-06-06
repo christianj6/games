@@ -7,7 +7,7 @@ Enemy::Enemy() {
   position.y = 50.0f;                    // Offset from top by radius
 }
 
-void Enemy::update(Vector2 player_position) {
+bool Enemy::update(Vector2 player_position) {
   const float speed = 2.0f; // Slower than player for fairness
 
   // Calculate direction to player
@@ -23,6 +23,11 @@ void Enemy::update(Vector2 player_position) {
     // Move towards player
     position.x += direction.x * speed;
     position.y += direction.y * speed;
+  }
+  if (CheckCollisionCircles(position, 25, player_position, 50)) {
+    return true;
+  } else {
+    return false;
   }
 }
 

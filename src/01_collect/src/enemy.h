@@ -5,10 +5,11 @@
 class Enemy {
 public:
   Enemy();
-  void update(Vector2 player_position);
+  bool update(Vector2 player_position);
   void draw();
 
 private:
   Vector2 position;
+  bool hit_player = false;
 };
 
