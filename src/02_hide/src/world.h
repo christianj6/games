@@ -10,6 +10,8 @@ private:
     std::unique_ptr<Player> player_ptr = nullptr;
     Camera2D camera;
 
+    bool is_on_screen(const Vector2& position) const;
+
 public:
     World() {
         camera.target = {0, 0};

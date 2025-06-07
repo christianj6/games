@@ -12,4 +12,7 @@ class GameObject {
   // protected means that derived classes can access this attribute
   protected:
     Vector2 position;
+  
+  public:
+    Vector2 get_position() const { return position; }
 };
