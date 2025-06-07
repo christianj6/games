@@ -8,12 +8,12 @@ void Player::update(float dt) {
   const float base_speed = 500.0f;     // units per second
   const float speed = base_speed * dt; // scale by delta time
 
-  if (IsKeyDown(KEY_W) && position.y - speed >= 50)
+  if (IsKeyDown(KEY_W))
     position.y -= speed;
-  if (IsKeyDown(KEY_S) && position.y + speed + 50 <= GetScreenHeight())
+  if (IsKeyDown(KEY_S))
     position.y += speed;
-  if (IsKeyDown(KEY_A) && position.x - speed >= 50)
+  if (IsKeyDown(KEY_A))
     position.x -= speed;
-  if (IsKeyDown(KEY_D) && position.x + speed + 50 <= GetScreenWidth())
+  if (IsKeyDown(KEY_D))
     position.x += speed;
 };

@@ -10,11 +10,20 @@ void World::update(float dt) {
     obj->update(dt);
   }
   player_ptr->update(dt);
+
+  // Update camera to follow player
+  if (player_ptr) {
+    camera.target = player_ptr->get_position();
+  }
 }
 
 void World::draw() {
+  BeginMode2D(camera);
+
   for (auto &obj : objects) {
     obj->draw();
   }
   player_ptr->draw();
+
+  EndMode2D();
 }

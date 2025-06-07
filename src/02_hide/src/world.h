@@ -8,9 +8,15 @@ class World {
 private:
     std::vector<std::unique_ptr<GameObject>> objects;
     std::unique_ptr<Player> player_ptr = nullptr;
+    Camera2D camera;
 
 public:
-    World() = default;  
+    World() {
+        camera.target = {0, 0};
+        camera.offset = {GetScreenWidth()/2.0f, GetScreenHeight()/2.0f};
+        camera.rotation = 0.0f;
+        camera.zoom = 1.0f;
+    }
     ~World() = default;
 
     void add_object(std::unique_ptr<GameObject> object);
