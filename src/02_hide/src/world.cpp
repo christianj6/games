@@ -9,6 +9,7 @@ void World::update(float dt) {
   for (auto &obj : objects) {
     obj->update(dt);
   }
+  player_ptr->update(dt);
 }
 
 void World::draw() {
