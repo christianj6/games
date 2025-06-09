@@ -7,7 +7,7 @@ class GameObject {
     GameObject(Vector2 starting_position = {0,0}) : position(starting_position) {}
 
     virtual void draw() = 0;
-    virtual void update(float dt) = 0;
+    virtual void update(float dt, bool allow_movement = true) = 0;
 
   // protected means that derived classes can access this attribute
   protected:

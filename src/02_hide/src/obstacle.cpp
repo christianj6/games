@@ -4,7 +4,7 @@ Obstacle::Obstacle(Vector2 starting_position) : GameObject(starting_position) {}
 
 void Obstacle::draw() { DrawCircle(position.x, position.y, 120, GRAY); }
 
-void Obstacle::update(float dt) {}
+void Obstacle::update(float dt, bool allow_movement) {}
 
 std::vector<Obstacle> get_world_obstacles(int n) {
   std::vector<Obstacle> obstacles;
