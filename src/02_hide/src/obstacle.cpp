@@ -9,12 +9,13 @@ void Obstacle::update(float dt) {}
 std::vector<Obstacle> get_world_obstacles(int n) {
   std::vector<Obstacle> obstacles;
 
-  const float MIN_RADIUS = 300.0f;  // Minimum distance from center
-  const float MAX_RADIUS = 2000.0f; // Maximum distance from center
-  const float TWO_PI = 6.28318f;    // 2 * PI
+  const float MIN_RADIUS = 600.0f;        // Minimum distance from spawn point
+  const float MAX_RADIUS = 2000.0f;       // Maximum distance from spawn point
+  const float TWO_PI = 6.28318f;          // 2 * PI
+  const float SAFE_SPAWN_RADIUS = 500.0f; // Safe zone around spawn point (0,0)
 
-  // Create n obstacles in a more organic pattern
-  for (int i = 0; i < n; i++) {
+  // Create n obstacles in a more organic pattern around spawn point at (0,0)
+  while (obstacles.size() < n) {
     // Use polar coordinates for more natural distribution
     float angle = GetRandomValue(0, 1000) * (TWO_PI / 1000.0f); // Random angle
     float radius = MIN_RADIUS + GetRandomValue(0, 1000) *
@@ -28,7 +29,14 @@ std::vector<Obstacle> get_world_obstacles(int n) {
     float noise_x = GetRandomValue(-200, 200);
     float noise_y = GetRandomValue(-200, 200);
 
-    obstacles.push_back(Obstacle(Vector2{x + noise_x, y + noise_y}));
+    // Calculate final position
+    Vector2 pos = {x + noise_x, y + noise_y};
+
+    // Check if position is far enough from center after noise
+    float dist_from_center = sqrtf(pos.x * pos.x + pos.y * pos.y);
+    if (dist_from_center >= SAFE_SPAWN_RADIUS) {
+      obstacles.push_back(Obstacle(pos));
+    }
   }
 
   return obstacles;
