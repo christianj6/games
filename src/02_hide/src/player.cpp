@@ -4,7 +4,7 @@
 Player::Player(Vector2 starting_position) : GameObject(starting_position) {}
 
 void Player::draw() { DrawCircle(position.x, position.y, 40, BLUE); }
-void Player::update(float dt) {
+void Player::update(float dt, bool allow_movement) {
   const float base_speed = 500.0f;     // units per second
   const float speed = base_speed * dt; // scale by delta time
 
