@@ -8,4 +8,5 @@ class Player : public GameObject {
     void update(float dt, bool allow_movement = true) override;
     void draw() override;
     Vector2 get_position() const { return position; }
+    void set_position(Vector2 pos) { position = pos; }
 };

@@ -17,10 +17,31 @@ void World::update(float dt) {
   for (auto &obj : objects) {
     obj->update(dt);
   }
-  player_ptr->update(dt);
 
-  // Update camera to follow player
   if (player_ptr) {
+    // Store original position
+    Vector2 original_pos = player_ptr->get_position();
+
+    // Try to move the player
+    player_ptr->update(dt, true);
+
+    // Check for collisions after attempted movement
+    bool colliding = false;
+    Vector2 new_pos = player_ptr->get_position();
+
+    for (auto &obj : objects) {
+      if (CheckCollisionCircles(new_pos, 40, obj->get_position(), 120)) {
+        colliding = true;
+        break;
+      }
+    }
+
+    // If colliding, reset to original position
+    if (colliding) {
+      player_ptr->set_position(original_pos);
+    }
+
+    // Update camera to follow player
     camera.target = player_ptr->get_position();
   }
 }

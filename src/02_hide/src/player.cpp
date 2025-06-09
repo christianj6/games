@@ -8,6 +8,10 @@ void Player::update(float dt, bool allow_movement) {
   const float base_speed = 500.0f;     // units per second
   const float speed = base_speed * dt; // scale by delta time
 
+  // Store original position before any movement
+  Vector2 original_pos = position;
+
+  // Try to move
   if (IsKeyDown(KEY_W))
     position.y -= speed;
   if (IsKeyDown(KEY_S))
@@ -16,4 +20,9 @@ void Player::update(float dt, bool allow_movement) {
     position.x -= speed;
   if (IsKeyDown(KEY_D))
     position.x += speed;
-};
+
+  // If we're colliding with something, revert to original position
+  if (!allow_movement) {
+    position = original_pos;
+  }
+}
