@@ -47,22 +47,14 @@ void World::update(float dt) {
 }
 
 void World::draw() {
-  // DEBUG: Count visible objects
-  int visible_count = 0;
-
   BeginMode2D(camera);
 
   for (auto &obj : objects) {
     if (is_on_screen(obj->get_position())) {
       obj->draw();
-      visible_count++; // DEBUG: Increment counter for each visible object
     }
   }
   player_ptr->draw();
 
   EndMode2D();
-
-  // DEBUG: Draw object count (will be removed later)
-  DrawText(TextFormat("Visible Objects: %d/%zu", visible_count, objects.size()),
-           10, 10, 20, WHITE);
 }
