@@ -12,7 +12,7 @@ int main() {
   World world;
   // use smart pointer for better memory management
   world.set_player(std::make_unique<Player>());
-
+  // randomly place n objects in the world
   for (auto &obstacle : get_world_obstacles(100)) {
     world.add_object(std::make_unique<Obstacle>(obstacle));
   }

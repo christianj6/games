@@ -22,7 +22,12 @@ Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and work
 ***
 
 #### 01_collect
-Top-down coin collecting game with an enemy that chases the player.
+Top-down coin collecting game with an enemy that chases the player. Getting more comfortable with C++ and Raylib.
+
+***
+
+#### 02_hide
+Top-down game where player must hide from a searching enemy. Working with pointers and better game abstractions.
 
 ***
 
