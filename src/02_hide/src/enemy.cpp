@@ -19,7 +19,9 @@ Enemy::Enemy(Vector2 starting_position) : GameObject(starting_position) {
                    Vector2Add(starting_position, {0, 200})};
 }
 
-bool Enemy::is_player_in_vision_cone(const Vector2 &player_pos) const {
+bool Enemy::is_player_in_vision_cone(
+    const Vector2 &player_pos,
+    const std::vector<GameObject *> &obstacles) const {
   Vector2 to_player = Vector2Subtract(player_pos, position);
   float distance = Vector2Length(to_player);
 
@@ -31,11 +33,38 @@ bool Enemy::is_player_in_vision_cone(const Vector2 &player_pos) const {
   while (angle_diff > PI)
     angle_diff = 2 * PI - angle_diff;
 
-  return angle_diff <= vision_angle / 2;
+  if (angle_diff > vision_angle / 2)
+    return false;
+
+  return has_line_of_sight(player_pos, obstacles);
 }
 
-void Enemy::update_goap(float dt, const Vector2 &player_pos) {
-  can_see_player = is_player_in_vision_cone(player_pos);
+bool Enemy::has_line_of_sight(
+    const Vector2 &target_pos,
+    const std::vector<GameObject *> &obstacles) const {
+  Vector2 to_target = Vector2Subtract(target_pos, position);
+  Vector2 ray_dir = Vector2Normalize(to_target);
+  float distance_to_target = Vector2Length(to_target);
+
+  for (const auto *obstacle : obstacles) {
+    Vector2 to_obstacle = Vector2Subtract(obstacle->get_position(), position);
+    float dist_to_obstacle = Vector2Length(to_obstacle);
+
+    if (dist_to_obstacle < distance_to_target) {
+      float dot = Vector2DotProduct(to_obstacle, ray_dir);
+      Vector2 closest_point = Vector2Add(position, Vector2Scale(ray_dir, dot));
+
+      if (Vector2Distance(closest_point, obstacle->get_position()) < 125.0f) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void Enemy::update_goap(float dt, const Vector2 &player_pos,
+                        const std::vector<GameObject *> &obstacles) {
+  can_see_player = is_player_in_vision_cone(player_pos, obstacles);
 
   switch (current_state) {
   case EnemyState::PATROL:

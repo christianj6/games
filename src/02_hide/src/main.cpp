@@ -8,8 +8,6 @@
 #include <sstream>
 #include <string>
 
-// TODO: add enemy which cycles through roaming and chasing the player
-
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   InitWindow(1280, 800, "Hide");

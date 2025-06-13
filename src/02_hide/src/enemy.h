@@ -28,6 +28,7 @@ public:
     void draw() override;
     void draw_indicator(Vector2);
     void set_patrol_points(const std::vector<Vector2>& points);
-    bool is_player_in_vision_cone(const Vector2& player_pos) const;
-    void update_goap(float dt, const Vector2& player_pos);
+    bool is_player_in_vision_cone(const Vector2& player_pos, const std::vector<GameObject*>& obstacles) const;
+    void update_goap(float dt, const Vector2& player_pos, const std::vector<GameObject*>& obstacles);
+    bool has_line_of_sight(const Vector2& target_pos, const std::vector<GameObject*>& obstacles) const;
 };

@@ -31,4 +31,5 @@ public:
     Player* get_player_ptr() const { return player_ptr.get(); }
     // we move the incoming pointer to the class attr, transferring ownership
     void set_player(std::unique_ptr<Player> p) { player_ptr = std::move(p); }
+    std::vector<GameObject*> get_obstacles() const;
 };

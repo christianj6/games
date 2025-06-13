@@ -19,7 +19,7 @@ void World::update(float dt) {
   for (auto &obj : objects) {
     // Check if object is an enemy using dynamic_cast
     if (auto enemy = dynamic_cast<Enemy *>(obj.get())) {
-      enemy->update_goap(dt, player_pos);
+      enemy->update_goap(dt, player_pos, get_obstacles());
     }
     obj->update(dt);
   }
@@ -57,6 +57,16 @@ void World::update(float dt) {
     // Update camera to follow player
     camera.target = player_ptr->get_position();
   }
+}
+
+std::vector<GameObject *> World::get_obstacles() const {
+  std::vector<GameObject *> obstacles;
+  for (const auto &obj : objects) {
+    if (!dynamic_cast<Enemy *>(obj.get())) {
+      obstacles.push_back(obj.get());
+    }
+  }
+  return obstacles;
 }
 
 void World::draw() {
