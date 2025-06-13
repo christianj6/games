@@ -7,6 +7,7 @@ class Player : public GameObject {
 
     void update(float dt, bool allow_movement = true) override;
     void draw() override;
+    // const signals that we won't modify the instance
     Vector2 get_position() const { return position; }
     void set_position(Vector2 pos) { position = pos; }
 };

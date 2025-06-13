@@ -4,9 +4,15 @@
 #include "world.h"
 #include <memory>
 
+#include <sstream>
+#include <string>
+
+// TODO: add enemy which cycles through roaming and chasing the player
+
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   InitWindow(1280, 800, "Hide");
+  SetTargetFPS(60);
 
   // use a world object to manage update and rendering for all game objects
   World world;
@@ -25,6 +31,13 @@ int main() {
 
     world.update(dt);
     world.draw();
+
+    // draw some debug info
+    DrawText(std::to_string(GetFPS()).c_str(), 5, 5, 24, WHITE);
+    Vector2 player_position = world.get_player_ptr()->get_position();
+    std::ostringstream oss;
+    oss << player_position.x << ", " << player_position.y;
+    DrawText(oss.str().c_str(), 5, 25, 24, WHITE);
 
     EndDrawing();
   }

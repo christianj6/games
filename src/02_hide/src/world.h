@@ -6,6 +6,7 @@
 
 class World {
 private:
+    // >> closes the type declaration when we have nested, templated objects
     std::vector<std::unique_ptr<GameObject>> objects;
     std::unique_ptr<Player> player_ptr = nullptr;
     Camera2D camera;
@@ -14,6 +15,7 @@ private:
 
 public:
     World() {
+        // TODO: shift to implementation file
         camera.target = {0, 0};
         camera.offset = {GetScreenWidth()/2.0f, GetScreenHeight()/2.0f};
         camera.rotation = 0.0f;

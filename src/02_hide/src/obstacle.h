@@ -2,6 +2,7 @@
 #include "object.h"
 #include <vector>
 
+// public inheritance means we take everything from parent 'as-is'
 class Obstacle : public GameObject {
 public:
     Obstacle(Vector2 starting_position);

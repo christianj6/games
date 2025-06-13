@@ -10,7 +10,7 @@ std::vector<Obstacle> get_world_obstacles(int n) {
   std::vector<Obstacle> obstacles;
 
   const float MIN_RADIUS = 600.0f;        // Minimum distance from spawn point
-  const float MAX_RADIUS = 2000.0f;       // Maximum distance from spawn point
+  const float MAX_RADIUS = 8000.0f;       // Maximum distance from spawn point
   const float TWO_PI = 6.28318f;          // 2 * PI
   const float SAFE_SPAWN_RADIUS = 500.0f; // Safe zone around spawn point (0,0)
 
