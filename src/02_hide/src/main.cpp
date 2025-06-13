@@ -1,3 +1,4 @@
+#include "enemy.h"
 #include "obstacle.h"
 #include "player.h"
 #include "raylib.h"
@@ -22,6 +23,14 @@ int main() {
   for (auto &obstacle : get_world_obstacles(100)) {
     world.add_object(std::make_unique<Obstacle>(obstacle));
   }
+
+  // Add some enemies
+  Vector2 enemy_pos = {500, 500};
+  auto enemy = std::make_unique<Enemy>(enemy_pos);
+  std::vector<Vector2> patrol_points = {
+      {500, 500}, {800, 500}, {800, 800}, {500, 800}};
+  enemy->set_patrol_points(patrol_points);
+  world.add_object(std::move(enemy));
 
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();

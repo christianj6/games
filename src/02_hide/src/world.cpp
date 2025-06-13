@@ -1,4 +1,5 @@
 #include "world.h"
+#include "enemy.h"
 
 bool World::is_on_screen(const Vector2 &position) const {
   float margin = 100.0f; // Extra buffer zone around screen
@@ -14,7 +15,12 @@ void World::add_object(std::unique_ptr<GameObject> object) {
 }
 
 void World::update(float dt) {
+  Vector2 player_pos = player_ptr->get_position();
   for (auto &obj : objects) {
+    // Check if object is an enemy using dynamic_cast
+    if (auto enemy = dynamic_cast<Enemy *>(obj.get())) {
+      enemy->update_goap(dt, player_pos);
+    }
     obj->update(dt);
   }
 
@@ -27,6 +33,9 @@ void World::update(float dt) {
     Vector2 new_pos = player_ptr->get_position();
 
     for (auto &obj : objects) {
+      if (auto enemy = dynamic_cast<Enemy *>(obj.get())) {
+        break;
+      }
       if (CheckCollisionCircles(new_pos, 40, obj->get_position(), 120)) {
         Vector2 diff = {new_pos.x - obj->get_position().x,
                         new_pos.y - obj->get_position().y};
@@ -54,11 +63,18 @@ void World::draw() {
   BeginMode2D(camera);
 
   for (auto &obj : objects) {
-    if (is_on_screen(obj->get_position())) {
+    if (is_on_screen(obj->get_position()) || dynamic_cast<Enemy *>(obj.get())) {
       obj->draw();
     }
   }
   player_ptr->draw();
 
   EndMode2D();
+
+  // Draw screen-space elements after EndMode2D
+  for (auto &obj : objects) {
+    if (auto enemy = dynamic_cast<Enemy *>(obj.get())) {
+      enemy->draw_indicator(player_ptr->get_position());
+    }
+  }
 }
