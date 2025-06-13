@@ -21,6 +21,8 @@ private:
     float rotation_speed;
     Vector2 last_known_player_pos;
     bool can_see_player;
+    float search_timeout;    // How long to search last known position
+    float search_timer;      // Current search time
 
 public:
     Enemy(Vector2 starting_position = {0,0});

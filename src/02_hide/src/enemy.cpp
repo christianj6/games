@@ -12,6 +12,8 @@ Enemy::Enemy(Vector2 starting_position) : GameObject(starting_position) {
   rotation_speed = PI; // radians per second
   current_patrol_index = 0;
   can_see_player = false;
+  search_timeout = 3.0f; // 3 seconds to search last known position
+  search_timer = 0.0f;
 
   // Set up default patrol points if none provided
   patrol_points = {starting_position, Vector2Add(starting_position, {200, 0}),
@@ -105,14 +107,24 @@ void Enemy::update(float dt, bool allow_movement) {
     if (Vector2Distance(position, target_pos) < 10.0f) {
       current_patrol_index = (current_patrol_index + 1) % patrol_points.size();
     }
+    search_timer = 0.0f; // Reset timer when patrolling
     break;
 
   case EnemyState::CHASE:
     target_pos = last_known_player_pos;
+    search_timer = 0.0f; // Reset timer when chasing
     break;
 
   case EnemyState::RETURN_TO_PATROL:
-    target_pos = patrol_points[current_patrol_index];
+    if (Vector2Distance(position, last_known_player_pos) > 10.0f &&
+        search_timer < search_timeout) {
+      // Still heading to last known position and haven't timed out
+      target_pos = last_known_player_pos;
+      search_timer += dt;
+    } else {
+      // Either reached the position or timed out, return to patrol
+      target_pos = patrol_points[current_patrol_index];
+    }
     break;
   }
 
