@@ -31,6 +31,16 @@ Top-down game where player must hide from a searching enemy. Working with pointe
 
 ***
 
+#### 03_shoot
+First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions, CMake build system.
+
+***
+
+#### 04_teleport
+Larger game world with teleportation mechanic. Polishing game development and C++ experience, Web Assembly build for browser support.
+
+***
+
 #### To Do 
 - [x] Jump
 - [x] Collect
