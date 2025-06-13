@@ -8,9 +8,14 @@
 #include <sstream>
 #include <string>
 
+// TODO: game over if enemy touches the player
+// TODO: full screen support
+// TODO: goal for the player (collecting n items?)
+// TODO: balance, tidy codebase, finish
+
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-  InitWindow(1280, 800, "Hide");
+  InitWindow(2560, 1600, "Hide");
   SetTargetFPS(60);
 
   // use a world object to manage update and rendering for all game objects
