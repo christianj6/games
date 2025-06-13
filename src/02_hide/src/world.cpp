@@ -24,21 +24,25 @@ void World::update(float dt) {
 
     // Try to move the player
     player_ptr->update(dt, true);
-
-    // Check for collisions after attempted movement
-    bool colliding = false;
     Vector2 new_pos = player_ptr->get_position();
 
     for (auto &obj : objects) {
       if (CheckCollisionCircles(new_pos, 40, obj->get_position(), 120)) {
-        colliding = true;
-        break;
-      }
-    }
+        Vector2 diff = {new_pos.x - obj->get_position().x,
+                        new_pos.y - obj->get_position().y};
 
-    // If colliding, reset to original position
-    if (colliding) {
-      player_ptr->set_position(original_pos);
+        // Normalize the direction
+        float length = sqrtf(diff.x * diff.x + diff.y * diff.y);
+        if (length > 0) {
+          diff.x /= length;
+          diff.y /= length;
+        }
+
+        // lightly 'bounce' the player off the obstacle
+        const float bounce = 30.0f;
+        player_ptr->set_position({original_pos.x + diff.x * bounce,
+                                  original_pos.y + diff.y * bounce});
+      }
     }
 
     // Update camera to follow player
