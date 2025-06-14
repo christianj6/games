@@ -15,6 +15,8 @@ Enemy::Enemy(Vector2 starting_position, int num_patrol_points)
   can_see_player = false;
   search_timeout = 3.0f; // 3 seconds to search last known position
   search_timer = 0.0f;
+  patrol_update_timer = 0.0f;
+  patrol_update_interval = 4.0f; // Update a patrol point every 4 seconds
 
   generate_patrol_points(num_patrol_points);
 }
@@ -71,6 +73,17 @@ bool Enemy::has_line_of_sight(
 void Enemy::update_goap(float dt, const Vector2 &player_pos,
                         const std::vector<GameObject *> &obstacles) {
   can_see_player = is_player_in_vision_cone(player_pos, obstacles);
+
+  // Update patrol points occasionally
+  patrol_update_timer += dt;
+  if (patrol_update_timer >= patrol_update_interval) {
+    patrol_update_timer = 0.0f;
+    // Replace a random patrol point with the player's position
+    if (!patrol_points.empty()) {
+      size_t random_index = GetRandomValue(0, patrol_points.size() - 1);
+      patrol_points[random_index] = player_pos;
+    }
+  }
 
   switch (current_state) {
   case EnemyState::PATROL:

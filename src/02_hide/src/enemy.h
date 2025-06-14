@@ -25,6 +25,8 @@ private:
     bool can_see_player;
     float search_timeout;    // How long to search last known position
     float search_timer;      // Current search time
+    float patrol_update_timer; // Timer for updating patrol points
+    float patrol_update_interval; // How often to update patrol points
 
 public:
     Enemy(Vector2 starting_position = {0,0}, int num_patrol_points = 10);
