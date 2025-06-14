@@ -44,7 +44,7 @@ Larger game world with teleportation mechanic. Polishing game development and C+
 #### To Do 
 - [x] Jump
 - [x] Collect
-- [ ] Hide
+- [x] Hide
 - [ ] Shoot
 - [ ] Teleport
 - [ ] Chat
