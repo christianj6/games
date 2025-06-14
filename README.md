@@ -37,7 +37,7 @@ First-person shooter with patrolling enemies. Continuing to refine experience wi
 ***
 
 #### 04_teleport
-Larger game world with teleportation mechanic. Polishing game development and C++ experience, Web Assembly build for browser support.
+Larger game world with teleportation mechanic. Polishing game development and C++ capabilities, project organization, and Web Assembly build for browser support.
 
 ***
 
