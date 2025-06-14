@@ -1,11 +1,11 @@
 #!/bin/bash
 
-PROJECT="02_hide"
+PROJECT="03_shoot"
 set -e 
 
 # autoformat
 cd src/${PROJECT}/src 
-clang-format -i -- **.cpp #**.h
+clang-format -i -- **.cpp **.h
 
 # change the project dir to build different games
 cd ../build
