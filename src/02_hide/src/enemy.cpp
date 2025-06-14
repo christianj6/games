@@ -23,7 +23,10 @@ Enemy::Enemy(Vector2 starting_position) : GameObject(starting_position) {
 
 bool Enemy::is_player_in_vision_cone(
     const Vector2 &player_pos,
+    // because cpp syntax is a little cursed, you can put the & or * either to
+    // the right of the type or to the left of the variable name
     const std::vector<GameObject *> &obstacles) const {
+  // get direction from enemy to player
   Vector2 to_player = Vector2Subtract(player_pos, position);
   float distance = Vector2Length(to_player);
 
@@ -32,10 +35,13 @@ bool Enemy::is_player_in_vision_cone(
 
   float angle_to_player = atan2f(to_player.y, to_player.x);
   float angle_diff = fabs(angle_to_player - rotation);
+  // ensure angle is always the smallest (handle wrap around case)
   while (angle_diff > PI)
     angle_diff = 2 * PI - angle_diff;
 
   if (angle_diff > vision_angle / 2)
+    // if the smallest angle to the player is greater than half of the vision
+    // cone size, means player is outside of the cone
     return false;
 
   return has_line_of_sight(player_pos, obstacles);
@@ -100,6 +106,7 @@ void Enemy::update(float dt, bool allow_movement) {
   if (!allow_movement)
     return;
 
+  // define a vector target pos representing where the enemy is currently going
   Vector2 target_pos;
   switch (current_state) {
   case EnemyState::PATROL:
@@ -130,6 +137,7 @@ void Enemy::update(float dt, bool allow_movement) {
 
   // Calculate direction to target
   Vector2 direction = Vector2Subtract(target_pos, position);
+  // atan2f lets you convert a vector to an angle (radians)
   float target_rotation = atan2f(direction.y, direction.x);
 
   // Smoothly rotate towards target
@@ -152,7 +160,7 @@ void Enemy::draw() {
   DrawCircle(position.x, position.y, 30, RED);
 
   // Draw vision cone
-  Color vision_color = can_see_player ? YELLOW : GRAY;
+  Color vision_color = can_see_player ? YELLOW : GRAY; // ternary operator
   vision_color.a = 100;
 
   float start_angle = rotation - vision_angle / 2;
@@ -171,9 +179,6 @@ void Enemy::draw_indicator(Vector2 player_position) {
 
   // Get screen center (representing player position)
   Vector2 screen_center = {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
-
-  // Draw player representation
-  DrawCircle(screen_center.x, screen_center.y, 10, BLUE);
 
   // Calculate normalized direction and scale it to desired distance from center
   Vector2 screen_dir = Vector2Normalize(dir);

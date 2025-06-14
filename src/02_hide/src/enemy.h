@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include <vector>
 
+// enum class means we are enforcing stricter typing on the enum members, as opposed to a c-style class
 enum class EnemyState {
     PATROL,
     CHASE,
@@ -13,6 +14,7 @@ class Enemy : public GameObject {
 private:
     EnemyState current_state;
     std::vector<Vector2> patrol_points;
+    // size_t is unsigned int which is as large as any obj in memory; used typically to represent container sizes
     size_t current_patrol_index;
     float vision_angle;  // in radians
     float vision_range;  // how far the enemy can see
@@ -30,6 +32,7 @@ public:
     void draw() override;
     void draw_indicator(Vector2);
     void set_patrol_points(const std::vector<Vector2>& points);
+    // syntax here means we are passing a vector of game object pointers by reference, promising not to change them
     bool is_player_in_vision_cone(const Vector2& player_pos, const std::vector<GameObject*>& obstacles) const;
     void update_goap(float dt, const Vector2& player_pos, const std::vector<GameObject*>& obstacles);
     bool has_line_of_sight(const Vector2& target_pos, const std::vector<GameObject*>& obstacles) const;
