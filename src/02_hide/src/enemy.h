@@ -34,6 +34,7 @@ public:
     void set_patrol_points(const std::vector<Vector2>& points);
     // syntax here means we are passing a vector of game object pointers by reference, promising not to change them
     bool is_player_in_vision_cone(const Vector2& player_pos, const std::vector<GameObject*>& obstacles) const;
+    bool is_touching_player(const Vector2& player_pos) const;
     void update_goap(float dt, const Vector2& player_pos, const std::vector<GameObject*>& obstacles);
     bool has_line_of_sight(const Vector2& target_pos, const std::vector<GameObject*>& obstacles) const;
 };

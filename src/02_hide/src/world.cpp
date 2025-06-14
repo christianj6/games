@@ -14,14 +14,19 @@ void World::add_object(std::unique_ptr<GameObject> object) {
   objects.push_back(std::move(object));
 }
 
-void World::update(float dt) {
+bool World::update(float dt) {
   Vector2 player_pos = player_ptr->get_position();
+  bool gameover;
   for (auto &obj : objects) {
     // Check if object is an enemy using dynamic_cast
     if (auto enemy = dynamic_cast<Enemy *>(obj.get())) {
       enemy->update_goap(dt, player_pos, get_obstacles());
+      gameover = enemy->is_touching_player(player_pos);
     }
     obj->update(dt);
+  }
+  if (gameover) {
+    return false;
   }
 
   if (player_ptr) {
@@ -57,6 +62,7 @@ void World::update(float dt) {
     // Update camera to follow player
     camera.target = player_ptr->get_position();
   }
+  return true;
 }
 
 std::vector<GameObject *> World::get_obstacles() const {

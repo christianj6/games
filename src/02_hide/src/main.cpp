@@ -5,10 +5,6 @@
 #include "world.h"
 #include <memory>
 
-#include <sstream>
-#include <string>
-
-// TODO: game over if enemy touches the player
 // TODO: goal for the player (collecting n items?)
 // TODO: balance, tidy codebase, finish
 
@@ -34,21 +30,25 @@ int main() {
   enemy->set_patrol_points(patrol_points);
   world.add_object(std::move(enemy));
 
+  bool gameover;
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
 
     BeginDrawing();
     ClearBackground(BLACK);
 
-    world.update(dt);
-    world.draw();
-
-    /*// draw some debug info*/
-    /*DrawText(std::to_string(GetFPS()).c_str(), 5, 5, 24, WHITE);*/
-    /*Vector2 player_position = world.get_player_ptr()->get_position();*/
-    /*std::ostringstream oss;*/
-    /*oss << player_position.x << ", " << player_position.y;*/
-    /*DrawText(oss.str().c_str(), 5, 25, 24, WHITE);*/
+    if (!gameover) {
+      gameover = !world.update(dt);
+      world.draw();
+    } else {
+      DrawText("loser", GetScreenWidth() / 2, GetScreenHeight() / 2, 50, RED);
+      DrawText("press ENTER to restart", GetScreenWidth() / 2,
+               (GetScreenHeight() / 2) + 60, 20, GRAY);
+      if (IsKeyPressed(KEY_ENTER)) {
+        gameover = false;
+        world.get_player_ptr()->set_position({0, 0});
+      }
+    }
 
     EndDrawing();
   }

@@ -24,7 +24,7 @@ public:
     ~World() = default;
 
     void add_object(std::unique_ptr<GameObject> object);
-    void update(float dt);
+    bool update(float dt);
     void draw();         
     
     // returns raw pointer to the player without transferring ownership

@@ -192,6 +192,10 @@ void Enemy::draw_indicator(Vector2 player_position) {
   DrawCircle(indicator_pos.x, indicator_pos.y, 5, RED);
 }
 
+bool Enemy::is_touching_player(const Vector2 &player_pos) const {
+  return CheckCollisionCircles(position, 30, player_pos, 40);
+}
+
 void Enemy::set_patrol_points(const std::vector<Vector2> &points) {
   patrol_points = points;
   current_patrol_index = 0;
