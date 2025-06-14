@@ -5,7 +5,6 @@
 #include "world.h"
 #include <memory>
 
-// TODO: goal for the player (collecting n items?)
 // TODO: balance, tidy codebase, finish
 
 int main() {
@@ -22,12 +21,9 @@ int main() {
     world.add_object(std::make_unique<Obstacle>(obstacle));
   }
 
-  // TODO: make enemy patrol more dynamic, shifting this to constructor or sth
   Vector2 enemy_pos = {500, 500};
-  auto enemy = std::make_unique<Enemy>(enemy_pos);
-  std::vector<Vector2> patrol_points = {
-      {500, 500}, {800, 500}, {800, 800}, {500, 800}};
-  enemy->set_patrol_points(patrol_points);
+  auto enemy =
+      std::make_unique<Enemy>(enemy_pos, 5); // Create with 5 patrol points
   world.add_object(std::move(enemy));
 
   bool gameover;

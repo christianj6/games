@@ -3,22 +3,20 @@
 #include "raymath.h"
 #include <cmath>
 
-Enemy::Enemy(Vector2 starting_position) : GameObject(starting_position) {
+Enemy::Enemy(Vector2 starting_position, int num_patrol_points)
+    : GameObject(starting_position) {
   current_state = EnemyState::PATROL;
   vision_angle = PI / 3.0f; // 60 degrees
   vision_range = 600.0f;
   rotation = 0.0f;
-  move_speed = 200.0f;
+  move_speed = 450.0f;
   rotation_speed = PI; // radians per second
   current_patrol_index = 0;
   can_see_player = false;
   search_timeout = 3.0f; // 3 seconds to search last known position
   search_timer = 0.0f;
 
-  // Set up default patrol points if none provided
-  patrol_points = {starting_position, Vector2Add(starting_position, {200, 0}),
-                   Vector2Add(starting_position, {200, 200}),
-                   Vector2Add(starting_position, {0, 200})};
+  generate_patrol_points(num_patrol_points);
 }
 
 bool Enemy::is_player_in_vision_cone(
@@ -199,4 +197,23 @@ bool Enemy::is_touching_player(const Vector2 &player_pos) const {
 void Enemy::set_patrol_points(const std::vector<Vector2> &points) {
   patrol_points = points;
   current_patrol_index = 0;
+}
+
+void Enemy::generate_patrol_points(int num_points) {
+  patrol_points.clear();
+
+  // Generate points in a semi-random pattern around the starting position
+  float radius = 1000.0f; // Base radius for patrol area
+  float angle_step = (2 * PI) / num_points;
+
+  for (int i = 0; i < num_points; i++) {
+    float angle = angle_step * i;
+    // Add some randomness to both radius and angle
+    float random_radius = radius * (0.8f + (GetRandomValue(0, 40) / 100.0f));
+    float random_angle = angle + (GetRandomValue(-10, 10) / 100.0f);
+
+    Vector2 point = {position.x + random_radius * cosf(random_angle),
+                     position.y + random_radius * sinf(random_angle)};
+    patrol_points.push_back(point);
+  }
 }

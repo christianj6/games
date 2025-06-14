@@ -27,7 +27,8 @@ private:
     float search_timer;      // Current search time
 
 public:
-    Enemy(Vector2 starting_position = {0,0});
+    Enemy(Vector2 starting_position = {0,0}, int num_patrol_points = 10);
+    void generate_patrol_points(int num_points);
     void update(float dt, bool allow_movement = true) override;
     void draw() override;
     void draw_indicator(Vector2);
