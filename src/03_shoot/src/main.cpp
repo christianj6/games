@@ -1,20 +1,18 @@
 #include "raylib.h"
 
-int main ()
-{
-	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-	InitWindow(1280, 800, "Hello Raylib");
-	
-	while (!WindowShouldClose())
-	{
-		BeginDrawing();
+int main() {
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+  InitWindow(1280, 800, "Hello Raylib");
 
-		ClearBackground(BLACK);
-		DrawText("Hello Raylib", 200,200,20,WHITE);
-		
-		EndDrawing();
-	}
+  while (!WindowShouldClose()) {
+    BeginDrawing();
 
-	CloseWindow();
-	return 0;
+    ClearBackground(BLACK);
+    DrawText("Hello Raylib", 200, 200, 20, WHITE);
+
+    EndDrawing();
+  }
+
+  CloseWindow();
+  return 0;
 }
