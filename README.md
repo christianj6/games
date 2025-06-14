@@ -41,10 +41,22 @@ Larger game world with teleportation mechanic. Polishing game development and C+
 
 ***
 
+#### 05_explore
+Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices.
+
+***
+
+#### 06_mingle
+Experimenting with NPC interactions via llama.cpp and multithreading. Expanding skills with performance and code organization while scoping larger project.
+
+***
+
 #### To Do 
 - [x] Jump
 - [x] Collect
 - [x] Hide
 - [ ] Shoot
 - [ ] Teleport
-- [ ] Chat
+- [ ] Explore
+- [ ] Mingle
+- [ ] Tidy, finish, plan larger project
