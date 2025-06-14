@@ -33,3 +33,7 @@ void World::draw() {
     obstacle->draw();
   }
 }
+
+void World::update(float dt) {
+  // TODO
+}

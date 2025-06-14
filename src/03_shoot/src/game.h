@@ -1,4 +1,5 @@
 #pragma once
+#include "hud.h"
 #include "player.h"
 #include "world.h"
 
@@ -11,5 +12,5 @@ public:
 private:
   World world;
   Player player;
-  // TODO: consider adding a screen member
+  Hud hud;
 };
