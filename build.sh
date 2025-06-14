@@ -1,9 +1,10 @@
 #!/bin/bash
 
+PROJECT="02_hide"
 set -e 
 
 # autoformat
-cd src/01_collect/src 
+cd src/${PROJECT}/src 
 clang-format -i -- **.cpp #**.h
 
 # change the project dir to build different games
@@ -17,4 +18,4 @@ cd ..
 make
 
 # run the game 
-./bin/Debug/01_collect
+./bin/Debug/${PROJECT}

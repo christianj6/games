@@ -2,7 +2,6 @@
 #include "enemy.h"
 #include "player.h"
 #include "raylib.h"
-#include <cstdio>
 
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
