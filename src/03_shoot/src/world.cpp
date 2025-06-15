@@ -32,14 +32,14 @@ Vector3 get_random_position(float height) {
 }
 
 Color get_random_color() {
-  std::vector<Color> colors = {BLUE, RED, YELLOW};
+  std::vector<Color> colors = {GRAY, RAYWHITE, DARKPURPLE};
 
   static std::mt19937 gen(std::random_device{}());
   std::uniform_int_distribution<> dist(0, colors.size() - 1);
   return colors[dist(gen)];
 }
 
-World::World() : obstacles(), walls() {
+World::World() : obstacles(), walls(), enemies() {
   // obstacles
   const int n = 100;
   const int max_attempts = 100; // Maximum attempts to place each obstacle
@@ -69,6 +69,12 @@ World::World() : obstacles(), walls() {
     Color color = get_random_color();
     obstacles.push_back(std::make_unique<Obstacle>(height, position, color));
   }
+  // Add some enemies
+  const int num_enemies = 3;
+  for (int i = 0; i < num_enemies; i++) {
+    enemies.push_back(std::make_unique<Enemy>());
+  }
+
   // walls
   const float wall_height = 50.0f;
   const Color wall_color = DARKGRAY;
@@ -107,6 +113,9 @@ void World::draw() {
   }
   for (auto &wall : walls) {
     wall->draw();
+  }
+  for (auto &enemy : enemies) {
+    enemy->draw();
   }
 }
 
@@ -158,5 +167,7 @@ CollisionInfo World::check_collision(const Vector3 &position) const {
 }
 
 void World::update(float dt) {
-  // TODO
+  for (auto &enemy : enemies) {
+    enemy->update(dt);
+  }
 }

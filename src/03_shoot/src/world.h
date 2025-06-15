@@ -1,4 +1,5 @@
 #pragma once
+#include "enemy.h"
 #include "obstacle.h"
 #include "wall.h"
 #include <memory>
@@ -19,4 +20,5 @@ public:
 private:
   std::vector<std::unique_ptr<Obstacle>> obstacles;
   std::vector<std::unique_ptr<Wall>> walls;
+  std::vector<std::unique_ptr<Enemy>> enemies;
 };
