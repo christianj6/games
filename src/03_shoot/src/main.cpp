@@ -1,7 +1,6 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: player cannot scroll to jack up the camera
 // TODO: obstacles cannot spawn on top of one another
 // TODO: make area slightly larger and add walls
 // TODO: player cannot pass through walls or obstacles
@@ -9,6 +8,7 @@
 // TODO: game over if enemy gets too close to the player
 // TODO: shooting mechanic which allows the player to shoot the enemy and "win"
 // TODO: weapon which allows the player to access the shooting mechanic
+// TODO: cmake build system
 // TODO: balance, tidy, finish
 
 int main() {

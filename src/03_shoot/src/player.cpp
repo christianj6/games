@@ -28,7 +28,7 @@ void Player::handle_input() {
           GetMouseDelta().y * camera_sensitivity, // Rotation: pitch
           0.0f                                    // Rotation: roll
       },
-      GetMouseWheelMove() * 2.0f);
+      0.0f); // disable zoom
 }
 
 void Player::update(float dt) {
