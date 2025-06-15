@@ -1,6 +1,7 @@
 #include "player.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "world.h"
 
 Player::Player() : camera() {
   camera.position = (Vector3){0.0f, 1.8f, 4.0f}; // More natural eye height
@@ -14,24 +15,35 @@ Vector3 Player::try_move(Vector3 movement) const {
   if (!world)
     return movement;
 
+  // Try full movement first
   Vector3 new_pos = {camera.position.x + movement.x, camera.position.y,
                      camera.position.z + movement.z};
 
-  // If movement causes collision, try moving along individual axes
-  if (world->check_collision(new_pos)) {
-    Vector3 try_x = {camera.position.x + movement.x, camera.position.y,
-                     camera.position.z};
-    Vector3 try_z = {camera.position.x, camera.position.y,
-                     camera.position.z + movement.z};
-
-    bool can_move_x = !world->check_collision(try_x);
-    bool can_move_z = !world->check_collision(try_z);
-
-    movement.x = can_move_x ? movement.x : 0.0f;
-    movement.z = can_move_z ? movement.z : 0.0f;
+  CollisionInfo collision = world->check_collision(new_pos);
+  if (!collision.collision) {
+    return movement;
   }
 
-  return movement;
+  // If there's a collision, calculate the sliding vector
+  Vector3 normal = collision.normal;
+
+  // Project movement onto the normal
+  float dot = movement.x * normal.x + movement.z * normal.z;
+
+  // Calculate the sliding vector by removing the normal component
+  Vector3 slide = {movement.x - normal.x * dot, 0, movement.z - normal.z * dot};
+
+  // Try the sliding movement
+  new_pos = {camera.position.x + slide.x, camera.position.y,
+             camera.position.z + slide.z};
+
+  // If sliding movement also collides, scale it down
+  if (world->check_collision(new_pos).collision) {
+    slide.x *= 0.5f;
+    slide.z *= 0.5f;
+  }
+
+  return slide;
 }
 
 void Player::handle_input() {

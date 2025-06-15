@@ -1,5 +1,6 @@
 #include "world.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <memory>
 #include <random>
 
@@ -109,23 +110,32 @@ void World::draw() {
   }
 }
 
-bool World::check_collision(const Vector3 &position) const {
+CollisionInfo World::check_collision(const Vector3 &position) const {
   const float PLAYER_RADIUS = 0.5f;
+  CollisionInfo result = {false, {0, 0, 0}};
 
   // Check wall collisions
   for (const auto &wall : walls) {
     Vector3 wall_pos = wall->position;
     if (wall->rotate90) {
       // Wall along X axis
-      if (fabs(position.z - wall_pos.z) < (1.0f + PLAYER_RADIUS) &&
-          fabs(position.x - wall_pos.x) < (wall->length / 2 + PLAYER_RADIUS)) {
-        return true;
+      float dist_z = position.z - wall_pos.z;
+      float dist_x = fabs(position.x - wall_pos.x);
+      if (fabs(dist_z) < (1.0f + PLAYER_RADIUS) &&
+          dist_x < (wall->length / 2 + PLAYER_RADIUS)) {
+        result.collision = true;
+        result.normal = {0, 0, (dist_z > 0) ? 1.0f : -1.0f};
+        return result;
       }
     } else {
       // Wall along Z axis
-      if (fabs(position.x - wall_pos.x) < (1.0f + PLAYER_RADIUS) &&
-          fabs(position.z - wall_pos.z) < (wall->length / 2 + PLAYER_RADIUS)) {
-        return true;
+      float dist_x = position.x - wall_pos.x;
+      float dist_z = fabs(position.z - wall_pos.z);
+      if (fabs(dist_x) < (1.0f + PLAYER_RADIUS) &&
+          dist_z < (wall->length / 2 + PLAYER_RADIUS)) {
+        result.collision = true;
+        result.normal = {(dist_x > 0) ? 1.0f : -1.0f, 0, 0};
+        return result;
       }
     }
   }
@@ -136,12 +146,15 @@ bool World::check_collision(const Vector3 &position) const {
     float dx = position.x - obs_pos.x;
     float dz = position.z - obs_pos.z;
     float distance = sqrt(dx * dx + dz * dz);
-    if (distance < (1.0f + PLAYER_RADIUS)) { // 1.0f is obstacle radius
-      return true;
+    if (distance < (1.0f + PLAYER_RADIUS)) {
+      result.collision = true;
+      // Calculate normal from obstacle center to player
+      result.normal = Vector3Normalize({dx, 0, dz});
+      return result;
     }
   }
 
-  return false;
+  return result;
 }
 
 void World::update(float dt) {
