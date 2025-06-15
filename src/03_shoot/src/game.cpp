@@ -1,7 +1,7 @@
 #include "game.h"
 #include "raylib.h"
 
-Game::Game() : world(), player(), hud() {}
+Game::Game() : world(), player(), hud() { player.set_world(&world); }
 
 void Game::update() {
   float dt = GetFrameTime();

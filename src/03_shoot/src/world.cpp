@@ -109,6 +109,41 @@ void World::draw() {
   }
 }
 
+bool World::check_collision(const Vector3 &position) const {
+  const float PLAYER_RADIUS = 0.5f;
+
+  // Check wall collisions
+  for (const auto &wall : walls) {
+    Vector3 wall_pos = wall->position;
+    if (wall->rotate90) {
+      // Wall along X axis
+      if (fabs(position.z - wall_pos.z) < (1.0f + PLAYER_RADIUS) &&
+          fabs(position.x - wall_pos.x) < (wall->length / 2 + PLAYER_RADIUS)) {
+        return true;
+      }
+    } else {
+      // Wall along Z axis
+      if (fabs(position.x - wall_pos.x) < (1.0f + PLAYER_RADIUS) &&
+          fabs(position.z - wall_pos.z) < (wall->length / 2 + PLAYER_RADIUS)) {
+        return true;
+      }
+    }
+  }
+
+  // Check obstacle collisions
+  for (const auto &obstacle : obstacles) {
+    Vector3 obs_pos = obstacle->get_position();
+    float dx = position.x - obs_pos.x;
+    float dz = position.z - obs_pos.z;
+    float distance = sqrt(dx * dx + dz * dz);
+    if (distance < (1.0f + PLAYER_RADIUS)) { // 1.0f is obstacle radius
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void World::update(float dt) {
   // TODO
 }

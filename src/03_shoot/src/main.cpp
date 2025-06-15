@@ -1,7 +1,6 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: make area slightly larger and add walls
 // TODO: player cannot pass through walls or obstacles
 // TODO: floating ball enemy which hunts the player as in 02_hide game
 // TODO: game over if enemy gets too close to the player

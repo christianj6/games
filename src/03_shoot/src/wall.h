@@ -7,7 +7,7 @@ public:
        bool rotate90 = false);
   void draw();
 
-private:
+public: // Made public for collision detection
   Vector3 position;
   float height;
   float length;
