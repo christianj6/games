@@ -1,5 +1,8 @@
 #pragma once
 #include "raylib.h"
+#include <vector>
+
+enum class EnemyState { PATROL, CHASE, RETURN_TO_PATROL };
 
 class Enemy {
 public:
@@ -9,10 +12,17 @@ public:
   Vector3 get_position() const { return position; }
 
 private:
+  // draw properties
   Vector3 position;
-  float patrol_radius; // Radius of patrol circle
-  float patrol_speed;  // Speed of movement in radians/sec
-  float patrol_angle;  // Current angle in patrol circle
-  float sphere_radius; // Radius of enemy sphere
-  Color color;         // Color of enemy sphere
+  float radius;
+  Color color;
+  // state management
+  EnemyState state;
+  void update_state();
+  // movement
+  std::vector<Vector3> patrol_points;
+  void generate_patrol_points(int n);
+  Vector3 get_random_position(float);
+  size_t current_patrol_point_index;
+  float movement_speed;
 };
