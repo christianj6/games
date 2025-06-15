@@ -3,14 +3,11 @@
 #include "raymath.h"
 
 Player::Player() : camera() {
-  camera.position = (Vector3){0.0f, 2.0f, 4.0f}; // Camera position
-  camera.target = (Vector3){0.0f, 2.0f, 0.0f};   // Camera looking at point
-  camera.up =
-      (Vector3){0.0f, 1.0f, 0.0f}; // Camera up vector (rotation towards target)
-  camera.fovy = 60.0f;             // Camera field-of-view Y
-  camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
-
-  int cameraMode = CAMERA_FIRST_PERSON;
+  camera.position = (Vector3){0.0f, 1.8f, 4.0f}; // More natural eye height
+  camera.target = (Vector3){0.0f, 1.8f, 0.0f};   // Looking forward
+  camera.up = (Vector3){0.0f, 1.0f, 0.0f};       // Camera up vector
+  camera.fovy = 60.0f; // Wider FOV for better visibility
+  camera.projection = CAMERA_PERSPECTIVE;
 }
 
 Vector3 Player::try_move(Vector3 movement) const {
@@ -38,8 +35,8 @@ Vector3 Player::try_move(Vector3 movement) const {
 }
 
 void Player::handle_input() {
-  float camera_sensitivity = 0.25f;
-  float speed = 0.1f;
+  float camera_sensitivity = 0.095f; // Increased camera movement speed
+  float speed = 0.15f;               // Reduced movement speed
   // Get forward vector (normalized direction vector from position to target)
   Vector3 forward = {camera.target.x - camera.position.x,
                      camera.target.y - camera.position.y,
