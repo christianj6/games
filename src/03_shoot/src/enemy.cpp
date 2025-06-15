@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "raylib.h"
 #include "raymath.h"
 #include <math.h>
 
@@ -128,7 +129,6 @@ void Enemy::draw() {
 
   // Draw vision cone
   Color vision_color = can_see_player ? RED : YELLOW;
-  vision_color.a = 100; // Make it semi-transparent
 
   // Calculate cone points
   Vector3 right_dir = Vector3RotateByAxisAngle(
@@ -141,7 +141,10 @@ void Enemy::draw() {
   Vector3 cone_left =
       Vector3Add(position, Vector3Scale(left_dir, vision_range));
 
-  // Draw vision cone lines
+  // Draw filled vision cone using triangles
+  DrawTriangle3D(position, cone_right, cone_left, Fade(vision_color, 0.5f));
+
+  // Draw vision cone outline
   DrawLine3D(position, cone_right, vision_color);
   DrawLine3D(position, cone_left, vision_color);
   DrawLine3D(cone_right, cone_left, vision_color);
