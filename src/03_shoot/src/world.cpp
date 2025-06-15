@@ -3,6 +3,7 @@
 #include <memory>
 #include <random>
 
+const float playing_field_size = 100.f;
 
 bool check_obstacle_collision(const Vector3 &pos1, float height1,
                               const Vector3 &pos2, float height2) {
@@ -20,8 +21,11 @@ bool check_obstacle_collision(const Vector3 &pos1, float height1,
 }
 
 Vector3 get_random_position(float height) {
-  return (Vector3){(float)GetRandomValue(-15, 15), height / 2.0f,
-                   (float)GetRandomValue(-15, 15)};
+  return (Vector3){
+      (float)GetRandomValue(0 - playing_field_size / 2, playing_field_size / 2),
+      height / 2.0f,
+      (float)GetRandomValue(0 - playing_field_size / 2,
+                            playing_field_size / 2)};
 }
 
 Color get_random_color() {
@@ -33,7 +37,7 @@ Color get_random_color() {
 }
 
 World::World() : obstacles() {
-  const int n = 10;
+  const int n = 100;
   const int max_attempts = 100; // Maximum attempts to place each obstacle
 
   for (int i = 0; i < n; i++) {
@@ -65,7 +69,8 @@ World::World() : obstacles() {
 }
 
 void World::draw() {
-  DrawPlane((Vector3){0.0f, 0.0f, 0.0f}, (Vector2){32.0f, 32.0f}, LIGHTGRAY);
+  DrawPlane((Vector3){0.0f, 0.0f, 0.0f},
+            (Vector2){playing_field_size, playing_field_size}, LIGHTGRAY);
   for (auto &obstacle : obstacles) {
     obstacle->draw();
   }
