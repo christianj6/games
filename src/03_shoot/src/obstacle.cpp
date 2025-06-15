@@ -10,6 +10,10 @@ void Obstacle::draw() {
 
   // Draw the edges in a darker color
   Color lineColor = BLACK;
+  // why does this equivalence check below not work, AI?
+  if (ColorIsEqual(color, BLACK)) {
+    lineColor = GRAY;
+  }
   lineColor.a = 255; // Ensure lines are fully opaque
 
   // Draw wireframe cube slightly larger to prevent z-fighting

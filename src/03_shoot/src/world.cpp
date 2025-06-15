@@ -32,7 +32,7 @@ Vector3 get_random_position(float height) {
 }
 
 Color get_random_color() {
-  std::vector<Color> colors = {GRAY, RAYWHITE, DARKPURPLE};
+  std::vector<Color> colors = {GRAY, RAYWHITE, DARKPURPLE, BLACK};
 
   static std::mt19937 gen(std::random_device{}());
   std::uniform_int_distribution<> dist(0, colors.size() - 1);
