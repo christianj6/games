@@ -24,26 +24,35 @@ Vector3 Player::try_move(Vector3 movement) const {
     return movement;
   }
 
-  // If there's a collision, calculate the sliding vector
-  Vector3 normal = collision.normal;
+  // Try moving along X axis only
+  Vector3 x_movement = {movement.x, 0, 0};
+  new_pos = {camera.position.x + x_movement.x, camera.position.y,
+             camera.position.z + x_movement.z};
 
-  // Project movement onto the normal
-  float dot = movement.x * normal.x + movement.z * normal.z;
+  bool can_move_x = !world->check_collision(new_pos).collision;
 
-  // Calculate the sliding vector by removing the normal component
-  Vector3 slide = {movement.x - normal.x * dot, 0, movement.z - normal.z * dot};
+  // Try moving along Z axis only
+  Vector3 z_movement = {0, 0, movement.z};
+  new_pos = {camera.position.x + z_movement.x, camera.position.y,
+             camera.position.z + z_movement.z};
 
-  // Try the sliding movement
-  new_pos = {camera.position.x + slide.x, camera.position.y,
-             camera.position.z + slide.z};
+  bool can_move_z = !world->check_collision(new_pos).collision;
 
-  // If sliding movement also collides, scale it down
-  if (world->check_collision(new_pos).collision) {
-    slide.x *= 0.5f;
-    slide.z *= 0.5f;
+  // Handle different collision cases
+  if (can_move_x && can_move_z) {
+    // If both directions are free, use sliding as before
+    Vector3 normal = collision.normal;
+    float dot = movement.x * normal.x + movement.z * normal.z;
+    return (Vector3){movement.x - normal.x * dot, 0,
+                     movement.z - normal.z * dot};
+  } else if (can_move_x) {
+    return x_movement;
+  } else if (can_move_z) {
+    return z_movement;
   }
 
-  return slide;
+  // If no movement is possible, stop completely
+  return (Vector3){0, 0, 0};
 }
 
 void Player::handle_input() {
