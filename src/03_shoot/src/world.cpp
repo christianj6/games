@@ -21,11 +21,13 @@ bool check_obstacle_collision(const Vector3 &pos1, float height1,
 }
 
 Vector3 get_random_position(float height) {
-  return (Vector3){
-      (float)GetRandomValue(0 - playing_field_size / 2, playing_field_size / 2),
-      height / 2.0f,
-      (float)GetRandomValue(0 - playing_field_size / 2,
-                            playing_field_size / 2)};
+  const float margin = 5.0f;
+  const float min_pos = (-playing_field_size / 2.0f) + margin;
+  const float max_pos = (playing_field_size / 2.0f) - margin;
+
+  return (Vector3){(float)GetRandomValue((int)min_pos, (int)max_pos),
+                   height / 2.0f,
+                   (float)GetRandomValue((int)min_pos, (int)max_pos)};
 }
 
 Color get_random_color() {
@@ -36,10 +38,10 @@ Color get_random_color() {
   return colors[dist(gen)];
 }
 
-World::World() : obstacles() {
+World::World() : obstacles(), walls() {
+  // obstacles
   const int n = 100;
   const int max_attempts = 100; // Maximum attempts to place each obstacle
-
   for (int i = 0; i < n; i++) {
     float height = GetRandomValue(1, 12);
     Vector3 position;
@@ -66,6 +68,34 @@ World::World() : obstacles() {
     Color color = get_random_color();
     obstacles.push_back(std::make_unique<Obstacle>(height, position, color));
   }
+  // walls
+  const float wall_height = 50.0f;
+  const Color wall_color = DARKGRAY;
+  const float half_size = playing_field_size / 2.0f;
+
+  // North wall (along Z axis)
+  walls.push_back(std::make_unique<Wall>(
+      wall_height, Vector3{0.0f, wall_height / 2, -half_size}, wall_color,
+      playing_field_size,
+      true // rotated 90 degrees
+      ));
+
+  // South wall (along Z axis)
+  walls.push_back(std::make_unique<Wall>(
+      wall_height, Vector3{0.0f, wall_height / 2, half_size}, wall_color,
+      playing_field_size,
+      true // rotated 90 degrees
+      ));
+
+  // East wall (along X axis)
+  walls.push_back(std::make_unique<Wall>(
+      wall_height, Vector3{half_size, wall_height / 2, 0.0f}, wall_color,
+      playing_field_size));
+
+  // West wall (along X axis)
+  walls.push_back(std::make_unique<Wall>(
+      wall_height, Vector3{-half_size, wall_height / 2, 0.0f}, wall_color,
+      playing_field_size));
 }
 
 void World::draw() {
@@ -73,6 +103,9 @@ void World::draw() {
             (Vector2){playing_field_size, playing_field_size}, LIGHTGRAY);
   for (auto &obstacle : obstacles) {
     obstacle->draw();
+  }
+  for (auto &wall : walls) {
+    wall->draw();
   }
 }
 
