@@ -16,6 +16,10 @@ private:
   Vector3 position;
   float radius;
   Color color;
+  // vision cone
+  float vision_angle; // in radians
+  float vision_range;
+  Vector3 facing_direction;
   // state management
   EnemyState state;
   void update_state(float, const Vector3 &);

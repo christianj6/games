@@ -4,7 +4,9 @@
 
 Enemy::Enemy()
     : radius(0.8f), color(RED), movement_speed(1.3f),
-      position(get_random_position(20.0f)) {
+      position(get_random_position(20.0f)),
+      vision_angle(PI / 3.0f), // 60 degrees
+      vision_range(20.0f), facing_direction({1.0f, 0.0f, 0.0f}) {
   state = EnemyState::PATROL;
   generate_patrol_points(10);
 }
@@ -42,15 +44,35 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
   direction.x *= movement_speed * dt;
   direction.z *= movement_speed * dt;
 
-  // Update position
+  // Update position and facing direction
   position = Vector3Add(position, direction);
+  if (Vector3Length(direction) > 0.0f) {
+    facing_direction = Vector3Normalize(direction);
+  }
+
+  // Check if player is in vision cone
+  // Project player position to enemy's height plane for detection
+  Vector3 player_at_enemy_height = current_player_position;
+  player_at_enemy_height.y = position.y; // Project onto enemy's height plane
+
+  Vector3 to_player = Vector3Subtract(player_at_enemy_height, position);
+  float distance_to_player = Vector3Length(to_player);
+
+  if (distance_to_player <= vision_range) {
+    Vector3 to_player_normalized = Vector3Normalize(to_player);
+    float angle =
+        acosf(Vector3DotProduct(facing_direction, to_player_normalized));
+    can_see_player = angle <= vision_angle / 2.0f;
+  } else {
+    can_see_player = false;
+  }
+
   // update goap
   update_state(dt, current_player_position);
 }
 
 void Enemy::update_state(float dt, const Vector3 &current_player_position) {
   // TODO: shift all of this to the update function?
-  can_see_player = false; // TODO: real logic for this
   switch (state) {
   case EnemyState::PATROL:
     if (can_see_player) {
@@ -59,7 +81,6 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
     }
     break;
   case EnemyState::CHASE:
-    // TODO
     if (!can_see_player) {
       // TODO: cooldown before going in return to patrol state
       state = EnemyState::RETURN_TO_PATROL;
@@ -68,8 +89,13 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
     }
     break;
   case EnemyState::RETURN_TO_PATROL:
-    // TODO
-
+    if (can_see_player) {
+      state = EnemyState::CHASE;
+      last_known_player_position = current_player_position;
+    } else {
+      // TODO: additional logic?
+      state = EnemyState::PATROL;
+    }
     break;
   }
 }
@@ -99,4 +125,24 @@ void Enemy::draw() {
     // Draw line from enemy to current target
     DrawLine3D(position, target, RED);
   }
+
+  // Draw vision cone
+  Color vision_color = can_see_player ? RED : YELLOW;
+  vision_color.a = 100; // Make it semi-transparent
+
+  // Calculate cone points
+  Vector3 right_dir = Vector3RotateByAxisAngle(
+      facing_direction, (Vector3){0, 1, 0}, vision_angle / 2);
+  Vector3 left_dir = Vector3RotateByAxisAngle(
+      facing_direction, (Vector3){0, 1, 0}, -vision_angle / 2);
+
+  Vector3 cone_right =
+      Vector3Add(position, Vector3Scale(right_dir, vision_range));
+  Vector3 cone_left =
+      Vector3Add(position, Vector3Scale(left_dir, vision_range));
+
+  // Draw vision cone lines
+  DrawLine3D(position, cone_right, vision_color);
+  DrawLine3D(position, cone_left, vision_color);
+  DrawLine3D(cone_right, cone_left, vision_color);
 }
