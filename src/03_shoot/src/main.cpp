@@ -13,8 +13,7 @@ int main() {
   int width = GetMonitorWidth(monitor);
   int height = GetMonitorHeight(monitor);
 
-  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI |
-                 FLAG_WINDOW_TRANSPARENT);
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   InitWindow(width, height, "Shoot");
 
   // Center window on the current monitor
