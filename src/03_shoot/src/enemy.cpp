@@ -62,7 +62,7 @@ void Enemy::update_state() {
 
 void Enemy::generate_patrol_points(int n) {
   patrol_points.clear();
-  float patrol_radius = 30.0f;
+  float patrol_radius = 40.0f;
 
   for (int i = 0; i < n; i++) {
     patrol_points.push_back(get_random_position(patrol_radius));
@@ -73,8 +73,16 @@ void Enemy::draw() {
   // Draw the enemy sphere
   DrawSphere(position, radius, color);
 
-  // Draw a shadow circle on the ground
-  Vector3 shadow_pos = {position.x, 0.1f, position.z};
-  DrawCircle3D(shadow_pos, radius, (Vector3){1, 0, 0}, 90.0f,
-               (Color){0, 0, 0, 100});
+  // Draw current target point slightly larger
+  if (debug) {
+    // Draw patrol points for debugging
+    for (const auto &point : patrol_points) {
+      DrawSphere(point, 0.3f, YELLOW);
+    }
+    Vector3 target = patrol_points[current_patrol_point_index];
+    DrawSphere(target, 0.5f, GREEN);
+
+    // Draw line from enemy to current target
+    DrawLine3D(position, target, RED);
+  }
 }

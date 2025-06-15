@@ -21,8 +21,10 @@ private:
   void update_state();
   // movement
   std::vector<Vector3> patrol_points;
-  void generate_patrol_points(int n);
+  void generate_patrol_points(int);
   Vector3 get_random_position(float);
   size_t current_patrol_point_index;
   float movement_speed;
+  // debug
+  bool debug;
 };
