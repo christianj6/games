@@ -7,8 +7,8 @@ void Game::update() {
   float dt = GetFrameTime();
 
   player.handle_input();
-  player.update(dt);
-  world.update(dt);
+  Vector3 current_player_position = player.update(dt);
+  world.update(dt, current_player_position);
   hud.update(dt);
 }
 

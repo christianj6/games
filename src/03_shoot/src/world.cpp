@@ -166,8 +166,8 @@ CollisionInfo World::check_collision(const Vector3 &position) const {
   return result;
 }
 
-void World::update(float dt) {
+void World::update(float dt, const Vector3 &current_player_position) {
   for (auto &enemy : enemies) {
-    enemy->update(dt);
+    enemy->update(dt, current_player_position);
   }
 }

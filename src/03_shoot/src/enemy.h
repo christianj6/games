@@ -7,7 +7,7 @@ enum class EnemyState { PATROL, CHASE, RETURN_TO_PATROL };
 class Enemy {
 public:
   Enemy();
-  void update(float dt);
+  void update(float dt, const Vector3 &);
   void draw();
   Vector3 get_position() const { return position; }
 
@@ -18,7 +18,9 @@ private:
   Color color;
   // state management
   EnemyState state;
-  void update_state();
+  void update_state(float, const Vector3 &);
+  bool can_see_player;
+  Vector3 last_known_player_position;
   // movement
   std::vector<Vector3> patrol_points;
   void generate_patrol_points(int);

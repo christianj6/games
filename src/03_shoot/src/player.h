@@ -7,7 +7,7 @@ class Player {
 public:
   Player();
   void handle_input();
-  void update(float);
+  Vector3 update(float);
   Camera get_camera();
   void set_world(World *w) { world = w; }
 

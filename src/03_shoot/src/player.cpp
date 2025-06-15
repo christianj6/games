@@ -106,8 +106,9 @@ void Player::handle_input() {
                   0.0f);
 }
 
-void Player::update(float dt) {
+Vector3 Player::update(float dt) {
   // TODO
+  return camera.position;
 }
 
 Camera Player::get_camera() { return camera; }

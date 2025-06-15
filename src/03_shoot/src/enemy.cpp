@@ -16,7 +16,7 @@ Vector3 Enemy::get_random_position(float position_radius) {
   return {position_radius * cosf(position_angle), 3.0f,
           position_radius * sinf(position_angle)};
 }
-void Enemy::update(float dt) {
+void Enemy::update(float dt, const Vector3 &current_player_position) {
   Vector3 target_position;
   switch (state) {
   case EnemyState::PATROL:
@@ -44,18 +44,32 @@ void Enemy::update(float dt) {
 
   // Update position
   position = Vector3Add(position, direction);
+  // update goap
+  update_state(dt, current_player_position);
 }
 
-void Enemy::update_state() {
+void Enemy::update_state(float dt, const Vector3 &current_player_position) {
+  // TODO: shift all of this to the update function?
+  can_see_player = false; // TODO: real logic for this
   switch (state) {
   case EnemyState::PATROL:
-    // TODO
+    if (can_see_player) {
+      state = EnemyState::CHASE;
+      last_known_player_position = current_player_position;
+    }
     break;
   case EnemyState::CHASE:
     // TODO
+    if (!can_see_player) {
+      // TODO: cooldown before going in return to patrol state
+      state = EnemyState::RETURN_TO_PATROL;
+    } else {
+      last_known_player_position = current_player_position;
+    }
     break;
   case EnemyState::RETURN_TO_PATROL:
     // TODO
+
     break;
   }
 }
