@@ -60,3 +60,4 @@ Experimenting with NPC interactions via llama.cpp and multithreading. Expanding 
 - [ ] Explore
 - [ ] Mingle
 - [ ] Tidy, finish, plan larger project
+- [ ] Add pictures of each game to readme.
