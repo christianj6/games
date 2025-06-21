@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include <vector>
 
+#include "collision_checker.h"
+
 enum class EnemyState { PATROL, CHASE, RETURN_TO_PATROL };
 
 class Enemy {
@@ -38,4 +40,10 @@ private:
   float movement_speed;
   // debug
   bool debug;
+  const CollisionChecker *collision_checker = nullptr;
+
+public:
+  void set_collision_checker(const CollisionChecker *checker) {
+    collision_checker = checker;
+  }
 };

@@ -65,13 +65,21 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
     float angle =
         acosf(Vector3DotProduct(facing_direction, to_player_normalized));
 
-    // Add hysteresis: use a wider angle when already seeing player
     float effective_vision_angle = vision_angle;
     if (can_see_player) {
-      effective_vision_angle *= 1.1f; // 10% wider when already seeing player
+      effective_vision_angle *= 1.1f;
     }
 
-    can_see_player = angle <= effective_vision_angle / 2.0f;
+    // Check both angle and line of sight
+    bool in_vision_cone = angle <= effective_vision_angle / 2.0f;
+    if (in_vision_cone && collision_checker != nullptr) {
+      Ray ray = {position, to_player_normalized};
+      can_see_player =
+          !collision_checker->check_collision_ray(ray, distance_to_player)
+               .collision;
+    } else {
+      can_see_player = false;
+    }
   } else {
     can_see_player = false;
   }

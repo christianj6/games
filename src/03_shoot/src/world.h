@@ -6,17 +6,15 @@
 #include <memory>
 #include <vector>
 
-struct CollisionInfo {
-  bool collision;
-  Vector3 normal;
-};
+#include "collision_checker.h"
 
-class World {
+class World : public CollisionChecker {
 public:
   World();
   void update(float, const Vector3 &);
   void draw();
   CollisionInfo check_collision(const Vector3 &position) const;
+  CollisionInfo check_collision_ray(Ray ray, float max_distance) const;
   const std::vector<std::unique_ptr<Enemy>> &get_enemies() const {
     return enemies;
   }

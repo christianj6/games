@@ -72,7 +72,9 @@ World::World() : obstacles(), walls(), enemies() {
   // Add some enemies
   const int num_enemies = 3;
   for (int i = 0; i < num_enemies; i++) {
-    enemies.push_back(std::make_unique<Enemy>());
+    auto enemy = std::make_unique<Enemy>();
+    enemy->set_collision_checker(this);
+    enemies.push_back(std::move(enemy));
   }
 
   // walls
@@ -159,6 +161,53 @@ CollisionInfo World::check_collision(const Vector3 &position) const {
       result.collision = true;
       // Calculate normal from obstacle center to player
       result.normal = Vector3Normalize({dx, 0, dz});
+      return result;
+    }
+  }
+
+  return result;
+}
+
+CollisionInfo World::check_collision_ray(Ray ray, float max_distance) const {
+  CollisionInfo result = {false, {0, 0, 0}};
+
+  // Check obstacles
+  for (const auto &obstacle : obstacles) {
+    Vector3 pos = obstacle->get_position();
+    float height = obstacle->get_height();
+
+    BoundingBox box = {
+        {pos.x - 1.0f, 0.0f, pos.z - 1.0f},  // min point
+        {pos.x + 1.0f, height, pos.z + 1.0f} // max point
+    };
+
+    RayCollision collision = GetRayCollisionBox(ray, box);
+    if (collision.hit && collision.distance < max_distance) {
+      result.collision = true;
+      result.normal = collision.normal;
+      return result;
+    }
+  }
+
+  // Check walls
+  for (const auto &wall : walls) {
+    BoundingBox box;
+    if (wall->rotate90) {
+      box = {
+          {wall->position.x - wall->length / 2, 0.0f, wall->position.z - 1.0f},
+          {wall->position.x + wall->length / 2, wall->position.y,
+           wall->position.z + 1.0f}};
+    } else {
+      box = {
+          {wall->position.x - 1.0f, 0.0f, wall->position.z - wall->length / 2},
+          {wall->position.x + 1.0f, wall->position.y,
+           wall->position.z + wall->length / 2}};
+    }
+
+    RayCollision collision = GetRayCollisionBox(ray, box);
+    if (collision.hit && collision.distance < max_distance) {
+      result.collision = true;
+      result.normal = collision.normal;
       return result;
     }
   }
