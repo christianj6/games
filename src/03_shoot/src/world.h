@@ -26,6 +26,9 @@ public:
     }
   }
 
+  const Weapon *get_weapon() const { return weapon.get(); }
+  void consume_weapon() { weapon.reset(); }
+
 private:
   std::vector<std::unique_ptr<Obstacle>> obstacles;
   std::vector<std::unique_ptr<Wall>> walls;

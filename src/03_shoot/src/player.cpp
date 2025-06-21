@@ -61,7 +61,7 @@ void Player::handle_input() {
   float speed = 0.08f;               // Reduced movement speed
 
   // Handle shooting
-  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+  if (has_weapon && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
     Vector3 direction =
         Vector3Normalize(Vector3Subtract(camera.target, camera.position));
     projectiles.emplace_back(camera.position, direction);
@@ -116,6 +116,18 @@ void Player::handle_input() {
 }
 
 Vector3 Player::update(float dt) {
+  // Check for weapon pickup
+  if (!has_weapon && world) {
+    const Weapon *weapon = world->get_weapon();
+    if (weapon) {
+      float dist = Vector3Distance(camera.position, weapon->get_position());
+      if (dist < 2.0f) {
+        has_weapon = true;
+        world->consume_weapon();
+      }
+    }
+  }
+
   // Update all projectiles
   for (auto it = projectiles.begin(); it != projectiles.end();) {
     it->update(dt);
