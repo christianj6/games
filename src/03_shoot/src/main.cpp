@@ -1,8 +1,9 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: shooting mechanic which allows the player to shoot the enemy and "win"
+// TODO: shooting mechanic which allows the player to shoot the enemies
 // TODO: weapon which allows the player to access the shooting mechanic
+// TODO: player wins when all enemies are killed
 // TODO: cmake build system
 // TODO: balance, tidy, finish
 
