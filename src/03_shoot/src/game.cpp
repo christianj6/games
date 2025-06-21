@@ -35,6 +35,7 @@ void Game::draw() {
 
   BeginMode3D(player.get_camera());
   world.draw();
+  player.draw();
   EndMode3D();
   hud.draw();
 

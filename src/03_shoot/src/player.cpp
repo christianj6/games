@@ -59,6 +59,13 @@ Vector3 Player::try_move(Vector3 movement) const {
 void Player::handle_input() {
   float camera_sensitivity = 0.095f; // Increased camera movement speed
   float speed = 0.08f;               // Reduced movement speed
+
+  // Handle shooting
+  if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    Vector3 direction =
+        Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+    projectiles.emplace_back(camera.position, direction);
+  }
   // TODO: make speed scale better with screen size
   // Get forward vector (normalized direction vector from position to target)
   Vector3 forward = {camera.target.x - camera.position.x,
@@ -109,8 +116,23 @@ void Player::handle_input() {
 }
 
 Vector3 Player::update(float dt) {
-  // TODO
+  // Update all projectiles
+  for (auto it = projectiles.begin(); it != projectiles.end();) {
+    it->update(dt);
+    if (!it->is_active()) {
+      it = projectiles.erase(it);
+    } else {
+      ++it;
+    }
+  }
   return camera.position;
+}
+
+void Player::draw() {
+  // Draw all active projectiles
+  for (auto &projectile : projectiles) {
+    projectile.draw();
+  }
 }
 
 Camera Player::get_camera() { return camera; }

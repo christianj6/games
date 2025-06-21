@@ -3,6 +3,7 @@
 
 // TODO: shooting mechanic which allows the player to shoot the enemies
 // TODO: weapon which allows the player to access the shooting mechanic
+// TODO: weapon is randomly spawned over an obstacle position (instead)
 // TODO: player wins when all enemies are killed
 // TODO: cmake build system
 // TODO: balance, tidy, finish
