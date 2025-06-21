@@ -4,10 +4,11 @@
 #include "world.h"
 
 Player::Player() : camera() {
-  camera.position = (Vector3){0.0f, 1.8f, 4.0f}; // More natural eye height
-  camera.target = (Vector3){0.0f, 1.8f, 0.0f};   // Looking forward
-  camera.up = (Vector3){0.0f, 1.0f, 0.0f};       // Camera up vector
-  camera.fovy = 60.0f; // Wider FOV for better visibility
+  // Start in the southwest corner, looking diagonally across map
+  camera.position = (Vector3){-45.0f, 1.8f, 45.0f}; // SW corner
+  camera.target = (Vector3){45.0f, 1.8f, -45.0f};   // Look toward NE corner
+  camera.up = (Vector3){0.0f, 1.0f, 0.0f};
+  camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
 }
 
