@@ -3,8 +3,11 @@
 #include "raymath.h"
 #include <math.h>
 
+const float PATROL_SPEED = 2.0f; // Original speed
+const float CHASE_SPEED = 4.5f;  // Faster speed when chasing
+
 Enemy::Enemy()
-    : radius(0.8f), color(RED), movement_speed(1.3f),
+    : radius(0.8f), color(RED), movement_speed(PATROL_SPEED),
       position(get_random_position(20.0f)),
       vision_angle(PI / 3.0f), // 60 degrees
       vision_range(20.0f), facing_direction({1.0f, 0.0f, 0.0f}),
@@ -94,6 +97,7 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
   case EnemyState::PATROL:
     if (can_see_player) {
       state = EnemyState::CHASE;
+      movement_speed = CHASE_SPEED; // Speed up when starting chase
       last_known_player_position = current_player_position;
       last_known_player_position.y = position.y;
     }
@@ -103,6 +107,7 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
       chase_cooldown_timer += dt;
       if (chase_cooldown_timer >= 1.0f) { // 1 second cooldown
         state = EnemyState::RETURN_TO_PATROL;
+        movement_speed = PATROL_SPEED; // Slow down when ending chase
         chase_cooldown_timer = 0.0f;
       }
     } else {
@@ -114,11 +119,12 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
   case EnemyState::RETURN_TO_PATROL:
     if (can_see_player) {
       state = EnemyState::CHASE;
+      movement_speed = CHASE_SPEED; // Speed up if we see player again
       last_known_player_position = current_player_position;
       last_known_player_position.y = position.y;
     } else {
-      // TODO: additional logic?
       state = EnemyState::PATROL;
+      movement_speed = PATROL_SPEED; // Ensure patrol speed when returning
     }
     break;
   }
