@@ -13,4 +13,7 @@ private:
   World world;
   Player player;
   Hud hud;
+  bool game_over;
+  float game_over_timer;
+  static constexpr float CATCH_DISTANCE = 1.5f;
 };
