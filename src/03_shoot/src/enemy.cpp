@@ -24,6 +24,19 @@ Vector3 Enemy::get_random_position(float position_radius) {
           position_radius * sinf(position_angle)};
 }
 void Enemy::update(float dt, const Vector3 &current_player_position) {
+  patrol_point_update_timer += dt;
+  if (patrol_point_update_timer >= PATROL_POINT_UPDATE_INTERVAL) {
+    patrol_point_update_timer = 0.0f;
+    // Replace a random patrol point with player position
+    if (!patrol_points.empty()) {
+      size_t random_index = GetRandomValue(0, patrol_points.size() - 1);
+      Vector3 position_to_target = current_player_position;
+      position_to_target.y =
+          position.y; // target point is still on same level as enemy
+      patrol_points[random_index] = position_to_target;
+    }
+  }
+
   Vector3 target_position;
   switch (state) {
   case EnemyState::PATROL:

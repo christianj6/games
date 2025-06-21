@@ -41,6 +41,8 @@ private:
   // debug
   bool debug;
   const CollisionChecker *collision_checker = nullptr;
+  float patrol_point_update_timer = 0.0f;
+  const float PATROL_POINT_UPDATE_INTERVAL = 5.0f; // 5 seconds
 
 public:
   void set_collision_checker(const CollisionChecker *checker) {
