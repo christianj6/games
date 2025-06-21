@@ -57,7 +57,8 @@ Vector3 Player::try_move(Vector3 movement) const {
 
 void Player::handle_input() {
   float camera_sensitivity = 0.095f; // Increased camera movement speed
-  float speed = 0.15f;               // Reduced movement speed
+  float speed = 0.08f;               // Reduced movement speed
+  // TODO: make speed scale better with screen size
   // Get forward vector (normalized direction vector from position to target)
   Vector3 forward = {camera.target.x - camera.position.x,
                      camera.target.y - camera.position.y,
