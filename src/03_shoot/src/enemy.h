@@ -11,6 +11,10 @@ public:
   void draw();
   Vector3 get_position() const { return position; }
 
+public:
+  bool is_seeing_player() const { return can_see_player; }
+  EnemyState get_state() const { return state; }
+
 private:
   // draw properties
   Vector3 position;
@@ -25,6 +29,7 @@ private:
   void update_state(float, const Vector3 &);
   bool can_see_player;
   Vector3 last_known_player_position;
+  float chase_cooldown_timer; // Timer for chase state
   // movement
   std::vector<Vector3> patrol_points;
   void generate_patrol_points(int);

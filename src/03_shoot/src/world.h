@@ -17,6 +17,9 @@ public:
   void update(float, const Vector3 &);
   void draw();
   CollisionInfo check_collision(const Vector3 &position) const;
+  const std::vector<std::unique_ptr<Enemy>> &get_enemies() const {
+    return enemies;
+  }
 
 private:
   std::vector<std::unique_ptr<Obstacle>> obstacles;

@@ -7,7 +7,8 @@ Enemy::Enemy()
     : radius(0.8f), color(RED), movement_speed(1.3f),
       position(get_random_position(20.0f)),
       vision_angle(PI / 3.0f), // 60 degrees
-      vision_range(20.0f), facing_direction({1.0f, 0.0f, 0.0f}) {
+      vision_range(20.0f), facing_direction({1.0f, 0.0f, 0.0f}),
+      chase_cooldown_timer(0.0f) {
   state = EnemyState::PATROL;
   generate_patrol_points(10);
 }
@@ -30,7 +31,7 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
     }
     break;
   case EnemyState::CHASE:
-    // TODO
+    target_position = last_known_player_position;
     break;
   case EnemyState::RETURN_TO_PATROL:
     // TODO
@@ -63,7 +64,14 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
     Vector3 to_player_normalized = Vector3Normalize(to_player);
     float angle =
         acosf(Vector3DotProduct(facing_direction, to_player_normalized));
-    can_see_player = angle <= vision_angle / 2.0f;
+
+    // Add hysteresis: use a wider angle when already seeing player
+    float effective_vision_angle = vision_angle;
+    if (can_see_player) {
+      effective_vision_angle *= 1.1f; // 10% wider when already seeing player
+    }
+
+    can_see_player = angle <= effective_vision_angle / 2.0f;
   } else {
     can_see_player = false;
   }
@@ -79,20 +87,27 @@ void Enemy::update_state(float dt, const Vector3 &current_player_position) {
     if (can_see_player) {
       state = EnemyState::CHASE;
       last_known_player_position = current_player_position;
+      last_known_player_position.y = position.y;
     }
     break;
   case EnemyState::CHASE:
     if (!can_see_player) {
-      // TODO: cooldown before going in return to patrol state
-      state = EnemyState::RETURN_TO_PATROL;
+      chase_cooldown_timer += dt;
+      if (chase_cooldown_timer >= 1.0f) { // 1 second cooldown
+        state = EnemyState::RETURN_TO_PATROL;
+        chase_cooldown_timer = 0.0f;
+      }
     } else {
+      chase_cooldown_timer = 0.0f; // Reset timer when we can see player
       last_known_player_position = current_player_position;
+      last_known_player_position.y = position.y;
     }
     break;
   case EnemyState::RETURN_TO_PATROL:
     if (can_see_player) {
       state = EnemyState::CHASE;
       last_known_player_position = current_player_position;
+      last_known_player_position.y = position.y;
     } else {
       // TODO: additional logic?
       state = EnemyState::PATROL;
@@ -128,7 +143,7 @@ void Enemy::draw() {
   }
 
   // Draw vision cone
-  Color vision_color = can_see_player ? RED : YELLOW;
+  Color vision_color = state == EnemyState::CHASE ? RED : YELLOW;
 
   // Calculate cone points
   Vector3 right_dir = Vector3RotateByAxisAngle(
