@@ -13,6 +13,7 @@ public:
   void draw();
   Camera get_camera();
   void set_world(World *w) { world = w; }
+  std::vector<Projectile> &get_projectiles() { return projectiles; }
 
 private:
   Camera camera;

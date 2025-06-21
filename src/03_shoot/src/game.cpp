@@ -15,6 +15,26 @@ void Game::update() {
     Vector3 current_player_position = player.update(dt);
     world.update(dt, current_player_position);
 
+    // Check projectile-enemy collisions
+    auto &projectiles = player.get_projectiles();
+    const auto &enemies = world.get_enemies();
+
+    for (size_t enemy_idx = 0; enemy_idx < enemies.size(); enemy_idx++) {
+      const auto &enemy = enemies[enemy_idx];
+      for (auto &projectile : projectiles) {
+        if (!projectile.is_active())
+          continue;
+
+        float dist =
+            Vector3Distance(projectile.get_position(), enemy->get_position());
+        if (dist < 2.0f) { // Hit radius
+          projectile.deactivate();
+          world.remove_enemy(enemy_idx);
+          break;
+        }
+      }
+    }
+
     // Check for enemy collision
     for (const auto &enemy : world.get_enemies()) {
       float dist =

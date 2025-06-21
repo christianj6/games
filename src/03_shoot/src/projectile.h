@@ -8,6 +8,7 @@ public:
   void draw();
   bool is_active() const { return active; }
   Vector3 get_position() const { return position; }
+  void deactivate() { active = false; }
 
 private:
   Vector3 position;

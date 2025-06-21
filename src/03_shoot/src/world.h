@@ -19,6 +19,12 @@ public:
     return enemies;
   }
 
+  void remove_enemy(size_t index) {
+    if (index < enemies.size()) {
+      enemies.erase(enemies.begin() + index);
+    }
+  }
+
 private:
   std::vector<std::unique_ptr<Obstacle>> obstacles;
   std::vector<std::unique_ptr<Wall>> walls;
