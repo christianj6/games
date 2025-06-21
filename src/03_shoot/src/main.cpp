@@ -1,10 +1,6 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: enemy is killed when hit with projectile; projectile is removed
-// TODO: weapon which allows the player to access the shooting mechanic
-// TODO: weapon is randomly spawned over an obstacle position (instead)
-// TODO: player wins when all enemies are killed
 // TODO: cmake build system
 // TODO: balance, tidy, finish
 

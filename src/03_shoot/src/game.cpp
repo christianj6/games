@@ -3,14 +3,15 @@
 #include "raymath.h"
 
 Game::Game()
-    : world(), player(), hud(), game_over(false), game_over_timer(0.0f) {
+    : world(), player(), hud(), game_over(false), game_won(false),
+      game_over_timer(0.0f) {
   player.set_world(&world);
 }
 
 void Game::update() {
   float dt = GetFrameTime();
 
-  if (!game_over) {
+  if (!game_over && !game_won) {
     player.handle_input();
     Vector3 current_player_position = player.update(dt);
     world.update(dt, current_player_position);
@@ -45,6 +46,11 @@ void Game::update() {
       }
     }
 
+    // Check for win condition
+    if (world.get_enemies().empty()) {
+      game_won = true;
+    }
+
     hud.update(dt);
   }
 }
@@ -59,8 +65,8 @@ void Game::draw() {
   EndMode3D();
   hud.draw();
 
-  if (game_over) {
-    const char *text = "GAME OVER";
+  if (game_over || game_won) {
+    const char *text = game_won ? "YOU WIN!" : "GAME OVER";
     int fontSize = 60;
     int textWidth = MeasureText(text, fontSize);
     DrawText(text, GetScreenWidth() / 2 - textWidth / 2,

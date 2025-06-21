@@ -14,6 +14,7 @@ private:
   Player player;
   Hud hud;
   bool game_over;
+  bool game_won;
   float game_over_timer;
   static constexpr float CATCH_DISTANCE = 1.5f;
 };
