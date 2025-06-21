@@ -50,7 +50,21 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
     target_position = last_known_player_position;
     break;
   case EnemyState::RETURN_TO_PATROL:
-    // TODO
+    // Project target position further in the direction player was last seen
+    Vector3 projected_position = last_known_player_position;
+    Vector3 direction = Vector3Subtract(last_known_player_position, position);
+    direction = Vector3Normalize(direction);
+    projected_position =
+        Vector3Add(last_known_player_position, Vector3Scale(direction, 10.0f));
+    projected_position.y = position.y; // Keep on same height plane
+
+    if (Vector3Distance(position, last_known_player_position) < 2.0f) {
+      // Once we reach the last known position, return to normal patrol
+      state = EnemyState::PATROL;
+      movement_speed = PATROL_SPEED;
+    } else {
+      target_position = projected_position;
+    }
     break;
   }
 
@@ -105,41 +119,39 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
 }
 
 void Enemy::update_state(float dt, const Vector3 &current_player_position) {
-  // TODO: shift all of this to the update function?
   switch (state) {
   case EnemyState::PATROL:
     if (can_see_player) {
       state = EnemyState::CHASE;
-      movement_speed = CHASE_SPEED; // Speed up when starting chase
+      movement_speed = CHASE_SPEED;
       last_known_player_position = current_player_position;
       last_known_player_position.y = position.y;
     }
     break;
   case EnemyState::CHASE:
-    if (!can_see_player) {
-      chase_cooldown_timer += dt;
-      if (chase_cooldown_timer >= 1.0f) { // 1 second cooldown
-        state = EnemyState::RETURN_TO_PATROL;
-        movement_speed = PATROL_SPEED; // Slow down when ending chase
-        chase_cooldown_timer = 0.0f;
-      }
-    } else {
+    if (can_see_player) {
       chase_cooldown_timer = 0.0f; // Reset timer when we can see player
       last_known_player_position = current_player_position;
       last_known_player_position.y = position.y;
+    } else {
+      chase_cooldown_timer += dt;
+      if (chase_cooldown_timer >= 1.0f) {     // 1 second cooldown
+        state = EnemyState::RETURN_TO_PATROL; // Change to return state instead
+                                              // of patrol
+        movement_speed = PATROL_SPEED;
+        chase_cooldown_timer = 0.0f;
+      }
     }
     break;
   case EnemyState::RETURN_TO_PATROL:
     if (can_see_player) {
       state = EnemyState::CHASE;
-      movement_speed = CHASE_SPEED; // Speed up if we see player again
+      movement_speed = CHASE_SPEED;
       last_known_player_position = current_player_position;
       last_known_player_position.y = position.y;
-    } else {
-      state = EnemyState::PATROL;
-      movement_speed = PATROL_SPEED; // Ensure patrol speed when returning
     }
-    break;
+    break; // Remove the else clause - let the update() method handle the
+           // transition to PATROL
   }
 }
 
@@ -170,7 +182,18 @@ void Enemy::draw() {
   }
 
   // Draw vision cone
-  Color vision_color = state == EnemyState::CHASE ? RED : YELLOW;
+  Color vision_color;
+  switch (state) {
+  case EnemyState::CHASE:
+    vision_color = RED;
+    break;
+  case EnemyState::RETURN_TO_PATROL:
+    vision_color = ORANGE;
+    break;
+  default: // PATROL state
+    vision_color = YELLOW;
+    break;
+  }
 
   // Calculate cone points
   Vector3 right_dir = Vector3RotateByAxisAngle(
