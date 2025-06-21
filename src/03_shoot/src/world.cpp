@@ -70,7 +70,7 @@ World::World() : obstacles(), walls(), enemies() {
     obstacles.push_back(std::make_unique<Obstacle>(height, position, color));
   }
   // Add some enemies
-  const int num_enemies = 3;
+  const int num_enemies = 6;
   for (int i = 0; i < num_enemies; i++) {
     auto enemy = std::make_unique<Enemy>();
     enemy->set_collision_checker(this);
