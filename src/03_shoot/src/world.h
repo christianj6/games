@@ -3,6 +3,7 @@
 #include "obstacle.h"
 #include "raylib.h"
 #include "wall.h"
+#include "weapon.h"
 #include <memory>
 #include <vector>
 
@@ -29,4 +30,5 @@ private:
   std::vector<std::unique_ptr<Obstacle>> obstacles;
   std::vector<std::unique_ptr<Wall>> walls;
   std::vector<std::unique_ptr<Enemy>> enemies;
+  std::unique_ptr<Weapon> weapon;
 };

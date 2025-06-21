@@ -1,6 +1,7 @@
 #include "world.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "weapon.h"
 #include <memory>
 #include <random>
 
@@ -39,7 +40,11 @@ Color get_random_color() {
   return colors[dist(gen)];
 }
 
-World::World() : obstacles(), walls(), enemies() {
+World::World() : obstacles(), walls(), enemies(), weapon(nullptr) {
+  // First create weapon
+  Vector3 weapon_pos = get_random_position(3.0f);
+  weapon = std::make_unique<Weapon>(weapon_pos);
+
   // obstacles
   const int n = 100;
   const int max_attempts = 100; // Maximum attempts to place each obstacle
@@ -110,6 +115,10 @@ World::World() : obstacles(), walls(), enemies() {
 void World::draw() {
   DrawPlane((Vector3){0.0f, 0.0f, 0.0f},
             (Vector2){playing_field_size, playing_field_size}, LIGHTGRAY);
+
+  if (weapon) {
+    weapon->draw();
+  }
   for (auto &obstacle : obstacles) {
     obstacle->draw();
   }
