@@ -3,6 +3,10 @@
 #include "raymath.h"
 #include "world.h"
 
+/*
+ * the player is just a camera with some collision 
+ * logic and the projectiles (spawned from the camera so we put them here)
+ */
 Player::Player() : camera() {
   // Start in the southwest corner, looking diagonally across map
   camera.position = (Vector3){-45.0f, 1.8f, 45.0f}; // SW corner
@@ -156,7 +160,7 @@ Vector3 Player::update(float dt) {
 }
 
 void Player::draw() {
-  // Draw all active projectiles
+  // there is nothing to draw for the player itself, drawing is really the projectiles
   for (auto &projectile : projectiles) {
     projectile.draw();
   }

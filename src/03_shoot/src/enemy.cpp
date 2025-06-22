@@ -6,6 +6,7 @@
 const float PATROL_SPEED = 2.0f; // Original speed
 const float CHASE_SPEED = 4.5f;  // Faster speed when chasing
 
+// in next project extract goap stuff so enemy class is cleaner
 Enemy::Enemy()
     : radius(0.8f), color(RED), movement_speed(PATROL_SPEED),
       position(get_random_position(20.0f)),

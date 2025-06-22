@@ -66,6 +66,7 @@ void Game::draw() {
   EndMode3D();
   hud.draw();
 
+  // in the future we can extract this kind of stuff into other abstractions or a message handling system
   if (game_over || game_won) {
     const char *text = game_won ? "YOU WIN!" : "GAME OVER";
     int fontSize = 60;
