@@ -13,6 +13,7 @@ cd build
 cd ..
 make
 ```
+Note: Some projects require CMake and ninja, meaning that you must install this beforehand (e.g. ```brew install cmake ninja```)
 
 ***
 
