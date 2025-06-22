@@ -14,8 +14,8 @@ void Projectile::update(float dt) {
     active = false;
     return;
   }
-  // raylib seems strangely performant; even if i remove the above and spawn a bunch
-  // of balls the framerate does not dip; i wonder why
+  // raylib seems strangely performant; even if i remove the above and spawn a
+  // bunch of balls the framerate does not dip; i wonder why
 
   position = Vector3Add(position, Vector3Scale(velocity, dt));
 }

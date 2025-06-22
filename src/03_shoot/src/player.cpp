@@ -4,7 +4,7 @@
 #include "world.h"
 
 /*
- * the player is just a camera with some collision 
+ * the player is just a camera with some collision
  * logic and the projectiles (spawned from the camera so we put them here)
  */
 Player::Player() : camera() {
@@ -160,7 +160,8 @@ Vector3 Player::update(float dt) {
 }
 
 void Player::draw() {
-  // there is nothing to draw for the player itself, drawing is really the projectiles
+  // there is nothing to draw for the player itself, drawing is really the
+  // projectiles
   for (auto &projectile : projectiles) {
     projectile.draw();
   }
