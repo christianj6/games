@@ -8,5 +8,5 @@ void Hud::draw() {
 }
 
 void Hud::update(float dt) {
-  // TODO
+  // TODO: shift more of the screen drawing and debug stuff here
 }

@@ -7,6 +7,9 @@
 
 const float playing_field_size = 100.f;
 
+/*
+ * used to make sure obstacles do not spawn on top of one another
+ */
 bool check_obstacle_collision(const Vector3 &pos1, float height1,
                               const Vector3 &pos2, float height2) {
   // Define collision box dimensions
@@ -22,7 +25,11 @@ bool check_obstacle_collision(const Vector3 &pos1, float height1,
   return distance < (radius1 + radius2);
 }
 
+/*
+ * used to randomly place obstacles (and the weapon pickpu)
+ */
 Vector3 get_random_position(float height) {
+  // margin prevents obstacles from spawning too close to the walls
   const float margin = 5.0f;
   const float min_pos = (-playing_field_size / 2.0f) + margin;
   const float max_pos = (playing_field_size / 2.0f) - margin;
@@ -33,10 +40,19 @@ Vector3 get_random_position(float height) {
 }
 
 Color get_random_color() {
+  // obstacle colors (you could just as well use an array in this scenario)
   std::vector<Color> colors = {GRAY, RAYWHITE, DARKPURPLE, BLACK};
-
+  // a generator is an object that produces a sequence of numbers over time when
+  // called (similar to python concept) you can implement your own generator by
+  // just implementing an operator() on your class by prefixing the statement
+  // with static, we say that we want to use the same object across function
+  // calls (more efficient and more random)
   static std::mt19937 gen(std::random_device{}());
+  // make a distribution which will convert our random numbers into values in
+  // the range we want
   std::uniform_int_distribution<> dist(0, colors.size() - 1);
+  // use the distribution to call gen and get a random value for indexing the
+  // vector of colors
   return colors[dist(gen)];
 }
 
@@ -44,6 +60,7 @@ World::World() : obstacles(), walls(), enemies(), weapon(nullptr) {
   // First create weapon
   Vector3 weapon_pos = get_random_position(3.0f);
   weapon = std::make_unique<Weapon>(weapon_pos);
+  // TODO: make sure weapon does not collide with candidate obstacle positions
 
   // obstacles
   const int n = 100;
@@ -68,6 +85,8 @@ World::World() : obstacles(), walls(), enemies(), weapon(nullptr) {
       }
 
       if (valid_position)
+        // if this candidate obstacle position does not collide w any others,
+        // continue and place it
         break;
     }
 
@@ -78,11 +97,17 @@ World::World() : obstacles(), walls(), enemies(), weapon(nullptr) {
   const int num_enemies = 6;
   for (int i = 0; i < num_enemies; i++) {
     auto enemy = std::make_unique<Enemy>();
+    // set this object on the enemy as a kind of weird way to expose the
+    // collision checking functionality another example of mixed responsibility
+    // which should be cleaned up in future projects
     enemy->set_collision_checker(this);
+    // transfer ownership to the container
     enemies.push_back(std::move(enemy));
   }
 
   // walls
+  // values like this should be extracted; it is fine to inject when creating
+  // the walls but probs don't hide them in here
   const float wall_height = 50.0f;
   const Color wall_color = DARKGRAY;
   const float half_size = playing_field_size / 2.0f;
@@ -131,6 +156,10 @@ void World::draw() {
 }
 
 CollisionInfo World::check_collision(const Vector3 &position) const {
+  // misplaced responsibilities like this are all over the codebase
+  // in next project you need much better encapsulation, SRP, etc.
+  // in general you also want to take these low-level collision detection
+  // concerns out of these game logic layer objects
   const float PLAYER_RADIUS = 0.5f;
   CollisionInfo result = {false, {0, 0, 0}};
 
@@ -177,6 +206,9 @@ CollisionInfo World::check_collision(const Vector3 &position) const {
   return result;
 }
 
+/*
+  primarily used to check if player is in enemy line of sight
+*/
 CollisionInfo World::check_collision_ray(Ray ray, float max_distance) const {
   CollisionInfo result = {false, {0, 0, 0}};
 
@@ -199,6 +231,8 @@ CollisionInfo World::check_collision_ray(Ray ray, float max_distance) const {
   }
 
   // Check walls
+  // doesn't really make sense because it is not possible for the character to
+  // go beyond walls anyhow
   for (const auto &wall : walls) {
     BoundingBox box;
     if (wall->rotate90) {
@@ -225,6 +259,9 @@ CollisionInfo World::check_collision_ray(Ray ray, float max_distance) const {
 }
 
 void World::update(float dt, const Vector3 &current_player_position) {
+  // the only thing which needs updating is the enemies
+  // all other objects either have no state, or their state is managed with
+  // flags
   for (auto &enemy : enemies) {
     enemy->update(dt, current_player_position);
   }

@@ -62,8 +62,11 @@ void Player::handle_input() {
 
   // Handle shooting
   if (has_weapon && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+    // get a vector based on current camera direction to know where to shoot the
+    // ball
     Vector3 direction =
         Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+    // emplace back is more efficient than push bc no temporary object
     projectiles.emplace_back(camera.position, direction);
   }
   // TODO: make speed scale better with screen size
@@ -118,10 +121,18 @@ void Player::handle_input() {
 Vector3 Player::update(float dt) {
   // Check for weapon pickup
   if (!has_weapon && world) {
+    // class stores a unique pointer and owns it; we just want to call the
+    // functions so we get the raw pointer and call get_position
     const Weapon *weapon = world->get_weapon();
+    // after weapon is picked up, get_weapon will return a nullptr, which is why
+    // we need that check below however, because we effectively track weapon
+    // pickup via the has_weapon flag, we should never end up here anyhow
     if (weapon) {
       float dist = Vector3Distance(camera.position, weapon->get_position());
       if (dist < 2.0f) {
+        // by setting has_weapon before calling .reset on the weapon, we have
+        // some additional behavior against unsafe behavior nevertheless this is
+        // quite hacky
         has_weapon = true;
         world->consume_weapon();
       }
@@ -130,8 +141,12 @@ Vector3 Player::update(float dt) {
 
   // Update all projectiles
   for (auto it = projectiles.begin(); it != projectiles.end();) {
+    // go through all the projectiles and update them
     it->update(dt);
+    // std::find would be another useful function in this type of context
     if (!it->is_active()) {
+      // if the active flag turned off, remove it from the vector to save
+      // resources
       it = projectiles.erase(it);
     } else {
       ++it;

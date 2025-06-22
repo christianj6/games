@@ -90,6 +90,7 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
   Vector3 to_player = Vector3Subtract(player_at_enemy_height, position);
   float distance_to_player = Vector3Length(to_player);
 
+  // nested conditions like this are hard to read and generally bad programming
   if (distance_to_player <= vision_range) {
     Vector3 to_player_normalized = Vector3Normalize(to_player);
     float angle =
@@ -100,10 +101,11 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
       effective_vision_angle *= 1.1f;
     }
 
-    // Check both angle and line of sight
+    // if player in vision cone then enemy should be able to see player
     bool in_vision_cone = angle <= effective_vision_angle / 2.0f;
     if (in_vision_cone && collision_checker != nullptr) {
       Ray ray = {position, to_player_normalized};
+      // checks if the current enemy vision ray hits an obstacle
       can_see_player =
           !collision_checker->check_collision_ray(ray, distance_to_player)
                .collision;

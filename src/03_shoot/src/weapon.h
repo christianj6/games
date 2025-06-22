@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include "weapon.h"
 
 class Weapon {
 public:

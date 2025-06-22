@@ -12,6 +12,7 @@ void Game::update() {
   float dt = GetFrameTime();
 
   if (!game_over && !game_won) {
+    // main game loop
     player.handle_input();
     Vector3 current_player_position = player.update(dt);
     world.update(dt, current_player_position);

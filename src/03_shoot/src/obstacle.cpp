@@ -11,6 +11,7 @@ void Obstacle::draw() {
   // Draw the edges in a darker color
   Color lineColor = BLACK;
   if (ColorIsEqual(color, BLACK)) {
+    // black cubes get a different color
     lineColor = GRAY;
   }
   lineColor.a = 255; // Ensure lines are fully opaque
