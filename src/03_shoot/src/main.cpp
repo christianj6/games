@@ -1,7 +1,6 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: cmake build system
 // TODO: balance, tidy, finish
 
 int main() {
