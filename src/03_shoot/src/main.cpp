@@ -1,6 +1,7 @@
 #include "game.h"
 #include "raylib.h"
 
+// TODO: update readme etc for new build system (so old projects are not broken)
 // TODO: balance, tidy, finish
 
 int main() {
