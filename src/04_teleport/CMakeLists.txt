@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(Game)
 
+find_package(fmt REQUIRED)
+
 # Force compile commands generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
@@ -74,6 +76,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # Link raylib
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
+
+# Link other packages
+target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
 # Platform specific linking
 if(APPLE)
