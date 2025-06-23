@@ -43,23 +43,26 @@ Build System: Premake
 ***
 
 #### 03_shoot
-First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions, CMake build system.
+First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions. Change build system.
 Build System: CMake
 
 ***
 
 #### 04_teleport
 Larger game world with teleportation mechanic. Polishing game development and C++ capabilities, project organization, and Web Assembly build for browser support.
+Build System: CMake
 
 ***
 
 #### 05_explore
 Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices.
+Build System: CMake
 
 ***
 
 #### 06_mingle
 Experimenting with NPC interactions via llama.cpp and multithreading. Expanding skills with performance and code organization while scoping larger project.
+Build System: CMake
 
 ***
 
@@ -67,9 +70,9 @@ Experimenting with NPC interactions via llama.cpp and multithreading. Expanding 
 - [x] Jump
 - [x] Collect
 - [x] Hide
-- [ ] Shoot
+- [x] Shoot
 - [ ] Teleport
 - [ ] Explore
 - [ ] Mingle
+- [ ] Add pictures of each game to readme; instruction card to each game, etc.
 - [ ] Tidy, finish, plan larger project
-- [ ] Add pictures of each game to readme
