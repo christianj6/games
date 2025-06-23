@@ -1,5 +1,6 @@
 #include "fmt/core.h"
 #include "raylib.h"
+#include <Eigen/Dense>
 
 // TODO: improve build instructions for vcpkg
 // TODO: more modular abstractions for colliders, controllers, etc.
@@ -42,6 +43,16 @@ int main() {
 
     ClearBackground(BLACK);
     fmt::print("blah");
+
+    // Define a 2x2 matrix of floats
+    Eigen::Matrix2f mat;
+    mat << 1, 2, 3, 4;
+
+    // Define a 2D vector
+    Eigen::Vector2f vec(5, 6);
+
+    // Multiply matrix and vector
+    Eigen::Vector2f result = mat * vec;
 
     DrawText("Hello Raylib", 200, 200, 20, WHITE);
 

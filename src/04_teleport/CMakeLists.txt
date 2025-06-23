@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(Game)
 
 find_package(fmt REQUIRED)
+find_package(eigen3 REQUIRED)
 
 # Force compile commands generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -79,6 +80,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
 # Link other packages
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
 # Platform specific linking
 if(APPLE)
