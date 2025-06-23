@@ -12,8 +12,6 @@ public:
   void update(float dt, const Vector3 &);
   void draw();
   Vector3 get_position() const { return position; }
-
-public:
   bool is_seeing_player() const { return can_see_player; }
   EnemyState get_state() const { return state; }
 
