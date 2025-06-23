@@ -1,7 +1,10 @@
 #include "raylib.h"
 
 // TODO: more modular abstractions for colliders, controllers, etc.
+// TODO: more "fun" abstractions for ai; the code in shoot quickly got unmaintainable
 // TODO: abstraction layer for collision detection and vector operations
+// TODO: utility module for getting random spawn positions etc.
+// TODO: better way for handling collisions and positioning; the .y approach from shoot was hacky
 // TODO: files are organized into directories for different layers / systems
 // TODO: slightly larger game world, made possible through voxel-based rendering
 // TODO: pseudo voxel world: implement a world state with Matrix, abstractions update this
@@ -15,6 +18,7 @@
 // TODO: world layout regularly changes like a shifting labyrinth
 // TODO: enemies have real grid-based pathfinding for more intense hunting of the player
 // TODO: enemies are more interesting or there exist additional "creates" with cooler visuals
+// TODO: implement a true goap AI system; so on top of states you have the actions and planning
 // TODO: consider throwing in some visual clutter and additional lighting effects to make the game world pop
 // TODO: web assembly build?
 
