@@ -29,7 +29,7 @@ Note: Builds from 04_teleport and beyond require vcpkg located in the project su
 #### 00_jump
 Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and working with classes.
 
-Build System: Premake
+Build System: Premake, Make
 
 ![img](./img/00_jump.png)
 
@@ -38,7 +38,7 @@ Build System: Premake
 #### 01_collect
 Top-down coin collecting game with an enemy that chases the player. Getting more comfortable with C++ and Raylib.
 
-Build System: Premake
+Build System: Premake, Make
 
 ![img](./img/01_collect.png)
 
@@ -47,7 +47,7 @@ Build System: Premake
 #### 02_hide
 Top-down game where player must hide from a searching enemy. Working with pointers and better game abstractions.
 
-Build System: Premake
+Build System: Premake, Make
 
 ![img](./img/02_hide.png)
 
@@ -56,7 +56,7 @@ Build System: Premake
 #### 03_shoot
 First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions. Change build system.
 
-Build System: CMake
+Build System: CMake, Ninja
 
 ![img](./img/03_shoot.png)
 
@@ -66,7 +66,7 @@ Build System: CMake
 Larger game world with teleportation mechanic. Polishing game development and C++ capabilities, project organization, and Web Assembly build for browser support.
 Working with additional packages and development tools.
 
-Build System: CMake
+Build System: vcpkg, CMake, Ninja
 
 ***
 
@@ -74,14 +74,14 @@ Build System: CMake
 Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices. 
 Itch.io publish and preparation for a first game jam.
 
-Build System: CMake
+Build System: vcpkg, CMake, Ninja
 
 ***
 
 #### 06_mingle
 Experimenting with NPC interactions via llama.cpp and multithreading. Expanding skills with performance and code organization while scoping larger project.
 
-Build System: CMake
+Build System: vcpkg, CMake, Ninja
 
 ***
 
