@@ -1,21 +1,19 @@
 #!/bin/bash
 
-PROJECT="02_hide"
+# change to build different games
+PROJECT="03_shoot"
 set -e 
 
-# autoformat
+# format
 cd src/${PROJECT}/src 
-clang-format -i -- **.cpp #**.h
+clang-format -i -- **.cpp **.h
 
-# change the project dir to build different games
-cd ../build
-./premake5.osx gmake2
-
-# generate compile_commands.json using bear
+# cmake+ninja
 cd ..
-# comment out once compile_commands has been generated
-# bear -- make
-make
+mkdir -p build
+cd build
+cmake .. -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+ninja
 
 # run the game 
-./bin/Debug/${PROJECT}
+./bin/Debug/Game
