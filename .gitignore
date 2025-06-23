@@ -11,3 +11,4 @@ _archive/
 .env
 **/.cache
 .DS_Store
+**/vcpkg_installed
