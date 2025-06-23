@@ -22,6 +22,8 @@ cmake .. -G Ninja
 ninja
 ```
 
+Note: Builds from 04_teleport and beyond require vcpkg located in the project superior directory.
+
 ***
 
 #### 00_jump
@@ -62,13 +64,15 @@ Build System: CMake
 
 #### 04_teleport
 Larger game world with teleportation mechanic. Polishing game development and C++ capabilities, project organization, and Web Assembly build for browser support.
+Working with additional packages and development tools.
 
 Build System: CMake
 
 ***
 
 #### 05_explore
-Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices. Add sounds.
+Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices. 
+Itch.io publish and preparation for a first game jam.
 
 Build System: CMake
 
@@ -89,5 +93,5 @@ Build System: CMake
 - [ ] Teleport
 - [ ] Explore
 - [ ] Mingle
-- [ ] Add pictures of each game to readme; instruction card to each game, etc.
 - [ ] Tidy, finish, plan larger project
+    - [ ] Add instruction card to each game
