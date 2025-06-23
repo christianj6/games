@@ -29,12 +29,16 @@ Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and work
 
 Build System: Premake
 
+![img](./img/00_jump.png)
+
 ***
 
 #### 01_collect
 Top-down coin collecting game with an enemy that chases the player. Getting more comfortable with C++ and Raylib.
 
 Build System: Premake
+
+![img](./img/01_collect.png)
 
 ***
 
@@ -43,12 +47,16 @@ Top-down game where player must hide from a searching enemy. Working with pointe
 
 Build System: Premake
 
+![img](./img/02_hide.png)
+
 ***
 
 #### 03_shoot
 First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions. Change build system.
 
 Build System: CMake
+
+![img](./img/03_shoot.png)
 
 ***
 
