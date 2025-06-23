@@ -1,7 +1,6 @@
 #include "game.h"
 #include "raylib.h"
 
-// TODO: balance, tidy, finish
 
 int main() {
   const int monitor = 0;
