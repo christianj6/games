@@ -68,7 +68,7 @@ Build System: CMake
 ***
 
 #### 05_explore
-Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices.
+Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices. Add sounds.
 
 Build System: CMake
 
