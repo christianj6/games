@@ -6,6 +6,7 @@ Practicing C++ with Raylib.
 #### Building Projects
 To build any of the projects in the src/ directory, simply ```cd``` into that project directory and run the following:
 
+For Premake:
 ```
 cd build
 ./premake5.osx gmake2
@@ -13,27 +14,37 @@ cd build
 cd ..
 make
 ```
-Note: Some projects require CMake and ninja, meaning that you must install this beforehand (e.g. ```brew install cmake ninja```)
+
+For CMake (ensure CMake and Ninja are installed first):
+```
+mkdir -p build && cd build 
+cmake .. -G Ninja
+ninja
+```
 
 ***
 
 #### 00_jump
 Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and working with classes.
+Build System: Premake
 
 ***
 
 #### 01_collect
 Top-down coin collecting game with an enemy that chases the player. Getting more comfortable with C++ and Raylib.
+Build System: Premake
 
 ***
 
 #### 02_hide
 Top-down game where player must hide from a searching enemy. Working with pointers and better game abstractions.
+Build System: Premake
 
 ***
 
 #### 03_shoot
 First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions, CMake build system.
+Build System: CMake
 
 ***
 
