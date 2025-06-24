@@ -1,11 +1,17 @@
+#include "raylib.h"
 #pragma once
 
 class Game {
 public:
-  Game() = default;
+  Game();
   void update();
   void draw();
 
 private:
-  // TODO: game state management and main loop
+  Camera camera;
+  Shader shader;
+  Mesh cube;
+  Material mat_instances;
+  Material mat_default;
+  Matrix *transforms;
 };
