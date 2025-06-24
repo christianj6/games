@@ -8,7 +8,6 @@ public:
   World();
   void update(float, Camera);
   void draw();
-  Matrix *get_transforms() { return transforms; }
 
 private:
   static constexpr int VOXEL_SIZE = 200;
