@@ -1,27 +1,45 @@
 #include "world.h"
 #include "raylib.h"
-#include "raymath.h"
-#include <stdlib.h>
+#include <Eigen/Dense>
+#include <random>
 
 #define MAX_INSTANCES 10000
-
-/*#include <Eigen/Dense>*/
-// TODO: replace raymath with eigen for matrix stuff
 
 void World::get_initial_world_state() {
   transforms = (Matrix *)RL_CALLOC(MAX_INSTANCES, sizeof(Matrix));
 
-  for (int i = 0; i < MAX_INSTANCES; i++) {
-    Matrix translation = MatrixTranslate((float)GetRandomValue(-50, 50),
-                                         (float)GetRandomValue(-50, 50),
-                                         (float)GetRandomValue(-50, 50));
-    Vector3 axis = Vector3Normalize((Vector3){(float)GetRandomValue(0, 360),
-                                              (float)GetRandomValue(0, 360),
-                                              (float)GetRandomValue(0, 360)});
-    float angle = (float)GetRandomValue(0, 180) * DEG2RAD;
-    Matrix rotation = MatrixRotate(axis, angle);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  const float radius = 40.0f;           // Radius of the circle
+  const float height_variation = 10.0f; // How much height varies
+  std::uniform_real_distribution<float> height_dist(-height_variation,
+                                                    height_variation);
+  std::uniform_real_distribution<float> angle_dist(0.0f, 360.0f);
 
-    transforms[i] = MatrixMultiply(rotation, translation);
+  for (int i = 0; i < MAX_INSTANCES; i++) {
+    // Calculate position on circle
+    float angle = (static_cast<float>(i) / MAX_INSTANCES) * 2.0f * M_PI;
+    float x = radius * std::cos(angle);
+    float z = radius * std::sin(angle);
+    float y = height_dist(gen); // Random height variation
+
+    // Create translation matrix using Eigen
+    Eigen::Vector3f translation(x, y, z);
+    Eigen::Translation3f trans(translation);
+
+    // Create random rotation matrix using Eigen
+    Eigen::Vector3f axis(1.0f, 1.0f, 1.0f); // Rotate around diagonal axis
+    axis.normalize();
+    Eigen::AngleAxisf rot(angle, axis);
+
+    // Combine transformations
+    Eigen::Affine3f transform = trans * rot;
+
+    // Convert Eigen matrix to raylib Matrix
+    Eigen::Matrix4f m = transform.matrix();
+    transforms[i] = {m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1),
+                     m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3),
+                     m(3, 0), m(3, 1), m(3, 2), m(3, 3)};
   }
 }
 
