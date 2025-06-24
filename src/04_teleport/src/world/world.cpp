@@ -15,15 +15,27 @@ void World::get_initial_world_state() {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-  // randomly set some voxels to active
+  // Create a flat plane 10 units below the player's starting position
+  const int plane_y =
+      VOXEL_SIZE / 2 - 10; // Assuming player starts at VOXEL_SIZE/2
   active_voxel_count = 0;
-  for (int x = 0; x < VOXEL_SIZE; x++) {
-    for (int y = 0; y < VOXEL_SIZE; y++) {
-      for (int z = 0; z < VOXEL_SIZE; z++) {
-        if (dist(gen) < VOXEL_DENSITY) {
-          voxel_space(x * VOXEL_SIZE + y, z) = true;
-          active_voxel_count++;
-        }
+
+  // Create the flat plane
+  for (int x = VOXEL_SIZE / 4; x < 3 * VOXEL_SIZE / 4; x++) {
+    for (int z = VOXEL_SIZE / 4; z < 3 * VOXEL_SIZE / 4; z++) {
+      voxel_space(x * VOXEL_SIZE + plane_y, z) = true;
+      active_voxel_count++;
+    }
+  }
+
+  // Create random height columns around the player
+  std::uniform_int_distribution<int> height_dist(1, 12);
+  for (int x = VOXEL_SIZE / 4; x < 3 * VOXEL_SIZE / 4; x += 5) {
+    for (int z = VOXEL_SIZE / 4; z < 3 * VOXEL_SIZE / 4; z += 5) {
+      int column_height = height_dist(gen);
+      for (int y = plane_y + 1; y < plane_y + 1 + column_height; y++) {
+        voxel_space(x * VOXEL_SIZE + y, z) = true;
+        active_voxel_count++;
       }
     }
   }
@@ -31,8 +43,12 @@ void World::get_initial_world_state() {
   // allocate transform matrix
   transforms = (Matrix *)RL_CALLOC(active_voxel_count, sizeof(Matrix));
 
-  const float scale = 1.0f;                        // Size of each voxel
-  const float offset = -VOXEL_SIZE * scale / 2.0f; // Center the world
+  const float scale = 1.0f; // Size of each voxel
+  // TODO: extract or inject from player
+  const Vector3 player_start = {-125.0f, 125.0f, -125.0f};
+  const Vector3 offset = {player_start.x - (VOXEL_SIZE * scale / 2.0f),
+                          player_start.y - (VOXEL_SIZE * scale / 2.0f),
+                          player_start.z - (VOXEL_SIZE * scale / 2.0f)};
 
   // Create a matrix of all positions where voxels are active
   Eigen::MatrixXf positions(4, active_voxel_count);
@@ -42,8 +58,8 @@ void World::get_initial_world_state() {
     for (int y = 0; y < VOXEL_SIZE; y++) {
       for (int z = 0; z < VOXEL_SIZE; z++) {
         if (voxel_space(x * VOXEL_SIZE + y, z)) {
-          positions.col(current_voxel) << x * scale + offset,
-              y * scale + offset, z * scale + offset, 1.0f;
+          positions.col(current_voxel) << x * scale + offset.x,
+              y * scale + offset.y, z * scale + offset.z, 1.0f;
           current_voxel++;
         }
       }
