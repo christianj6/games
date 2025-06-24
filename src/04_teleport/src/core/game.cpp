@@ -12,7 +12,7 @@ void Game::update() {
 
 void Game::draw() {
   BeginDrawing();
-  ClearBackground(RAYWHITE);
+  ClearBackground(BLACK);
 
   BeginMode3D(player.get_camera());
   world.draw();
