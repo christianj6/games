@@ -205,6 +205,9 @@ Mesh World::merge_voxels(
 }
 
 void World::draw() {
+  // note: shifting mesh calculation here has a huge performance hit,
+  // but would be necessary in some way if we want a dynamic game world (minecraft)
+  // we can think about this, and relevance of instancing strategy, for 05_explore
   DrawMesh(ground, material_default, MatrixIdentity());
   DrawMesh(columns, material_default, MatrixIdentity());
 }
