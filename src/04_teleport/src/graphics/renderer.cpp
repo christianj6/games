@@ -34,8 +34,22 @@ void Renderer::update(float player_camera_position[3]) {
                  player_camera_position, SHADER_UNIFORM_VEC3);
 }
 
-void Renderer::configure_lighting(Vector3 light_position) {
-  Light light = CreateLight(LIGHT_DIRECTIONAL, light_position, Vector3Zero(),
-                            WHITE, shader);
-  UpdateLightValues(shader, light);
+void Renderer::configure_lighting() {
+  // Main directional light from top-front
+  Light light1 = CreateLight(LIGHT_DIRECTIONAL, (Vector3){1.0f, 1.0f, -1.0f},
+                             Vector3Zero(), WHITE, shader);
+
+  // Warm fill light from left
+  Light light2 =
+      CreateLight(LIGHT_DIRECTIONAL, (Vector3){-2.0f, 0.5f, 0.0f},
+                  Vector3Zero(), (Color){255, 200, 150, 255}, shader);
+
+  // Cool rim light from back-right
+  Light light3 =
+      CreateLight(LIGHT_DIRECTIONAL, (Vector3){1.0f, 0.5f, 2.0f}, Vector3Zero(),
+                  (Color){150, 180, 255, 255}, shader);
+
+  UpdateLightValues(shader, light1);
+  UpdateLightValues(shader, light2);
+  UpdateLightValues(shader, light3);
 }

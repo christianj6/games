@@ -10,7 +10,7 @@ public:
   Renderer();
   void update(float[3]);
   Shader get_shader() { return shader; }
-  void configure_lighting(Vector3);
+  void configure_lighting();
 
 private:
   Shader shader;

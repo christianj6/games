@@ -94,8 +94,7 @@ World::World() : renderer() {
   get_initial_world_state();
   configure_materials();
   merge_voxels();
-  renderer.configure_lighting(
-      (Vector3){1.0f, 1.0f, -1.0f}); // Light direction vector
+  renderer.configure_lighting();
 }
 
 void World::update(float dt, Camera player_camera) {
