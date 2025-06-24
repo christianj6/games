@@ -1,3 +1,5 @@
+#include "hud.h"
+#include "objects/player.h"
 #include "raylib.h"
 #pragma once
 
@@ -8,7 +10,9 @@ public:
   void draw();
 
 private:
-  Camera camera;
+  Hud hud;
+  Player player;
+  //
   Shader shader;
   Mesh cube;
   Material mat_instances;

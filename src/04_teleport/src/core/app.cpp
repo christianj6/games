@@ -1,7 +1,8 @@
 #include "app.h"
 #include "raylib.h"
 
-App::App() : current_state(AppState::MAIN_MENU), game() {}
+// TODO: change default game state to MAIN_MENU
+App::App() : current_state(AppState::GAME), game() {}
 
 void App::handle_input() {
   switch (current_state) {
@@ -15,7 +16,8 @@ void App::handle_input() {
     break;
   case AppState::GAME:
     if (IsKeyPressed(KEY_ESCAPE)) {
-      current_state = AppState::PAUSE;
+      /*current_state = AppState::PAUSE;*/
+      current_state = AppState::QUIT;
     }
     break;
   case AppState::PAUSE:

@@ -18,15 +18,7 @@
 #endif
 
 #define MAX_INSTANCES 10000
-Game::Game() {
-  // Define the camera to look into our 3d world
-  camera.position = (Vector3){-125.0f, 125.0f, -125.0f}; // Camera position
-  camera.target = (Vector3){0.0f, 0.0f, 0.0f}; // Camera looking at point
-  camera.up =
-      (Vector3){0.0f, 1.0f, 0.0f}; // Camera up vector (rotation towards target)
-  camera.fovy = 45.0f;             // Camera field-of-view Y
-  camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
-
+Game::Game() : hud(), player() {
   // Define mesh to be instanced
   cube = GenMeshCube(1.0f, 1.0f, 1.0f);
 
@@ -82,9 +74,10 @@ Game::Game() {
   mat_default.maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
 }
 void Game::update() {
-  UpdateCamera(&camera, CAMERA_ORBITAL);
-
-  // Update the light shader with the camera view position
+  float dt = GetFrameTime();
+  player.update(dt);
+  // TODO: clean up and add the world update stuff
+  auto camera = player.get_camera();
   float cameraPos[3] = {camera.position.x, camera.position.y,
                         camera.position.z};
   SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], cameraPos,
@@ -93,26 +86,15 @@ void Game::update() {
 
 void Game::draw() {
   BeginDrawing();
-
   ClearBackground(RAYWHITE);
 
-  BeginMode3D(camera);
-
-  // Draw cube mesh with default material (BLUE)
+  BeginMode3D(player.get_camera());
+  // TODO: extract to world
   DrawMesh(cube, mat_default, MatrixTranslate(-10.0f, 0.0f, 0.0f));
-
-  // Draw meshes instanced using material containing instancing shader (RED +
-  // lighting), transforms[] for the instances should be provided, they are
-  // dynamically updated in GPU every frame, so we can animate the different
-  // mesh instances
   DrawMeshInstanced(cube, mat_instances, transforms, MAX_INSTANCES);
-
-  // Draw cube mesh with default material (BLUE)
   DrawMesh(cube, mat_default, MatrixTranslate(10.0f, 0.0f, 0.0f));
-
   EndMode3D();
 
-  DrawFPS(GetScreenWidth() / 2, GetScreenHeight() / 2);
-
+  hud.draw();
   EndDrawing();
 }
