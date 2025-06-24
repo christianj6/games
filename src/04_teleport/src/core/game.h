@@ -7,5 +7,5 @@ public:
   void draw();
 
 private:
-  // TODO
+  // TODO: game state management and main loop
 };
