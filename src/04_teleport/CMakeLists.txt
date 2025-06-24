@@ -3,6 +3,7 @@ project(Game)
 
 find_package(fmt REQUIRED)
 find_package(eigen3 REQUIRED)
+find_package(behaviortree_cpp REQUIRED)
 
 # Force compile commands generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -79,6 +80,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 # Link other packages
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} PRIVATE BT::behaviortree_cpp)
 
 # Platform specific linking
 if(APPLE)

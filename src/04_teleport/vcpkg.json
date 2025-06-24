@@ -1,3 +1,7 @@
 {
-  "dependencies": ["fmt", "eigen3"]
+  "dependencies": [
+    "behaviortree-cpp",
+    "eigen3",
+    "fmt"
+  ]
 }
