@@ -35,6 +35,7 @@ void Renderer::update(float player_camera_position[3]) {
 }
 
 void Renderer::configure_lighting() {
+  // TODO: extract light positions to world
   // Main directional light from top-front
   Light light1 = CreateLight(LIGHT_DIRECTIONAL, (Vector3){1.0f, 1.0f, -1.0f},
                              Vector3Zero(), WHITE, shader);

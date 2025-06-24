@@ -1,43 +1,39 @@
 #include "world.h"
-#include "raylib.h"
+#include "fmt/core.h"
 #include "raymath.h"
-#include <Eigen/Dense>
 #include <random>
 
 void World::get_initial_world_state() {
-  // initialize 2d eigen array to represent the 3d voxel space
-  voxel_space.resize(VOXEL_SIZE * VOXEL_SIZE, VOXEL_SIZE);
-  voxel_space.setConstant(false);
+  // TODO: try to create this elsewhere
+  voxel_space.resize(
+      VOXEL_SIZE, Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>::Constant(
+                      VOXEL_SIZE, VOXEL_SIZE, false));
 
-  // random number generation
+  // TODO: extract number generation
   std::random_device rd;
   std::mt19937 gen(rd());
+
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
-  // Create a flat plane 8 units below the player's starting position
-  const int plane_y = VOXEL_SIZE / 2 - 8;
-  active_voxel_count = 0;
-
-  // Create the flat plane
-  for (int x = VOXEL_SIZE / 4; x < 3 * VOXEL_SIZE / 4; x++) {
-    for (int z = VOXEL_SIZE / 4; z < 3 * VOXEL_SIZE / 4; z++) {
-      voxel_space(x * VOXEL_SIZE + plane_y, z) = true;
-      active_voxel_count++;
-    }
-  }
-
-  // Create random height columns around the player
   std::uniform_int_distribution<int> height_dist(1, 12);
-  for (int x = VOXEL_SIZE / 4; x < 3 * VOXEL_SIZE / 4; x += 5) {
-    for (int z = VOXEL_SIZE / 4; z < 3 * VOXEL_SIZE / 4; z += 5) {
-      int column_height = height_dist(gen);
-      for (int y = plane_y + 1; y < plane_y + 1 + column_height; y++) {
-        voxel_space(x * VOXEL_SIZE + y, z) = true;
-        active_voxel_count++;
+
+  const int plane_y = 0;
+  int active_voxel_count = 0;
+
+  for (int i = 0; i < VOXEL_SIZE; i++) {
+    for (int j = 0; j < VOXEL_SIZE; j++) {
+      // create the flat plane
+      voxel_space[plane_y](i, j) = true;
+      active_voxel_count++;
+
+      // randomly create columns
+      if (dist(gen) < VOXEL_DENSITY) {
+        for (int k = 0; k < height_dist(gen); k++) {
+          voxel_space[plane_y + k](i, j) = true;
+          active_voxel_count++;
+        }
       }
     }
   }
-
 }
 
 void World::configure_materials() {
@@ -62,6 +58,9 @@ void World::update(float dt, Camera player_camera) {
 }
 
 void World::merge_voxels() {
+  // TODO: try to fix issue where mesh size cannot grow too large
+  // TODO: if increasing plane size or n columns, mesh cuts off in render
+  // TODO: extract this logic into mesh.h/cpp
   std::vector<Vector3> vertices;
   std::vector<Vector3> normals;
   std::vector<unsigned short> indices;
@@ -69,10 +68,10 @@ void World::merge_voxels() {
 
   // Helper lambda to check if a voxel exists at given coordinates
   auto hasVoxel = [this](int x, int y, int z) -> bool {
-    if (x < 0 || y < 0 || z < 0 || x >= VOXEL_SIZE || y >= VOXEL_SIZE ||
+    if (x < 0 || x >= VOXEL_SIZE || y < 0 || y >= VOXEL_SIZE || z < 0 ||
         z >= VOXEL_SIZE)
       return false;
-    return voxel_space(x * VOXEL_SIZE + y, z);
+    return voxel_space[y](x, z);
   };
 
   // For each voxel position

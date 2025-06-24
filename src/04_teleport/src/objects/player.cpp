@@ -2,9 +2,10 @@
 #include "raymath.h"
 
 Player::Player() {
-  // Position player on the plane at y=92 (2 units above the plane)
-  camera.position = (Vector3){100.0f, 95.0f, 100.0f};
-  camera.target = (Vector3){10.0f, 95.0f, 0.0f}; // Look forward along plane
+  // TODO: improve this player spawning
+  // player is in corner of the map just above the ground
+  camera.position = (Vector3){80.0f, 3.0f, 80.0f};
+  camera.target = (Vector3){10.0f, 1.0f, 0.0f}; // Look forward along plane
   camera.up = (Vector3){0.0f, 1.0f, 0.0f};
   camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
