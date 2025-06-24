@@ -14,7 +14,7 @@ void World::get_initial_world_state() {
   std::mt19937 gen(rd());
 
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-  std::uniform_int_distribution<int> height_dist(1, 12);
+  std::uniform_int_distribution<int> height_dist(1, 20);
 
   const int plane_y = 0;
   int active_voxel_count = 0;
@@ -78,7 +78,7 @@ void World::update(float dt, Camera player_camera) {
 }
 
 Mesh World::merge_voxels(
-  // TODO: extract this logic into mesh.h/cpp*/
+    // TODO: extract this logic into mesh.h/cpp*/
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &voxel_space,
     int y_offset = 0) {
