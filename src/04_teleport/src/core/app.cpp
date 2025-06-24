@@ -9,15 +9,21 @@ void App::handle_input() {
     if (IsKeyPressed(KEY_ENTER)) {
       current_state = AppState::GAME;
     }
+    if (IsKeyPressed(KEY_ESCAPE)) {
+      current_state = AppState::QUIT;
+    }
     break;
   case AppState::GAME:
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_ESCAPE)) {
       current_state = AppState::PAUSE;
     }
     break;
   case AppState::PAUSE:
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyPressed(KEY_ESCAPE)) {
       current_state = AppState::GAME;
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+      current_state = AppState::QUIT;
     }
     break;
   case AppState::QUIT:
@@ -28,18 +34,26 @@ void App::handle_input() {
 void App::main_menu() {
   BeginDrawing();
   ClearBackground(WHITE);
+  // TODO
   DrawText("main menu", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, BLUE);
+  DrawText("press ENTER to play the game", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, RED);
+  DrawText("press ESCAPE to quit", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50 * 2, 40, RED);
   EndDrawing();
 }
 
 void App::pause_menu() {
   BeginDrawing();
   ClearBackground(WHITE);
-  DrawText("pause", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, RED);
+  // TODO
+  DrawText("pause", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, GREEN);
+  DrawText("press ENTER to quit", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, RED);
   EndDrawing();
 }
 
-void App::run() {
+bool App::run() {
   handle_input();
   switch (current_state) {
   case AppState::MAIN_MENU:
@@ -54,6 +68,7 @@ void App::run() {
     break;
   case AppState::QUIT:
     // TODO: RL_FREE(transforms);
-    return;
+    return false;
   }
+  return true;
 }

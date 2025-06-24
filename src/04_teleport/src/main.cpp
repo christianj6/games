@@ -35,8 +35,7 @@ int main() {
   DisableCursor();
 
   App app;
-  while (!WindowShouldClose()) {
-    app.run();
+  while (app.run()) {
   }
   CloseWindow();
 

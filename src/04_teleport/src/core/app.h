@@ -6,7 +6,7 @@ enum class AppState { MAIN_MENU, GAME, PAUSE, QUIT };
 class App {
 public:
   App();
-  void run();
+  bool run();
 
 private:
   void handle_input();
