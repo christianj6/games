@@ -4,8 +4,6 @@
 #include <Eigen/Dense>
 #include <random>
 
-#define MAX_INSTANCES 10000
-
 void World::get_initial_world_state() {
   // initialize 2d eigen array to represent the 3d voxel space
   voxel_space.resize(VOXEL_SIZE * VOXEL_SIZE, VOXEL_SIZE);
@@ -40,46 +38,6 @@ void World::get_initial_world_state() {
     }
   }
 
-  // allocate transform matrix
-  transforms = (Matrix *)RL_CALLOC(active_voxel_count, sizeof(Matrix));
-
-  const float scale = 1.0f; // Size of each voxel
-  // TODO: extract or inject from player
-  const Vector3 player_start = {-125.0f, 125.0f, -125.0f};
-  const Vector3 offset = {player_start.x - (VOXEL_SIZE * scale / 2.0f),
-                          player_start.y - (VOXEL_SIZE * scale / 2.0f),
-                          player_start.z - (VOXEL_SIZE * scale / 2.0f)};
-
-  // Create a matrix of all positions where voxels are active
-  Eigen::MatrixXf positions(4, active_voxel_count);
-  int current_voxel = 0;
-
-  for (int x = 0; x < VOXEL_SIZE; x++) {
-    for (int y = 0; y < VOXEL_SIZE; y++) {
-      for (int z = 0; z < VOXEL_SIZE; z++) {
-        if (voxel_space(x * VOXEL_SIZE + y, z)) {
-          positions.col(current_voxel) << x * scale + offset.x,
-              y * scale + offset.y, z * scale + offset.z, 1.0f;
-          current_voxel++;
-        }
-      }
-    }
-  }
-
-  // Create transformation matrix (just translation in this case)
-  Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-
-  // Apply transform to all positions at once
-  Eigen::MatrixXf transformed = transform * positions;
-
-  // Convert to array of raylib matrices
-  for (int i = 0; i < active_voxel_count; i++) {
-    transforms[i] = {
-        transform(0, 0), transform(0, 1), transform(0, 2), transformed(0, i),
-        transform(1, 0), transform(1, 1), transform(1, 2), transformed(1, i),
-        transform(2, 0), transform(2, 1), transform(2, 2), transformed(2, i),
-        transform(3, 0), transform(3, 1), transform(3, 2), transformed(3, i)};
-  }
 }
 
 void World::configure_materials() {
