@@ -70,7 +70,6 @@ bool App::run() {
     pause_menu();
     break;
   case AppState::QUIT:
-    game.unload();
     return false;
   }
   return true;
