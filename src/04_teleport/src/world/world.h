@@ -24,6 +24,7 @@ private:
   void get_initial_world_state();
   void configure_materials();
   Mesh ground;
+  Mesh ceiling;
   Mesh merge_voxels(
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
       int);

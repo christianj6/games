@@ -19,17 +19,24 @@ void World::get_initial_world_state() {
   const int plane_y = 0;
   int active_voxel_count = 0;
 
+  // TODO: bro just manipulate the whole space to achieve walls etc.
+  // TODO: just make sure you split it up right
+
   for (int i = 0; i < VOXEL_SIZE; i++) {
     for (int j = 0; j < VOXEL_SIZE; j++) {
       // create the flat plane
       voxel_space[plane_y](i, j) = true;
+      // create a ceiling
+      voxel_space[VOXEL_SIZE - 60](i, j) = true;
       active_voxel_count++;
 
       // randomly create columns
       if (dist(gen) < VOXEL_DENSITY) {
         for (int k = 0; k < height_dist(gen); k++) {
           voxel_space[plane_y + k](i, j) = true;
-          active_voxel_count++;
+          // columns coming down from above
+          voxel_space[VOXEL_SIZE - 1 - 60 - k](i, j) = true;
+          active_voxel_count += 2;
         }
       }
     }
@@ -65,8 +72,11 @@ World::World() : renderer() {
   get_initial_world_state();
   configure_materials();
   ground = merge_voxels(slice_voxel_space(voxel_space, 0, 1), 0);
-  columns =
-      merge_voxels(slice_voxel_space(voxel_space, 1, voxel_space.size()), 1);
+  columns = merge_voxels(
+      slice_voxel_space(voxel_space, 1, voxel_space.size() - 60), 1);
+  ceiling = merge_voxels(slice_voxel_space(voxel_space, voxel_space.size() - 60,
+                                           voxel_space.size()),
+                         voxel_space.size() - 60);
   renderer.configure_lighting();
 }
 
@@ -206,8 +216,10 @@ Mesh World::merge_voxels(
 
 void World::draw() {
   // note: shifting mesh calculation here has a huge performance hit,
-  // but would be necessary in some way if we want a dynamic game world (minecraft)
-  // we can think about this, and relevance of instancing strategy, for 05_explore
+  // but would be necessary in some way if we want a dynamic game world
+  // (minecraft) we can think about this, and relevance of instancing strategy,
+  // for 05_explore
   DrawMesh(ground, material_default, MatrixIdentity());
   DrawMesh(columns, material_default, MatrixIdentity());
+  DrawMesh(ceiling, material_default, MatrixIdentity());
 }
