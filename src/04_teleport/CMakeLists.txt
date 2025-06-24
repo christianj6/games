@@ -72,6 +72,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${raylib_SOURCE_DIR}/src
     ${raylib_SOURCE_DIR}/src/external
     ${raylib_SOURCE_DIR}/src/external/glfw/include
+    ${raylib_SOURCE_DIR}/examples/shaders
 )
 
 # Link raylib
