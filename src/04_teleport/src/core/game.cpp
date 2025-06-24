@@ -21,5 +21,3 @@ void Game::draw() {
   hud.draw(player.get_position());
   EndDrawing();
 }
-
-void Game::unload() { RL_FREE(world.get_transforms()); }

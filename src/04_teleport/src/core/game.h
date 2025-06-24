@@ -8,7 +8,6 @@ public:
   Game();
   void update();
   void draw();
-  void unload();
 
 private:
   Hud hud;
