@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <Eigen/Dense>
 
+// TODO: state management for a real game
 // TODO: improve build instructions for vcpkg
 // TODO: more modular abstractions for colliders, controllers, etc.
 // TODO: more "fun" abstractions for ai; the code in shoot quickly got
