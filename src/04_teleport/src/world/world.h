@@ -11,8 +11,10 @@ public:
   void draw();
 
 private:
-  static constexpr int VOXEL_SIZE = 80;
-  static constexpr float VOXEL_DENSITY = 0.02f;
+  // for some reason mesh rendering is limited to this size
+  static constexpr int VOXEL_SIZE = 85;
+  // this is a reasonable density
+  static constexpr float VOXEL_DENSITY = 0.055f;
 
   Renderer renderer;
   Matrix *transforms;
@@ -21,7 +23,10 @@ private:
 
   void get_initial_world_state();
   void configure_materials();
-  void merge_voxels();
-  Mesh merged_mesh;
+  Mesh ground;
+  Mesh merge_voxels(
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
+      int);
+  Mesh columns;
   Material material_default;
 };
