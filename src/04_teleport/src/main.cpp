@@ -9,7 +9,6 @@
  * game world is conceptually the same as shoot but larger (flat space with
  * pillars) game world is rendered with voxel mesh instancing approach
  * game world has lighting
- * game world has limited visual clutter (eg vines or small plants)
  * player movement is the same as shoot but better abstracted
  * xbox controller input support
  * player can jump
@@ -19,6 +18,8 @@
  * GOAP out of scope: rely on behaviortree_cpp for AI abstractions and just wrap
  * for my needs stop when the main gameplay loop is identical to shoot (hide,
  * teleport, shoot, etc.)
+ * game world has limited visual clutter (eg vines or small plants)
+ * use mesh instancing systems from before to implement the visual clutter
  */
 
 int main() {
