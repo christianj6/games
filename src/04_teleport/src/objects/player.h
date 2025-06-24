@@ -14,5 +14,6 @@ public:
 private:
   Vector3 position;
   Camera camera;
+  const float MOVE_SPEED = 0.5f;
   void handle_input();
 };
