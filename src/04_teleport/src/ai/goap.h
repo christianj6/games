@@ -1,3 +1,2 @@
 // TODO: more "fun" ai abstractions and modularization
-// TODO: implement a true goap AI system; so on top of states you have the
-// actions and planning
+// TODO: goap out of scope; rely on behaviortree for limited ai

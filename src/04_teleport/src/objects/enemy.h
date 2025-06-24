@@ -1,2 +1,1 @@
-// TODO: enemies are more interesting or there exist additional "creates" with
-// cooler visuals
+// TODO: enemy behavior is made more interesting through behavior tree and pathfinding
