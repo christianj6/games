@@ -18,7 +18,7 @@ void Game::draw() {
   world.draw();
   EndMode3D();
 
-  hud.draw();
+  hud.draw(player.get_position());
   EndDrawing();
 }
 

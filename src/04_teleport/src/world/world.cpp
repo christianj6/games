@@ -16,9 +16,8 @@ void World::get_initial_world_state() {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-  // Create a flat plane 10 units below the player's starting position
-  const int plane_y =
-      VOXEL_SIZE / 2 - 10; // Assuming player starts at VOXEL_SIZE/2
+  // Create a flat plane 8 units below the player's starting position
+  const int plane_y = VOXEL_SIZE / 2 - 8;
   active_voxel_count = 0;
 
   // Create the flat plane
