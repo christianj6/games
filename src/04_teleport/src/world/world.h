@@ -21,7 +21,7 @@ private:
 
   void get_initial_world_state();
   void configure_materials();
-  Mesh mesh_cube;
-  Material material_instanced;
+  void merge_voxels();
+  Mesh merged_mesh;
   Material material_default;
 };
