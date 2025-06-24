@@ -1,3 +1,4 @@
+#include "core/game.h"
 #include "fmt/core.h"
 #include "raylib.h"
 #include <Eigen/Dense>

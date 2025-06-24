@@ -52,15 +52,13 @@ endif()
 add_definitions(-DGRAPHICS_API_OPENGL_33)
 
 # Collect source files
-file(GLOB_RECURSE SOURCES 
-    "src/*.cpp"
-    "src/*.c"
-    "src/*.h"
-    "src/*.hpp"
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
 )
 
 # Create executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 # Set output directories to match premake
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -68,7 +66,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 # Include directories
-target_include_directories(${PROJECT_NAME} PRIVATE 
+target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${raylib_SOURCE_DIR}/src
     ${raylib_SOURCE_DIR}/src/external
