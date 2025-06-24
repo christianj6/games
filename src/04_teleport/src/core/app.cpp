@@ -16,6 +16,7 @@ void App::handle_input() {
     break;
   case AppState::GAME:
     if (IsKeyPressed(KEY_ESCAPE)) {
+      // TODO: revert
       /*current_state = AppState::PAUSE;*/
       current_state = AppState::QUIT;
     }
@@ -69,7 +70,7 @@ bool App::run() {
     pause_menu();
     break;
   case AppState::QUIT:
-    // TODO: RL_FREE(transforms);
+    game.unload();
     return false;
   }
   return true;

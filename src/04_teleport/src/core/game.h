@@ -1,21 +1,17 @@
+#pragma once
 #include "hud.h"
 #include "objects/player.h"
-#include "raylib.h"
-#pragma once
+#include "world/world.h"
 
 class Game {
 public:
   Game();
   void update();
   void draw();
+  void unload();
 
 private:
   Hud hud;
   Player player;
-  //
-  Shader shader;
-  Mesh cube;
-  Material mat_instances;
-  Material mat_default;
-  Matrix *transforms;
+  World world;
 };
