@@ -1,16 +1,7 @@
-// TODO: slightly larger game world, made possible through voxel-based rendering
-// TODO: pseudo voxel world: implement a world state with Matrix, abstractions
-// update this
-// TODO: rely on eigen for Matrix operations
-// TODO: culling out of scope for now; just reproduce the world from shoot w new
-// pipeline
-// TODO: rely on raylib's mesh instancing to draw them; a reasonable start
-// TODO: out of scope: world layout regularly changes like a shifting labyrinth
-//
-
 #pragma once
 #include "graphics/renderer.h"
 #include "raylib.h"
+#include <Eigen/Dense>
 
 class World {
 public:
@@ -20,8 +11,14 @@ public:
   Matrix *get_transforms() { return transforms; }
 
 private:
+  static constexpr int VOXEL_SIZE = 200;
+  static constexpr float VOXEL_DENSITY = 0.001f; // 10% of voxels will be filled
+
   Renderer renderer;
   Matrix *transforms;
+  int active_voxel_count;
+  Eigen::Array<bool, Eigen::Dynamic, Eigen::Dynamic> voxel_space;
+
   void get_initial_world_state();
   void configure_materials();
   Mesh mesh_cube;

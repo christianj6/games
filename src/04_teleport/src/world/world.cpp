@@ -6,40 +6,63 @@
 #define MAX_INSTANCES 10000
 
 void World::get_initial_world_state() {
-  transforms = (Matrix *)RL_CALLOC(MAX_INSTANCES, sizeof(Matrix));
+  // initialize 2d eigen array to represent the 3d voxel space
+  voxel_space.resize(VOXEL_SIZE * VOXEL_SIZE, VOXEL_SIZE);
+  voxel_space.setConstant(false);
 
+  // random number generation
   std::random_device rd;
   std::mt19937 gen(rd());
-  const float radius = 40.0f;           // Radius of the circle
-  const float height_variation = 10.0f; // How much height varies
-  std::uniform_real_distribution<float> height_dist(-height_variation,
-                                                    height_variation);
-  std::uniform_real_distribution<float> angle_dist(0.0f, 360.0f);
+  std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-  for (int i = 0; i < MAX_INSTANCES; i++) {
-    // Calculate position on circle
-    float angle = (static_cast<float>(i) / MAX_INSTANCES) * 2.0f * M_PI;
-    float x = radius * std::cos(angle);
-    float z = radius * std::sin(angle);
-    float y = height_dist(gen); // Random height variation
+  // randomly set some voxels to active
+  active_voxel_count = 0;
+  for (int x = 0; x < VOXEL_SIZE; x++) {
+    for (int y = 0; y < VOXEL_SIZE; y++) {
+      for (int z = 0; z < VOXEL_SIZE; z++) {
+        if (dist(gen) < VOXEL_DENSITY) {
+          voxel_space(x * VOXEL_SIZE + y, z) = true;
+          active_voxel_count++;
+        }
+      }
+    }
+  }
 
-    // Create translation matrix using Eigen
-    Eigen::Vector3f translation(x, y, z);
-    Eigen::Translation3f trans(translation);
+  // allocate transform matrix
+  transforms = (Matrix *)RL_CALLOC(active_voxel_count, sizeof(Matrix));
 
-    // Create random rotation matrix using Eigen
-    Eigen::Vector3f axis(1.0f, 1.0f, 1.0f); // Rotate around diagonal axis
-    axis.normalize();
-    Eigen::AngleAxisf rot(angle, axis);
+  const float scale = 1.0f;                        // Size of each voxel
+  const float offset = -VOXEL_SIZE * scale / 2.0f; // Center the world
 
-    // Combine transformations
-    Eigen::Affine3f transform = trans * rot;
+  // Create a matrix of all positions where voxels are active
+  Eigen::MatrixXf positions(4, active_voxel_count);
+  int current_voxel = 0;
 
-    // Convert Eigen matrix to raylib Matrix
-    Eigen::Matrix4f m = transform.matrix();
-    transforms[i] = {m(0, 0), m(0, 1), m(0, 2), m(0, 3), m(1, 0), m(1, 1),
-                     m(1, 2), m(1, 3), m(2, 0), m(2, 1), m(2, 2), m(2, 3),
-                     m(3, 0), m(3, 1), m(3, 2), m(3, 3)};
+  for (int x = 0; x < VOXEL_SIZE; x++) {
+    for (int y = 0; y < VOXEL_SIZE; y++) {
+      for (int z = 0; z < VOXEL_SIZE; z++) {
+        if (voxel_space(x * VOXEL_SIZE + y, z)) {
+          positions.col(current_voxel) << x * scale + offset,
+              y * scale + offset, z * scale + offset, 1.0f;
+          current_voxel++;
+        }
+      }
+    }
+  }
+
+  // Create transformation matrix (just translation in this case)
+  Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+
+  // Apply transform to all positions at once
+  Eigen::MatrixXf transformed = transform * positions;
+
+  // Convert to array of raylib matrices
+  for (int i = 0; i < active_voxel_count; i++) {
+    transforms[i] = {
+        transform(0, 0), transform(0, 1), transform(0, 2), transformed(0, i),
+        transform(1, 0), transform(1, 1), transform(1, 2), transformed(1, i),
+        transform(2, 0), transform(2, 1), transform(2, 2), transformed(2, i),
+        transform(3, 0), transform(3, 1), transform(3, 2), transformed(3, i)};
   }
 }
 
@@ -71,6 +94,6 @@ void World::update(float dt, Camera player_camera) {
 }
 
 void World::draw() {
-  DrawMeshInstanced(mesh_cube, material_instanced, transforms, MAX_INSTANCES);
-  // TODO: draw other things
+  DrawMeshInstanced(mesh_cube, material_instanced, transforms,
+                    active_voxel_count);
 }
