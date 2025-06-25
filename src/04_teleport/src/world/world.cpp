@@ -4,11 +4,6 @@
 #include "utils/random.h"
 
 void World::get_initial_world_state() {
-  // TODO: try to create this elsewhere
-  voxel_space.resize(
-      VOXEL_SIZE, Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>::Constant(
-                      VOXEL_SIZE, VOXEL_SIZE, false));
-
   RandomNumberGenerator<float> random_voxel(0.0f, 1.0f);
   RandomNumberGenerator<int> random_height(1, 20);
 
@@ -61,7 +56,11 @@ slice_voxel_space(
       voxel_space.begin() + y_start, voxel_space.begin() + y_end);
 }
 
-World::World() : renderer() {
+World::World()
+    : renderer(),
+      voxel_space(VOXEL_SIZE,
+                  Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>::Constant(
+                      VOXEL_SIZE, VOXEL_SIZE, false)) {
   // TODO: ideally the world is just an abstraction that lets me play with eigen
   // to make my voxel voxel_space and then the renderer and mesh stuff "just
   // makes it work"
