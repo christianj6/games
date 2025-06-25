@@ -13,9 +13,12 @@ World::World()
                       VOXEL_SIZE, VOXEL_SIZE, false)) {
   build_voxel_space();
   // currently we split floor, columns, and ceiling into separate meshes
-  build_voxel_space_meshes(
-      std::vector<int>({1, static_cast<int>(voxel_space.size() - 60),
-                        static_cast<int>(voxel_space.size())}));
+  build_voxel_space_meshes(std::vector<int>(
+      {1,
+       static_cast<int>(
+           voxel_space.size() - 60 +
+           1), // add the extra one because we turned off the ceiling
+       static_cast<int>(voxel_space.size())}));
 
   configure_materials();
   renderer.configure_lighting();
@@ -33,6 +36,7 @@ void World::draw() {
   for (auto &mesh : meshes) {
     DrawMesh(mesh, material_default, MatrixIdentity());
   }
+  renderer.draw();
 }
 
 void World::build_voxel_space() {
@@ -46,7 +50,7 @@ void World::build_voxel_space() {
     for (int j = 0; j < VOXEL_SIZE; j++) {
       // create floor and ceiling
       voxel_space[floor_y](i, j) = true;
-      voxel_space[ceiling_y](i, j) = true;
+      /*voxel_space[ceiling_y](i, j) = true;*/
 
       // randomly create columns from floor and ceiling
       if (random_voxel() < VOXEL_DENSITY) {

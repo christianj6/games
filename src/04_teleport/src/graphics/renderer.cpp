@@ -35,19 +35,33 @@ void Renderer::update(Camera camera) {
                  SHADER_UNIFORM_VEC3);
 }
 
+void Renderer::draw() {
+  // Draw red spheres
+  for (int i = 0; i < NUM_SPHERES; i++) {
+    DrawSphereEx(sphere_positions[i], 1.0f, 8, 8, RED);
+  }
+}
+
 void Renderer::configure_lighting() {
-  const float AREA_SIZE = 80.0f;
-  const float CORNER_HEIGHT = 15.0f;
+  const float AREA_SIZE = 85.0f;
+  const float CORNER_HEIGHT = 0.0f;
 
-  CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, -AREA_SIZE},
-              Vector3Zero(), DARKPURPLE, shader);
+  // Initialize red sphere lights
+  for (int i = 0; i < NUM_SPHERES; i++) {
+    sphere_lights[i] =
+        CreateLight(LIGHT_POINT, sphere_positions[i], Vector3Zero(),
+                    (Color){255, 50, 50, 255}, shader);
+  }
 
-  CreateLight(LIGHT_POINT, (Vector3){-AREA_SIZE, CORNER_HEIGHT, AREA_SIZE},
-              Vector3Zero(), DARKGREEN, shader);
-
-  CreateLight(LIGHT_POINT, (Vector3){-AREA_SIZE, CORNER_HEIGHT, -AREA_SIZE},
-              Vector3Zero(), DARKBLUE, shader);
+  CreateLight(LIGHT_POINT, (Vector3){0, CORNER_HEIGHT, 0}, Vector3Zero(),
+              DARKPURPLE, shader);
 
   CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, AREA_SIZE},
-              Vector3Zero(), RED, shader);
+              Vector3Zero(), DARKPURPLE, shader);
+
+  CreateLight(LIGHT_POINT, (Vector3){0, CORNER_HEIGHT, AREA_SIZE},
+              Vector3Zero(), DARKPURPLE, shader);
+
+  CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, 0},
+              Vector3Zero(), DARKPURPLE, shader);
 }
