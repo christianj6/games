@@ -29,6 +29,22 @@ void Player::update(
     float dt,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &vector_space_data) {
+  // Handle jumping
+  jump();
+
+  // Apply gravity and update vertical position
+  vertical_velocity += GRAVITY * dt;
+  camera.position.y += vertical_velocity * dt;
+  camera.target.y += vertical_velocity * dt;
+
+  // Ground check
+  if (camera.position.y <= 3.0f) {
+    camera.position.y = 3.0f;
+    /*camera.target.y = camera.position.y;*/
+    vertical_velocity = 0.0f;
+    is_grounded = true;
+  }
+
   Vector3 forward = {camera.target.x - camera.position.x,
                      camera.target.y - camera.position.y,
                      camera.target.z - camera.position.z};
@@ -61,7 +77,10 @@ void Player::move_camera() {
 }
 
 void Player::jump() {
-  // TODO
+  if (is_grounded && movement_controller->get_input_jump()) {
+    vertical_velocity = JUMP_FORCE;
+    is_grounded = false;
+  }
 }
 
 void Player::blink() {

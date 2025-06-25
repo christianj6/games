@@ -18,6 +18,10 @@ private:
   Camera camera;
   const float MOVE_SPEED = 10.0f;
   const float MOUSE_SENSITIVITY = 0.003f;
+  const float JUMP_FORCE = 12.0f;
+  const float GRAVITY = -20.0f;
+  float vertical_velocity = 0.0f;
+  bool is_grounded = true;
   std::unique_ptr<IMovemementController> movement_controller;
   Vector3 try_move();
   void setup_camera();
