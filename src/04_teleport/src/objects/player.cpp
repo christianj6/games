@@ -9,19 +9,15 @@
 Player::Player()
     : movement_controller(std::make_unique<PlayerMovementController>(
           std::make_unique<KeyboardInputProvider>())) {
-  // TODO: improve this player spawning
-  // player is in corner of the map just above the ground
-  camera.position = (Vector3){80.0f, 3.0f, 80.0f};
-  camera.target = (Vector3){10.0f, 1.0f, 0.0f}; // Look forward along plane
-  camera.up = (Vector3){0.0f, 1.0f, 0.0f};
-  camera.fovy = 60.0f;
-  camera.projection = CAMERA_PERSPECTIVE;
+  setup_camera();
 }
 
 Player::Player(std::unique_ptr<IMovemementController> movement_controller)
     : movement_controller(std::move(movement_controller)) {
-  // TODO: improve this player spawning
-  // player is in corner of the map just above the ground
+  setup_camera();
+}
+
+void Player::setup_camera() {
   camera.position = (Vector3){80.0f, 3.0f, 80.0f};
   camera.target = (Vector3){10.0f, 1.0f, 0.0f}; // Look forward along plane
   camera.up = (Vector3){0.0f, 1.0f, 0.0f};
@@ -42,7 +38,7 @@ void Player::update(
 
   int block_x = static_cast<int>(camera.position.x + movement.x);
   int block_z = static_cast<int>(camera.position.z + movement.z);
-  if (vector_space_data[2](block_x, block_z)) {
+  if (vector_space_data[1](block_x, block_z)) {
     // intended movement overlaps with a column; no movement
   } else {
     // no column collision; apply movement
@@ -56,10 +52,11 @@ void Player::update(
 }
 
 void Player::move_camera() {
+  Vector2 camera_update = movement_controller->update_camera();
   float camera_sensitivity = 0.095f;
   UpdateCameraPro(&camera, (Vector3){0},
-                  (Vector3){GetMouseDelta().x * camera_sensitivity,
-                            GetMouseDelta().y * camera_sensitivity, 0.0f},
+                  (Vector3){camera_update.x * camera_sensitivity,
+                            camera_update.y * camera_sensitivity, 0.0f},
                   0.0f);
 }
 

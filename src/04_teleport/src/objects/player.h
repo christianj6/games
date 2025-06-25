@@ -20,6 +20,7 @@ private:
   const float MOUSE_SENSITIVITY = 0.003f;
   std::unique_ptr<IMovemementController> movement_controller;
   Vector3 try_move();
+  void setup_camera();
   void move_camera();
   void jump();
   void blink();
