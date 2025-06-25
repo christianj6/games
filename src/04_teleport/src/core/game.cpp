@@ -7,7 +7,7 @@ Game::Game(bool debug_mode_enabled)
 
 void Game::update() {
   float dt = GetFrameTime();
-  player.update(dt);
+  player.update(dt, world.get_voxel_space_data());
   world.update(dt, player.get_camera());
   hud.update(dt);
 }

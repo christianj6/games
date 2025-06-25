@@ -9,6 +9,10 @@ public:
   World();
   void update(float, Camera);
   void draw();
+  const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+  get_voxel_space_data() const {
+    return voxel_space;
+  }
 
 private:
   // for some reason mesh rendering is limited to this size

@@ -10,25 +10,30 @@ Player::Player() {
   camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
 }
+void Player::update(
+    float,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &vector_space_data) {
+  Vector3 movement = try_move();
 
-void Player::update(float dt) { handle_input(); }
+  int block_x = static_cast<int>(camera.position.x + movement.x);
+  int block_z = static_cast<int>(camera.position.z + movement.z);
+  if (vector_space_data[2](block_x, block_z)) {
+    // intended movement overlaps with a column; no movement
+  } else {
+    // no column collision; apply movement
+    camera.position.x += movement.x;
+    camera.position.z += movement.z;
+    camera.target.x += movement.x;
+    camera.target.z += movement.z;
+  }
 
-void Player::jump() {
-  // TODO
+  move_camera();
 }
 
-void Player::blink() {
-  // TODO: right-click spawns a ball like dishonored
-  // TODO: ball cannot collide with obstacles
-  // TODO: releasing blinks the player to the location of the ball with same
-  // camera direction
-}
+Vector3 Player::try_move() {
+  float speed = 0.08f; // Reduced movement speed
 
-void Player::handle_input() {
-  float camera_sensitivity = 0.095f; // Increased camera movement speed
-  float speed = 0.08f;               // Reduced movement speed
-
-  // Handle shooting
   // Get forward vector (normalized direction vector from position to target)
   Vector3 forward = {camera.target.x - camera.position.x,
                      camera.target.y - camera.position.y,
@@ -60,19 +65,24 @@ void Player::handle_input() {
     movement.x -= right.x * speed;
     movement.z -= right.z * speed;
   }
+  return movement;
+}
 
-  /*// Check for collisions and adjust movement*/
-  /*movement = try_move(movement);*/
-
-  // Apply the movement
-  camera.position.x += movement.x;
-  camera.position.z += movement.z;
-  camera.target.x += movement.x;
-  camera.target.z += movement.z;
-
-  // Handle rotation
-  UpdateCameraPro(&camera, (Vector3){0}, // Movement handled above
+void Player::move_camera() {
+  float camera_sensitivity = 0.095f;
+  UpdateCameraPro(&camera, (Vector3){0},
                   (Vector3){GetMouseDelta().x * camera_sensitivity,
                             GetMouseDelta().y * camera_sensitivity, 0.0f},
                   0.0f);
+}
+
+void Player::jump() {
+  // TODO
+}
+
+void Player::blink() {
+  // TODO: right-click spawns a ball like dishonored
+  // TODO: ball cannot collide with obstacles
+  // TODO: releasing blinks the player to the location of the ball with same
+  // camera direction
 }
