@@ -25,6 +25,7 @@ void Player::setup_camera() {
   camera.projection = CAMERA_PERSPECTIVE;
 }
 
+// TODO: extract collision detection into abstraction
 void Player::update(
     float dt,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
