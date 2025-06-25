@@ -13,6 +13,14 @@ Player::Player() {
 
 void Player::update(float dt) { handle_input(); }
 
+void Player::jump(){
+  // TODO
+}
+
+void Player::blink(){
+  // TODO
+}
+
 void Player::handle_input() {
   float camera_sensitivity = 0.095f; // Increased camera movement speed
   float speed = 0.08f;               // Reduced movement speed

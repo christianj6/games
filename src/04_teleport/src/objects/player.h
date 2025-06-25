@@ -1,7 +1,3 @@
-// TODO: teleportation mechanic allows player to blink forwards and on top of
-// obstacles
-// TODO: jump mechanic which pairs with teleportation
-
 #include "raylib.h"
 
 class Player {
@@ -17,4 +13,6 @@ private:
   const float MOVE_SPEED = 10.0f;
   const float MOUSE_SENSITIVITY = 0.003f;
   void handle_input();
+  void jump();
+  void blink();
 };
