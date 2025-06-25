@@ -1,0 +1,145 @@
+#include "mesh.h"
+
+std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+slice_voxel_space(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &voxel_space,
+    int y_start, int y_end) {
+
+  if (y_start < 0)
+    y_start = 0;
+  if (y_end > static_cast<int>(voxel_space.size()))
+    y_end = voxel_space.size();
+  if (y_start >= y_end)
+    return {};
+
+  // Simply return the subvector (no merging, no collapsing)
+  return std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>(
+      voxel_space.begin() + y_start, voxel_space.begin() + y_end);
+}
+
+Mesh merge_voxels(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &voxel_space,
+    int y_offset = 0) {
+
+  const int Y_SIZE = static_cast<int>(voxel_space.size());
+  if (Y_SIZE == 0)
+    return Mesh{}; // early exit if empty
+
+  const int X_SIZE = voxel_space[0].rows();
+  const int Z_SIZE = voxel_space[0].cols();
+
+  std::vector<Vector3> vertices;
+  std::vector<Vector3> normals;
+  std::vector<unsigned short> indices;
+  unsigned short currentIndex = 0;
+
+  auto hasVoxel = [&](int x, int y, int z) -> bool {
+    if (x < 0 || x >= X_SIZE || y < 0 || y >= Y_SIZE || z < 0 || z >= Z_SIZE)
+      return false;
+    return voxel_space[y](x, z);
+  };
+
+  for (int x = 0; x < X_SIZE; x++) {
+    for (int y = 0; y < Y_SIZE; y++) {
+      for (int z = 0; z < Z_SIZE; z++) {
+        if (!hasVoxel(x, y, z))
+          continue;
+
+        auto addFace = [&](std::initializer_list<Vector3> faceVertices,
+                           Vector3 normal) {
+          for (const auto &v : faceVertices)
+            vertices.push_back(v);
+          for (int i = 0; i < 4; i++)
+            normals.push_back(normal);
+          indices.push_back(currentIndex);
+          indices.push_back(currentIndex + 1);
+          indices.push_back(currentIndex + 2);
+          indices.push_back(currentIndex);
+          indices.push_back(currentIndex + 2);
+          indices.push_back(currentIndex + 3);
+          currentIndex += 4;
+        };
+
+        float xf = static_cast<float>(x);
+        float yf = static_cast<float>(y + y_offset); // apply offset here
+        float zf = static_cast<float>(z);
+
+        if (!hasVoxel(x, y, z + 1))
+          addFace({{xf, yf, zf + 1},
+                   {xf + 1, yf, zf + 1},
+                   {xf + 1, yf + 1, zf + 1},
+                   {xf, yf + 1, zf + 1}},
+                  {0, 0, 1});
+
+        if (!hasVoxel(x, y, z - 1))
+          addFace({{xf + 1, yf, zf},
+                   {xf, yf, zf},
+                   {xf, yf + 1, zf},
+                   {xf + 1, yf + 1, zf}},
+                  {0, 0, -1});
+
+        if (!hasVoxel(x, y + 1, z))
+          addFace({{xf, yf + 1, zf},
+                   {xf, yf + 1, zf + 1},
+                   {xf + 1, yf + 1, zf + 1},
+                   {xf + 1, yf + 1, zf}},
+                  {0, 1, 0});
+
+        if (!hasVoxel(x, y - 1, z))
+          addFace({{xf, yf, zf + 1},
+                   {xf, yf, zf},
+                   {xf + 1, yf, zf},
+                   {xf + 1, yf, zf + 1}},
+                  {0, -1, 0});
+
+        if (!hasVoxel(x + 1, y, z))
+          addFace({{xf + 1, yf, zf + 1},
+                   {xf + 1, yf, zf},
+                   {xf + 1, yf + 1, zf},
+                   {xf + 1, yf + 1, zf + 1}},
+                  {1, 0, 0});
+
+        if (!hasVoxel(x - 1, y, z))
+          addFace({{xf, yf, zf},
+                   {xf, yf, zf + 1},
+                   {xf, yf + 1, zf + 1},
+                   {xf, yf + 1, zf}},
+                  {-1, 0, 0});
+      }
+    }
+  }
+
+  Mesh merged_mesh = {0};
+  merged_mesh.vertexCount = vertices.size();
+  merged_mesh.triangleCount = indices.size() / 3;
+
+  merged_mesh.vertices =
+      (float *)RL_MALLOC(vertices.size() * 3 * sizeof(float));
+  merged_mesh.normals = (float *)RL_MALLOC(normals.size() * 3 * sizeof(float));
+  merged_mesh.indices =
+      (unsigned short *)RL_MALLOC(indices.size() * sizeof(unsigned short));
+  merged_mesh.texcoords =
+      (float *)RL_MALLOC(vertices.size() * 2 * sizeof(float));
+
+  for (size_t i = 0; i < vertices.size(); i++) {
+    merged_mesh.vertices[i * 3] = vertices[i].x;
+    merged_mesh.vertices[i * 3 + 1] = vertices[i].y;
+    merged_mesh.vertices[i * 3 + 2] = vertices[i].z;
+
+    merged_mesh.normals[i * 3] = normals[i].x;
+    merged_mesh.normals[i * 3 + 1] = normals[i].y;
+    merged_mesh.normals[i * 3 + 2] = normals[i].z;
+
+    merged_mesh.texcoords[i * 2] = 0.0f;
+    merged_mesh.texcoords[i * 2 + 1] = 0.0f;
+  }
+
+  for (size_t i = 0; i < indices.size(); i++) {
+    merged_mesh.indices[i] = indices[i];
+  }
+
+  UploadMesh(&merged_mesh, false);
+  return merged_mesh;
+}

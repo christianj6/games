@@ -16,18 +16,13 @@ private:
   // this is a reasonable density; again mesh limitations prevent high density
   static constexpr float VOXEL_DENSITY = 0.055f;
 
-  Renderer renderer;
-  Matrix *transforms;
-  int active_voxel_count;
-  std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> voxel_space;
-
-  void get_initial_world_state();
+  void build_voxel_space();
+  void build_voxel_space_meshes(const std::vector<int> &);
   void configure_materials();
-  Mesh ground;
-  Mesh ceiling;
-  Mesh merge_voxels(
-      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
-      int);
-  Mesh columns;
+
+  std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> voxel_space;
+  std::vector<Mesh> meshes;
+
   Material material_default;
+  Renderer renderer;
 };
