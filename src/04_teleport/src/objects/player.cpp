@@ -18,7 +18,10 @@ void Player::jump() {
 }
 
 void Player::blink() {
-  // TODO
+  // TODO: right-click spawns a ball like dishonored
+  // TODO: ball cannot collide with obstacles
+  // TODO: releasing blinks the player to the location of the ball with same
+  // camera direction
 }
 
 void Player::handle_input() {
