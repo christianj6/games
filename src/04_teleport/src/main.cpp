@@ -35,7 +35,7 @@ int main() {
   ToggleBorderlessWindowed();
   DisableCursor();
 
-  App app;
+  App app{true};
   while (app.run()) {
   }
   CloseWindow();

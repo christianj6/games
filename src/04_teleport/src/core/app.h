@@ -5,7 +5,7 @@ enum class AppState { MAIN_MENU, GAME, PAUSE, QUIT };
 
 class App {
 public:
-  App();
+  App(bool = false);
   bool run();
 
 private:
@@ -13,6 +13,7 @@ private:
   void main_menu();
   void pause_menu();
 
+  bool debug_mode_enabled;
   AppState current_state;
   Game game;
 };
