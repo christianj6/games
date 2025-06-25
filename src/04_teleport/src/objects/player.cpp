@@ -13,11 +13,11 @@ Player::Player() {
 
 void Player::update(float dt) { handle_input(); }
 
-void Player::jump(){
+void Player::jump() {
   // TODO
 }
 
-void Player::blink(){
+void Player::blink() {
   // TODO
 }
 

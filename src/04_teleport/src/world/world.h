@@ -13,7 +13,7 @@ public:
 private:
   // for some reason mesh rendering is limited to this size
   static constexpr int VOXEL_SIZE = 85;
-  // this is a reasonable density
+  // this is a reasonable density; again mesh limitations prevent high density
   static constexpr float VOXEL_DENSITY = 0.055f;
 
   Renderer renderer;
