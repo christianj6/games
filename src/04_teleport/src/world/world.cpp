@@ -1,7 +1,8 @@
 #include "world.h"
 #include "fmt/core.h"
 #include "raymath.h"
-#include <random>
+/*#include <random>*/
+#include "utils/random.h"
 
 void World::get_initial_world_state() {
   // TODO: try to create this elsewhere
@@ -9,12 +10,8 @@ void World::get_initial_world_state() {
       VOXEL_SIZE, Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>::Constant(
                       VOXEL_SIZE, VOXEL_SIZE, false));
 
-  // TODO: extract number generation
-  std::random_device rd;
-  std::mt19937 gen(rd());
-
-  std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-  std::uniform_int_distribution<int> height_dist(1, 20);
+  RandomNumberGenerator<float> random_voxel(0.0f, 1.0f);
+  RandomNumberGenerator<int> random_height(1, 20);
 
   const int plane_y = 0;
   int active_voxel_count = 0;
@@ -31,8 +28,8 @@ void World::get_initial_world_state() {
       active_voxel_count++;
 
       // randomly create columns
-      if (dist(gen) < VOXEL_DENSITY) {
-        for (int k = 0; k < height_dist(gen); k++) {
+      if (random_voxel() < VOXEL_DENSITY) {
+        for (int k = 0; k < random_height(); k++) {
           voxel_space[plane_y + k](i, j) = true;
           // columns coming down from above
           voxel_space[VOXEL_SIZE - 1 - 60 - k](i, j) = true;
