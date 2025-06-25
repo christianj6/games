@@ -21,3 +21,7 @@ Vector3 PlayerMovementController::update_movement(float dt, Vector3 forward,
                           speed * dt};
   return movement;
 }
+
+Vector2 PlayerMovementController::update_camera() {
+  return input_provider->get_input_look_vector();
+}
