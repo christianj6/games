@@ -64,7 +64,7 @@ Build System: CMake, Ninja
 
 #### 04_teleport
 Larger game world with teleportation mechanic. Polishing game development and C++ capabilities, project organization, and Web Assembly build for browser support.
-Working with additional packages and development tools.
+Working with additional packages and development tools. First experiences with shaders, meshes, and lighting.
 
 Build System: vcpkg, CMake, Ninja
 
