@@ -15,9 +15,6 @@ void World::get_initial_world_state() {
   const int plane_y = 0;
   int active_voxel_count = 0;
 
-  // TODO: bro just manipulate the whole space to achieve walls etc.
-  // TODO: just make sure you split it up right
-
   for (int i = 0; i < VOXEL_SIZE; i++) {
     for (int j = 0; j < VOXEL_SIZE; j++) {
       // create the flat plane
@@ -65,8 +62,15 @@ slice_voxel_space(
 }
 
 World::World() : renderer() {
+  // TODO: ideally the world is just an abstraction that lets me play with eigen
+  // to make my voxel voxel_space and then the renderer and mesh stuff "just
+  // makes it work"
+  // TODO: rename so the logic is clearer: build voxel space > build meshes >
+  // configure renderer
   get_initial_world_state();
   configure_materials();
+  // TODO: refactor mesh handling so world just has a list of meshes it
+  // initalizes based on the voxel space
   ground = merge_voxels(slice_voxel_space(voxel_space, 0, 1), 0);
   columns = merge_voxels(
       slice_voxel_space(voxel_space, 1, voxel_space.size() - 60), 1);
@@ -211,6 +215,7 @@ Mesh World::merge_voxels(
 }
 
 void World::draw() {
+  // TODO: for mesh in meshes mesh.draw()
   // note: shifting mesh calculation here has a huge performance hit,
   // but would be necessary in some way if we want a dynamic game world
   // (minecraft) we can think about this, and relevance of instancing strategy,
