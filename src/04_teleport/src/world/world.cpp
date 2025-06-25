@@ -22,10 +22,7 @@ World::World()
 }
 
 void World::update(float dt, Camera player_camera) {
-  float player_camera_position[3] = {player_camera.position.x,
-                                     player_camera.position.y,
-                                     player_camera.position.z};
-  renderer.update(player_camera_position);
+  renderer.update(player_camera);
 }
 
 void World::draw() {

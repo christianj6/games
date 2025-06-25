@@ -1,8 +1,8 @@
 #include "renderer.h"
+#include "raymath.h"
 #include "utils/resource_dir.h"
 
 #define RLIGHTS_IMPLEMENTATION
-#include "raymath.h"
 #include "rlights.h"
 
 #if defined(PLATFORM_DESKTOP)
@@ -29,43 +29,37 @@ Renderer::Renderer() {
                  SHADER_UNIFORM_VEC4);
 }
 
-void Renderer::update(float player_camera_position[3]) {
-  SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW],
-                 player_camera_position, SHADER_UNIFORM_VEC3);
+void Renderer::update(Camera camera) {
+  float position[3] = {camera.position.x, camera.position.y, camera.position.z};
+  SetShaderValue(shader, shader.locs[SHADER_LOC_VECTOR_VIEW], position,
+                 SHADER_UNIFORM_VEC3);
+
+  // Update moving light position in a circular pattern
+  moving_light_angle += 0.5f * GetFrameTime();
+  float radius = 40.0f;
+  moving_light.position =
+      (Vector3){cosf(moving_light_angle) * radius,
+                8.0f + sinf(moving_light_angle * 0.5f) *
+                           2.0f, // Add some vertical movement
+                sinf(moving_light_angle) * radius};
+
+  UpdateLightValues(shader, moving_light);
 }
 
 void Renderer::configure_lighting() {
-  // TODO: extract light positions to world
-  // Main ambient directional light from above
-  Light light1 =
-      CreateLight(LIGHT_DIRECTIONAL, (Vector3){0.0f, 1.0f, 0.0f}, Vector3Zero(),
-                  (Color){180, 180, 180, 255}, shader);
+  const float AREA_SIZE = 80.0f;
+  const float CORNER_HEIGHT = 15.0f;
 
-  // Point lights spread around the space
-  Light light2 = CreateLight(LIGHT_POINT, (Vector3){50.0f, 5.0f, 50.0f},
-                             (Vector3){0.0f, 0.0f, 0.0f},
-                             (Color){255, 100, 100, 255}, shader);
+  Light light2 =
+      CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, AREA_SIZE},
+                  Vector3Zero(), (Color){200, 100, 100, 255}, shader);
+  Light light3 =
+      CreateLight(LIGHT_POINT, (Vector3){-AREA_SIZE, CORNER_HEIGHT, -AREA_SIZE},
+                  Vector3Zero(), (Color){100, 200, 100, 255}, shader);
+  Light light4 =
+      CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, -AREA_SIZE},
+                  Vector3Zero(), (Color){100, 100, 200, 255}, shader);
 
-  Light light3 = CreateLight(LIGHT_POINT, (Vector3){-50.0f, 5.0f, -50.0f},
-                             (Vector3){0.0f, 0.0f, 0.0f},
-                             (Color){100, 255, 100, 255}, shader);
-
-  Light light4 = CreateLight(LIGHT_POINT, (Vector3){50.0f, 5.0f, -50.0f},
-                             (Vector3){0.0f, 0.0f, 0.0f},
-                             (Color){100, 100, 255, 255}, shader);
-
-  Light light5 = CreateLight(LIGHT_POINT, (Vector3){-50.0f, 5.0f, 50.0f},
-                             (Vector3){0.0f, 0.0f, 0.0f},
-                             (Color){255, 255, 100, 255}, shader);
-
-  Light light6 = CreateLight(LIGHT_POINT, (Vector3){0.0f, 5.0f, 0.0f},
-                             (Vector3){0.0f, 0.0f, 0.0f},
-                             (Color){255, 100, 255, 255}, shader);
-
-  UpdateLightValues(shader, light1);
-  UpdateLightValues(shader, light2);
-  UpdateLightValues(shader, light3);
-  UpdateLightValues(shader, light4);
-  UpdateLightValues(shader, light5);
-  UpdateLightValues(shader, light6);
+  moving_light = CreateLight(LIGHT_POINT, (Vector3){0.0f, 8.0f, 0.0f},
+                             Vector3Zero(), (Color){255, 50, 50, 255}, shader);
 }
