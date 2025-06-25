@@ -5,7 +5,8 @@
 
 class Game {
 public:
-  Game();
+  // game is just passing through the debug bool
+  Game(bool);
   void update();
   void draw();
 

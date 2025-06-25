@@ -2,12 +2,14 @@
 #include "raylib.h"
 #include <stdlib.h>
 
-Game::Game() : hud(), player(), world() {}
+Game::Game(bool debug_mode_enabled)
+    : hud(debug_mode_enabled), player(), world() {}
 
 void Game::update() {
   float dt = GetFrameTime();
   player.update(dt);
   world.update(dt, player.get_camera());
+  hud.update(dt);
 }
 
 void Game::draw() {

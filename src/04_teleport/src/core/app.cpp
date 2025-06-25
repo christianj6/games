@@ -3,7 +3,7 @@
 
 App::App(bool debug_mode_enabled)
     : current_state(debug_mode_enabled ? AppState::GAME : AppState::MAIN_MENU),
-      game(), debug_mode_enabled(debug_mode_enabled) {}
+      game(debug_mode_enabled), debug_mode_enabled(debug_mode_enabled) {}
 
 void App::handle_input() {
   switch (current_state) {
