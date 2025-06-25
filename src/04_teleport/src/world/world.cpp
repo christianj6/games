@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "utils/random.h"
+#include <vector>
 
 World::World()
     : renderer(),
@@ -11,6 +12,7 @@ World::World()
                   Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>::Constant(
                       VOXEL_SIZE, VOXEL_SIZE, false)) {
   build_voxel_space();
+  // currently we split floor, columns, and ceiling into separate meshes
   build_voxel_space_meshes(
       std::vector<int>({1, static_cast<int>(voxel_space.size() - 60),
                         static_cast<int>(voxel_space.size())}));
@@ -61,9 +63,9 @@ void World::build_voxel_space() {
 }
 
 void World::build_voxel_space_meshes(const std::vector<int> &layer_partitions) {
+  // voxel space is built into meshes by layers
   int start = 0;
   for (auto &end : layer_partitions) {
-    fmt::print("{}, {}", start, end);
     meshes.push_back(
         merge_voxels(slice_voxel_space(voxel_space, start, end), start));
     start = end;
@@ -73,6 +75,5 @@ void World::build_voxel_space_meshes(const std::vector<int> &layer_partitions) {
 void World::configure_materials() {
   material_default = LoadMaterialDefault();
   material_default.shader = renderer.get_shader();
-  material_default.maps[MATERIAL_MAP_DIFFUSE].color = BLUE;
-  material_default.maps[MATERIAL_MAP_DIFFUSE].value = 1.0f;
+  material_default.maps[MATERIAL_MAP_DIFFUSE].color = BLACK;
 }
