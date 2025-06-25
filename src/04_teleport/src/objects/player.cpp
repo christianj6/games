@@ -60,7 +60,7 @@ void Player::update(
   if (camera.position.y <= ground_height) {
     camera.position.y = ground_height;
     vertical_velocity = 0.0f;
-    is_grounded = true;
+    jumps_remaining = MAX_JUMPS;
   }
 
   Vector3 forward = {camera.target.x - camera.position.x,
@@ -106,9 +106,9 @@ void Player::move_camera() {
 }
 
 void Player::jump() {
-  if (is_grounded && movement_controller->get_input_jump()) {
+  if (jumps_remaining > 0 && movement_controller->get_input_jump()) {
     vertical_velocity = JUMP_FORCE;
-    is_grounded = false;
+    jumps_remaining--;
   }
 }
 
