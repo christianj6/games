@@ -1,7 +1,6 @@
 #include "world.h"
 #include "fmt/core.h"
 #include "raymath.h"
-/*#include <random>*/
 #include "utils/random.h"
 
 void World::get_initial_world_state() {
