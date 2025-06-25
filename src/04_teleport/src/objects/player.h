@@ -1,9 +1,12 @@
 #include "Eigen/Dense"
+#include "movement/controller.h"
 #include "raylib.h"
+#include <memory>
 
 class Player {
 public:
   Player();
+  Player(std::unique_ptr<IMovemementController>);
   void update(
       float,
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
@@ -15,6 +18,7 @@ private:
   Camera camera;
   const float MOVE_SPEED = 10.0f;
   const float MOUSE_SENSITIVITY = 0.003f;
+  std::unique_ptr<IMovemementController> movement_controller;
   Vector3 try_move();
   void move_camera();
   void jump();

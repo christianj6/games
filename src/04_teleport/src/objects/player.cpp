@@ -1,7 +1,14 @@
 #include "player.h"
+#include "movement/controller.h"
+#include "movement/input.h"
+#include "raylib.h"
 #include "raymath.h"
+#include <memory>
+#include <utility>
 
-Player::Player() {
+Player::Player()
+    : movement_controller(std::make_unique<PlayerMovementController>(
+          std::make_unique<KeyboardInputProvider>())) {
   // TODO: improve this player spawning
   // player is in corner of the map just above the ground
   camera.position = (Vector3){80.0f, 3.0f, 80.0f};
@@ -10,11 +17,28 @@ Player::Player() {
   camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
 }
+
+Player::Player(std::unique_ptr<IMovemementController> movement_controller)
+    : movement_controller(std::move(movement_controller)) {
+  // TODO: improve this player spawning
+  // player is in corner of the map just above the ground
+  camera.position = (Vector3){80.0f, 3.0f, 80.0f};
+  camera.target = (Vector3){10.0f, 1.0f, 0.0f}; // Look forward along plane
+  camera.up = (Vector3){0.0f, 1.0f, 0.0f};
+  camera.fovy = 60.0f;
+  camera.projection = CAMERA_PERSPECTIVE;
+}
+
 void Player::update(
-    float,
+    float dt,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &vector_space_data) {
-  Vector3 movement = try_move();
+  Vector3 forward = {camera.target.x - camera.position.x,
+                     camera.target.y - camera.position.y,
+                     camera.target.z - camera.position.z};
+  forward = Vector3Normalize(forward);
+  Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
+  Vector3 movement = movement_controller->update_movement(dt, forward, right);
 
   int block_x = static_cast<int>(camera.position.x + movement.x);
   int block_z = static_cast<int>(camera.position.z + movement.z);
@@ -29,43 +53,6 @@ void Player::update(
   }
 
   move_camera();
-}
-
-Vector3 Player::try_move() {
-  float speed = 0.08f; // Reduced movement speed
-
-  // Get forward vector (normalized direction vector from position to target)
-  Vector3 forward = {camera.target.x - camera.position.x,
-                     camera.target.y - camera.position.y,
-                     camera.target.z - camera.position.z};
-  forward = Vector3Normalize(forward);
-
-  // Calculate right vector (cross product of forward and up)
-  Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
-
-  // Initialize movement vector
-  Vector3 movement = {0};
-
-  // Forward/Backward movement along forward vector
-  if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
-    movement.x += forward.x * speed;
-    movement.z += forward.z * speed;
-  }
-  if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
-    movement.x -= forward.x * speed;
-    movement.z -= forward.z * speed;
-  }
-
-  // Left/Right movement along right vector
-  if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-    movement.x += right.x * speed;
-    movement.z += right.z * speed;
-  }
-  if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-    movement.x -= right.x * speed;
-    movement.z -= right.z * speed;
-  }
-  return movement;
 }
 
 void Player::move_camera() {

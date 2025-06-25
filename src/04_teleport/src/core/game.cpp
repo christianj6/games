@@ -2,8 +2,7 @@
 #include "raylib.h"
 #include <stdlib.h>
 
-Game::Game(bool debug_mode_enabled)
-    : hud(debug_mode_enabled), player(), world() {}
+Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world() {}
 
 void Game::update() {
   float dt = GetFrameTime();
