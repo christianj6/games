@@ -37,10 +37,28 @@ void Player::update(
   camera.position.y += vertical_velocity * dt;
   camera.target.y += vertical_velocity * dt;
 
-  // Ground check
-  if (camera.position.y <= 3.0f) {
-    camera.position.y = 3.0f;
-    /*camera.target.y = camera.position.y;*/
+  // Ground check using voxel space
+  int current_x = static_cast<int>(camera.position.x);
+  int current_z = static_cast<int>(camera.position.z);
+  int current_y = static_cast<int>(camera.position.y);
+  float ground_height = 3.0f; // Default ground height
+
+  // Check for blocks below us
+  if (current_x >= 0 && current_z >= 0 &&
+      current_x < vector_space_data[0].rows() &&
+      current_z < vector_space_data[0].cols()) {
+
+    // Check each layer from current position down
+    for (int y = current_y; y >= 0 && y < vector_space_data.size(); --y) {
+      if (vector_space_data[y](current_x, current_z)) {
+        ground_height = y + 3.0f; // Convert voxel Y to world Y + player height
+        break;
+      }
+    }
+  }
+
+  if (camera.position.y <= ground_height) {
+    camera.position.y = ground_height;
     vertical_velocity = 0.0f;
     is_grounded = true;
   }
@@ -54,10 +72,21 @@ void Player::update(
 
   int block_x = static_cast<int>(camera.position.x + movement.x);
   int block_z = static_cast<int>(camera.position.z + movement.z);
-  if (vector_space_data[1](block_x, block_z)) {
-    // intended movement overlaps with a column; no movement
+
+  // Check if movement would collide with a block
+  if (block_x >= 0 && block_z >= 0 && block_x < vector_space_data[1].rows() &&
+      block_z < vector_space_data[1].cols() &&
+      vector_space_data[1](block_x, block_z)) {
+    // If we're above block height, allow movement
+    if (camera.position.y >= 5.0f) {
+      camera.position.x += movement.x;
+      camera.position.z += movement.z;
+      camera.target.x += movement.x;
+      camera.target.z += movement.z;
+    }
+    // Otherwise block movement
   } else {
-    // no column collision; apply movement
+    // No block collision; apply movement
     camera.position.x += movement.x;
     camera.position.z += movement.z;
     camera.target.x += movement.x;
