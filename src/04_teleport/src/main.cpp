@@ -2,14 +2,11 @@
 
 // TODO: improve build instructions for vcpkg
 // TODO: web assembly build for itch.io publish
+// TODO: polish and finish
 
 // SCOPE
 /*
  * main idea: same as shoot but more refined
- * game world is conceptually the same as shoot but larger (flat space with
- * pillars) game world is rendered with voxel mesh instancing approach
- * game world has lighting
- * player movement is the same as shoot but better abstracted
  * xbox controller input support
  * player can jump
  * player can teleport (simple blink forward mechanic like Dishonored)
