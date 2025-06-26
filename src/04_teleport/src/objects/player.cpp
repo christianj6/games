@@ -156,7 +156,14 @@ void Player::jump() {
 void Player::blink() {
   if (is_blinking) {
     if (!movement_controller->get_blink_input()) {
+      // Calculate the offset between current target and position
+      Vector3 view_offset = Vector3Subtract(camera.target, camera.position);
+
+      // Update position to blink target
       camera.position = blink_target;
+
+      // Update target to maintain the same view direction
+      camera.target = Vector3Add(camera.position, view_offset);
     }
   }
   is_blinking = movement_controller->get_blink_input();
