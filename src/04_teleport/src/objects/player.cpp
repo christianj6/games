@@ -105,10 +105,11 @@ void Player::draw(
         &vector_space_data) {
   if (is_blinking) {
     Vector3 direction = Vector3Subtract(camera.target, camera.position);
+    direction = Vector3Normalize(direction); // Normalize the direction vector
 
     // Ray step size
-    const float max_distance = 0.25;
-    const float step = 0.001f;
+    const float max_distance = 20.0f; // Increased for better visibility
+    const float step = 0.1f;
     bool found_collision = false;
 
     // Cast ray forward until we hit something or reach max distance
