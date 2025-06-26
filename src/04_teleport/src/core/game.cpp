@@ -17,7 +17,7 @@ void Game::draw() {
 
   BeginMode3D(player.get_camera());
   world.draw();
-  player.draw();
+  player.draw(world.get_voxel_space_data());
   EndMode3D();
 
   hud.draw(player.get_position());

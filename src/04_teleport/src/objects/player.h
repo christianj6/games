@@ -10,7 +10,8 @@ public:
   void update(
       float,
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
-  void draw();
+  void draw(
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   Vector3 get_position() { return camera.position; }
   Camera get_camera() { return camera; }
 

@@ -100,11 +100,37 @@ void Player::update(
   move_camera();
 }
 
-void Player::draw() {
+void Player::draw(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &vector_space_data) {
   if (is_blinking) {
     Vector3 direction = Vector3Subtract(camera.target, camera.position);
-    Vector3 blink_target =
-        Vector3Add(camera.position, Vector3Scale(direction, 0.25f));
+
+    // Ray step size
+    const float max_distance = 0.25;
+    const float step = 0.001f;
+    bool found_collision = false;
+
+    // Cast ray forward until we hit something or reach max distance
+    for (float dist = 0; dist <= max_distance && !found_collision;
+         dist += step) {
+      blink_target = Vector3Add(camera.position, Vector3Scale(direction, dist));
+      int check_x = static_cast<int>(blink_target.x);
+      int check_z = static_cast<int>(blink_target.z);
+      int check_y = static_cast<int>(blink_target.y);
+
+      // Check if we hit a block
+      if (vector_space_data[check_y](check_x, check_z)) {
+        found_collision = true;
+        // Step back slightly from collision
+        blink_target = Vector3Add(
+            camera.position,
+            Vector3Scale(direction,
+                         dist - step * 6)); // move back 6*step so ball does not
+                                            // overlap w obstacles
+        break;
+      }
+    }
 
     DrawSphere(blink_target, 0.75f, BLUE);
   }
@@ -127,19 +153,10 @@ void Player::jump() {
 }
 
 void Player::blink() {
-  if (movement_controller->get_blink_input()) {
-    is_blinking = true;
-  } else {
-    is_blinking = false;
+  if (is_blinking) {
+    if (!movement_controller->get_blink_input()) {
+      camera.position = blink_target;
+    }
   }
-
-  // TODO: right click spawns a ball in front of the player
-  // TODO: ball cannot collide with objects; use ray collision detection from
-  // 03_shoot
-  // TODO: use the player controller and input handling to properly detect
-  // TODO: while right-click held ball stays
-  // TODO: while right-click held time stops (skip updates; just draw)
-  // TODO: ball cannot collide with obstacles
-  // TODO: releasing blinks the player to the location of the ball with same
-  // camera direction
+  is_blinking = movement_controller->get_blink_input();
 }
