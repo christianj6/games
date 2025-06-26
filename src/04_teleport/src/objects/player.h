@@ -22,6 +22,7 @@ private:
   const float GRAVITY = -20.0f;
   float vertical_velocity = 0.0f;
   int jumps_remaining = 2;
+  bool is_blinking = false;
   const int MAX_JUMPS = 2;
   std::unique_ptr<IMovemementController> movement_controller;
   Vector3 try_move();

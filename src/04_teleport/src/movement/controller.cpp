@@ -29,3 +29,7 @@ Vector2 PlayerMovementController::update_camera() {
 bool PlayerMovementController::get_input_jump() {
   return input_provider->get_input_jump();
 }
+
+bool PlayerMovementController::get_blink_input() {
+  return input_provider->get_input_action();
+}

@@ -1,4 +1,5 @@
 #include "input.h"
+#include "raylib.h"
 #include <cmath>
 
 Vector2 KeyboardInputProvider::get_input_look_vector() {
@@ -8,7 +9,7 @@ Vector2 KeyboardInputProvider::get_input_look_vector() {
 bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
 bool KeyboardInputProvider::get_input_action() {
-  return IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+  return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
 }
 
 Vector2 ControllerInputProvider::get_input_look_vector() {
