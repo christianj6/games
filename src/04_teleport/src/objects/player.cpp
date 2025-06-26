@@ -100,6 +100,16 @@ void Player::update(
   move_camera();
 }
 
+void Player::draw() {
+  if (is_blinking) {
+    Vector3 direction = Vector3Subtract(camera.target, camera.position);
+    Vector3 blink_target =
+        Vector3Add(camera.position, Vector3Scale(direction, 0.25f));
+
+    DrawSphere(blink_target, 0.75f, BLUE);
+  }
+}
+
 void Player::move_camera() {
   Vector2 camera_update = movement_controller->update_camera();
   float camera_sensitivity = 0.095f;

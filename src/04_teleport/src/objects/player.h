@@ -10,6 +10,7 @@ public:
   void update(
       float,
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
+  void draw();
   Vector3 get_position() { return camera.position; }
   Camera get_camera() { return camera; }
 
@@ -23,6 +24,7 @@ private:
   float vertical_velocity = 0.0f;
   int jumps_remaining = 2;
   bool is_blinking = false;
+  Vector3 blink_target;
   const int MAX_JUMPS = 2;
   std::unique_ptr<IMovemementController> movement_controller;
   Vector3 try_move();
