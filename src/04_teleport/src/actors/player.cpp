@@ -141,7 +141,8 @@ void Player::draw(
 
 void Player::move_camera() {
   Vector2 camera_update = movement_controller->update_camera();
-  float camera_sensitivity = 0.095f;
+  // float camera_sensitivity = 0.095f;
+  float camera_sensitivity = 0.395f; // wsl
   UpdateCameraPro(&camera, (Vector3){0},
                   (Vector3){camera_update.x * camera_sensitivity,
                             camera_update.y * camera_sensitivity, 0.0f},
