@@ -10,7 +10,7 @@ public:
 
   // You must override the virtual function tick()
   BT::NodeStatus tick() override {
-    std::cout << "ApproachObject: " << this->name() << std::endl;
+    /*std::cout << "ApproachObject: " << this->name() << std::endl;*/
     return BT::NodeStatus::SUCCESS;
   }
 };
@@ -21,12 +21,12 @@ public:
 
   NodeStatus open() {
     _open = true;
-    std::cout << "GripperInterface::open" << std::endl;
+    /*std::cout << "GripperInterface::open" << std::endl;*/
     return NodeStatus::SUCCESS;
   }
 
   NodeStatus close() {
-    std::cout << "GripperInterface::close" << std::endl;
+    /*std::cout << "GripperInterface::close" << std::endl;*/
     _open = false;
     return NodeStatus::SUCCESS;
   }
