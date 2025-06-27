@@ -1,6 +1,6 @@
 #pragma once
+#include "actors/player.h"
 #include "hud.h"
-#include "objects/player.h"
 #include "world/world.h"
 
 class Game {

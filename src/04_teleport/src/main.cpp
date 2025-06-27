@@ -8,8 +8,6 @@
 /*
  * main idea: same as shoot but more refined
  * xbox controller input support
- * player can jump
- * player can teleport (simple blink forward mechanic like Dishonored)
  * enemies similar to shoot but with better abstractions for managing behavior
  * enemies have real grid-based pathfinding
  * GOAP out of scope: rely on behaviortree_cpp for AI abstractions and just wrap
