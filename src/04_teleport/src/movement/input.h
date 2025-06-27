@@ -13,7 +13,7 @@ public:
 
 class KeyboardInputProvider : public IInputProvider {
 public:
-  KeyboardInputProvider() {};
+  KeyboardInputProvider(){};
   Vector3 get_input_movement_vector() override;
   Vector2 get_input_look_vector() override;
   bool get_input_jump() override;
