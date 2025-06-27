@@ -49,26 +49,27 @@ void Map::AdjacentCost(void *state,
   Node current = Node::FromState(state);
 
   fmt::print("Finding neighbors for ({},{})\n", current.x, current.y);
+  const int VOXEL_SIZE = 85;
 
-  // Four possible moves: right, left, down, up
+  // Four possible moves: right, left, forward, back
   const int dx[] = {1, -1, 0, 0};
-  const int dy[] = {0, 0, 1, -1};
+  const int dz[] = {0, 0, 1, -1};
 
   for (int i = 0; i < 4; ++i) {
     int newX = current.x + dx[i];
-    int newY = current.y + dy[i];
+    int newZ = current.y + dz[i]; // y in Node represents z in world space
 
-    // Strict bounds checking
-    if (newX >= 2 && newX < 10 && newY >= 2 && newY < 10) {
-      // Check if position is walkable (not a wall)
-      if (!vector_space_data[1](newY, newX)) {
+    // Check bounds against voxel space size
+    if (newX >= 0 && newX < VOXEL_SIZE && newZ >= 0 && newZ < VOXEL_SIZE) {
+      // Check if position is walkable (false = empty space, true = wall)
+      if (!vector_space_data[1](newX, newZ)) {
         // Convert neighbor position to state
-        Node neighbor(newX, newY);
+        Node neighbor(newX, newZ);
         micropather::StateCost stateCost;
         stateCost.state = (void *)(size_t)neighbor.ToState();
         stateCost.cost = 1.0f;
         adjacent->push_back(stateCost);
-        fmt::print("  Added neighbor ({},{})\n", newX, newY);
+        fmt::print("  Added neighbor ({},{})\n", newX, newZ);
       }
     }
   }
@@ -108,16 +109,16 @@ World::World()
     micropather::MPVector<void *> path;
     float totalCost = 0;
 
-    // Use fixed positions in a very small test area
-    int startX = 2, startY = 2;
-    int endX = 3, endY = 3;
+    // Test pathfinding between two points in the voxel space
+    int startX = 10, startZ = 10;
+    int endX = 50, endZ = 50;
 
     // Only test if both positions are walkable (not walls)
-    if (voxel_space[1](startY, startX) == false &&
-        voxel_space[1](endY, endX) == false) {
+    if (voxel_space[1](startX, startZ) == false &&
+        voxel_space[1](endX, endZ) == false) {
       fmt::print("Both positions are walkable\n");
-      Node startNode(startX, startY);
-      Node endNode(endX, endY);
+      Node startNode(startX, startZ);
+      Node endNode(endX, endZ);
 
       if (!startNode.IsValid() || !endNode.IsValid()) {
         fmt::print("Invalid node coordinates!\n");
@@ -127,8 +128,8 @@ World::World()
       fmt::print("Created start node ({},{}) and end node ({},{})\n",
                  startNode.x, startNode.y, endNode.x, endNode.y);
 
-      fmt::print("\nTesting path from ({},{}) to ({},{})\n", startX, startY,
-                 endX, endY);
+      fmt::print("\nTesting path from ({},{}) to ({},{})\n", startX, startZ,
+                 endX, endZ);
 
       void *startState = startNode.ToState();
       void *endState = endNode.ToState();
