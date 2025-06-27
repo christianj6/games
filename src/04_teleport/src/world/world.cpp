@@ -189,12 +189,6 @@ void World::draw() {
           // Draw small spheres at each path point
           DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
         }
-
-        // Draw final point sphere
-        /*if (!path.empty()) {*/
-        /*Node last = Node::FromState(path.back());*/
-        /*DrawSphere({last.x * 2.0f, 10.0f, last.y * 2.0f}, 0.5f, BLUE);*/
-        /*}*/
       } else {
         fmt::print("No path found! Error code: {}\n", result);
       }
