@@ -61,15 +61,35 @@ void Map::AdjacentCost(void *state,
 
     // Check bounds against voxel space size
     if (newX >= 0 && newX < VOXEL_SIZE && newZ >= 0 && newZ < VOXEL_SIZE) {
-      // Check if position is walkable (false = empty space, true = wall)
+      // Check if position is walkable and not adjacent to obstacles
       if (!vector_space_data[1](newX, newZ)) {
-        // Convert neighbor position to state
-        Node neighbor(newX, newZ);
-        micropather::StateCost stateCost;
-        stateCost.state = (void *)(size_t)neighbor.ToState();
-        stateCost.cost = 1.0f;
-        adjacent->push_back(stateCost);
-        fmt::print("  Added neighbor ({},{})\n", newX, newZ);
+        // Check surrounding cells for obstacles
+        bool near_obstacle = false;
+        for (int dx = -1; dx <= 1; dx++) {
+          for (int dz = -1; dz <= 1; dz++) {
+            int checkX = newX + dx;
+            int checkZ = newZ + dz;
+            if (checkX >= 0 && checkX < VOXEL_SIZE && checkZ >= 0 &&
+                checkZ < VOXEL_SIZE) {
+              if (vector_space_data[1](checkX, checkZ)) {
+                near_obstacle = true;
+                break;
+              }
+            }
+          }
+          if (near_obstacle)
+            break;
+        }
+
+        // Only add the position if it's not next to an obstacle
+        if (!near_obstacle) {
+          Node neighbor(newX, newZ);
+          micropather::StateCost stateCost;
+          stateCost.state = (void *)(size_t)neighbor.ToState();
+          stateCost.cost = 1.0f;
+          adjacent->push_back(stateCost);
+          fmt::print("  Added neighbor ({},{})\n", newX, newZ);
+        }
       }
     }
   }
