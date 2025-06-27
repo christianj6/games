@@ -1,7 +1,9 @@
 #pragma once
+#include "actors/enemy.h"
 #include "actors/player.h"
 #include "hud.h"
 #include "world/world.h"
+#include <vector>
 
 class Game {
 public:
@@ -14,4 +16,5 @@ private:
   Hud hud;
   Player player;
   World world;
+  std::vector<Enemy> enemies;
 };

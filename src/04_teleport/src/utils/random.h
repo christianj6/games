@@ -1,4 +1,6 @@
 #pragma once
+#include "raylib.h"
+#include <optional>
 #include <random>
 #include <type_traits>
 
@@ -26,3 +28,5 @@ RandomNumberGenerator<T>::RandomNumberGenerator(T start, T end)
 template <typename T> T RandomNumberGenerator<T>::operator()() {
   return distribution(generator);
 }
+
+Vector3 get_random_world_position(std::optional<float>);

@@ -1,2 +1,26 @@
-// TODO: enemy behavior is made more interesting through behavior tree and
-// pathfinding
+#pragma once
+
+#include "raylib.h"
+
+enum class EnemyState { PATROLLING, CHASING, SEARCHING };
+
+class Enemy {
+public:
+  Enemy();
+  void update(float, Vector3 &);
+  void draw();
+  Vector3 get_position() { return position; }
+
+private:
+  Vector3 position;
+  Color color;
+  float radius;
+
+  EnemyState current_state;
+  bool can_see_player;
+  Vector3 last_known_player_position;
+
+  float movement_speed_patrol;
+  float movement_speed_chase;
+  Vector3 current_patrol_target;
+};

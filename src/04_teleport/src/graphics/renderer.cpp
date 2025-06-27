@@ -38,7 +38,7 @@ void Renderer::update(Camera camera) {
 void Renderer::draw() {
   // Draw red spheres
   for (int i = 0; i < NUM_SPHERES; i++) {
-    DrawSphereEx(sphere_positions[i], 1.0f, 8, 8, RED);
+    DrawSphereEx(sphere_positions[i], 1.0f, 8, 8, DARKPURPLE);
   }
 }
 
