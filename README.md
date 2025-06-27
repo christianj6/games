@@ -12,6 +12,7 @@ ninja-build
 pkg-config
 zip
 libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxinerama-dev libglu1-mesa-dev
+...
 ```
 
 #### Building Projects
