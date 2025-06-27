@@ -101,7 +101,21 @@ World::World()
   // Setup pathfinding after world construction is complete
   map.set_vector_space_data(voxel_space);
   pather = new micropather::MicroPather(&map, 250);
+}
 
+void World::update(float dt, Camera player_camera) {
+  renderer.update(player_camera);
+}
+
+void World::draw() {
+  // note: shifting mesh calculation here has a huge performance hit,
+  // but would be necessary in some way if we want a dynamic game world
+  // (minecraft) we can think about this, and relevance of instancing strategy,
+  // for 05_explore
+  for (auto &mesh : meshes) {
+    DrawMesh(mesh, material_default, MatrixIdentity());
+  }
+  renderer.draw();
   // Simple pathfinding test in a small area
   bool pathTest = true;
   if (pathTest) {
@@ -137,12 +151,30 @@ World::World()
 
       if (result == micropather::MicroPather::SOLVED) {
         fmt::print("Path found! Cost: {:.2f}\n", totalCost);
-        fmt::print("Path: ");
-        for (unsigned i = 0; i < path.size(); ++i) {
-          Node node = Node::FromState(path[i]);
-          fmt::print("({},{}) ", node.x, node.y);
+
+        // Draw start and end points
+        DrawSphere({static_cast<float>(startX), 3.0f, startZ * 1.0f}, 2.0f,
+                   GREEN);
+        DrawSphere({static_cast<float>(endX), 3.0f, endZ * 1.0f}, 2.0f, RED);
+
+        // Draw path
+        for (unsigned i = 0; i < path.size() - 1; ++i) {
+          Node current = Node::FromState(path[i]);
+          Node next = Node::FromState(path[i + 1]);
+
+          // Draw line segments between path points
+          DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
+                     {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
+
+          // Draw small spheres at each path point
+          DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
         }
-        fmt::print("\n");
+
+        // Draw final point sphere
+        /*if (!path.empty()) {*/
+        /*Node last = Node::FromState(path.back());*/
+        /*DrawSphere({last.x * 2.0f, 10.0f, last.y * 2.0f}, 0.5f, BLUE);*/
+        /*}*/
       } else {
         fmt::print("No path found! Error code: {}\n", result);
       }
@@ -150,21 +182,6 @@ World::World()
       fmt::print("Start or end position is blocked by a wall\n");
     }
   }
-}
-
-void World::update(float dt, Camera player_camera) {
-  renderer.update(player_camera);
-}
-
-void World::draw() {
-  // note: shifting mesh calculation here has a huge performance hit,
-  // but would be necessary in some way if we want a dynamic game world
-  // (minecraft) we can think about this, and relevance of instancing strategy,
-  // for 05_explore
-  for (auto &mesh : meshes) {
-    DrawMesh(mesh, material_default, MatrixIdentity());
-  }
-  renderer.draw();
 }
 
 void World::build_voxel_space() {
