@@ -1,5 +1,5 @@
 #include "enemy.h"
-#include "ai/nodes.h"
+#include "ai/behavior_nodes.h"
 #include "fmt/core.h"
 #include "raymath.h"
 #include "utils/random.h"
@@ -12,6 +12,7 @@ Enemy::Enemy()
       horizontal_fov(PI / 2.0f), vertical_fov(PI / 3.0f), vision_range(20.0f),
       forward_vector({1.0f, 0.0f, 0.0f}) {
   position = get_random_world_position(2);
+  // TODO: we should only call this once at a higher scope
   SearchAndSetResourceDir("resources");
 
   // build behavior tree by composing nodes with file
@@ -33,7 +34,7 @@ Enemy::Enemy()
                                [&](TreeNode &) { return gripper.close(); });
 
   tree = std::make_unique<Tree>(
-      factory.createTreeFromFile("behavior/enemy_tree.xml"));
+      factory.createTreeFromFile("behavior_trees/enemy_tree.xml"));
 }
 
 bool Enemy::is_in_vision_cone(const Vector3 &target) const {
@@ -75,6 +76,15 @@ bool Enemy::update(float dt, Vector3 &current_player_position) {
   case (EnemyState::DEAD):
     break;
   case (EnemyState::PATROLLING):
+    // TODO: implement patrolling behavior
+    /*
+     * use behavior tree as much as possible
+     * pick random, unobstructed point on the map
+     * calculate the path -> store the nodes somewhere
+     * use a BT::node to keep track of path progress and move a bit each tick()
+     * so that node will either return RUNNING or SUCCESS
+     * once reach the end (success), repeat
+     */
     float distance_to_player =
         Vector3Length(Vector3Subtract(current_player_position, position));
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "ai/pathfinder.h"
+#include "ai/micropather.h"
 #include "graphics/renderer.h"
 #include "raylib.h"
 #include <Eigen/Dense>

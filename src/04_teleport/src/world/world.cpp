@@ -1,5 +1,4 @@
 #include "world.h"
-#include "ai/pathfinder.h"
 #include "fmt/core.h"
 #include "mesh.h"
 #include "raylib.h"
