@@ -23,8 +23,8 @@ Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world() {
     }
 
     if (clear_area) {
-      // if no collision, place the enemy 
-      // otherwise give up; its simpler than a retry mechanism and isnt a big 
+      // if no collision, place the enemy
+      // otherwise give up; its simpler than a retry mechanism and isnt a big
       // deal for this kind of game
       enemies.push_back(enemy);
     }
@@ -32,12 +32,18 @@ Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world() {
 }
 
 void Game::update() {
+  // noticing that i want to pass different signals between the actors
+  // and resort to hacks or unmanaged data passing to do this; in a next
+  // iteration we likely need to extend the gameplay layer to handle this
   float dt = GetFrameTime();
-  player.update(dt, world.get_voxel_space_data());
+  bool trying_to_kill = player.update(dt, world.get_voxel_space_data());
   world.update(dt, player.get_camera());
   Vector3 current_player_position = player.get_position();
   for (auto &enemy : enemies) {
-    enemy.update(dt, current_player_position);
+    bool is_killable = enemy.update(dt, current_player_position);
+    if (is_killable && trying_to_kill) {
+      enemy.disable();
+    }
   }
   hud.update(dt);
 }

@@ -10,6 +10,7 @@ public:
   virtual Vector2 update_camera() = 0;
   virtual bool get_input_jump() = 0;
   virtual bool get_blink_input() = 0;
+  virtual bool get_attack_input() = 0;
 };
 
 class PlayerMovementController : public IMovemementController {
@@ -20,6 +21,7 @@ public:
   virtual Vector2 update_camera() override;
   virtual bool get_input_jump() override;
   virtual bool get_blink_input() override;
+  virtual bool get_attack_input() override;
 
 private:
   std::unique_ptr<IInputProvider> input_provider;

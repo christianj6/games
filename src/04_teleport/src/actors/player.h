@@ -7,7 +7,7 @@ class Player {
 public:
   Player();
   Player(std::unique_ptr<IMovemementController>);
-  void update(
+  bool update(
       float,
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   void draw(
@@ -33,4 +33,5 @@ private:
   void move_camera();
   void jump();
   void blink();
+  bool attack();
 };

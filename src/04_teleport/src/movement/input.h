@@ -8,6 +8,7 @@ public:
   virtual Vector2 get_input_look_vector() = 0;
   virtual bool get_input_jump() = 0;
   virtual bool get_input_action() = 0;
+  virtual bool get_input_attack() = 0;
 };
 
 class KeyboardInputProvider : public IInputProvider {
@@ -17,6 +18,7 @@ public:
   Vector2 get_input_look_vector() override;
   bool get_input_jump() override;
   bool get_input_action() override;
+  bool get_input_attack() override;
 };
 
 class ControllerInputProvider : public IInputProvider {
@@ -25,4 +27,5 @@ public:
   Vector2 get_input_look_vector() override;
   bool get_input_jump() override;
   bool get_input_action() override;
+  bool get_input_attack() override;
 };

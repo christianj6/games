@@ -2,14 +2,15 @@
 
 #include "raylib.h"
 
-enum class EnemyState { PATROLLING, CHASING, SEARCHING };
+enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
 
 class Enemy {
 public:
   Enemy();
-  void update(float, Vector3 &);
+  bool update(float, Vector3 &);
   void draw();
   Vector3 get_position() { return position; }
+  void disable();
 
 private:
   Vector3 position;

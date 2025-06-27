@@ -33,3 +33,7 @@ bool PlayerMovementController::get_input_jump() {
 bool PlayerMovementController::get_blink_input() {
   return input_provider->get_input_action();
 }
+
+bool PlayerMovementController::get_attack_input() {
+  return input_provider->get_input_attack();
+}

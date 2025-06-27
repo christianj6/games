@@ -8,6 +8,10 @@ Vector2 KeyboardInputProvider::get_input_look_vector() {
 
 bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
+bool KeyboardInputProvider::get_input_attack() {
+  return IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+}
+
 bool KeyboardInputProvider::get_input_action() {
   return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
 }
@@ -34,6 +38,11 @@ Vector2 ControllerInputProvider::get_input_look_vector() {
 bool ControllerInputProvider::get_input_jump() {
   return IsGamepadButtonPressed(
       0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN); // A/Cross button
+}
+
+bool ControllerInputProvider::get_input_attack() {
+  return IsGamepadButtonPressed(
+      0, GAMEPAD_BUTTON_LEFT_FACE_DOWN); // A/Cross button
 }
 
 bool ControllerInputProvider::get_input_action() {
