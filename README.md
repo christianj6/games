@@ -3,6 +3,17 @@ Practicing C++ with Raylib.
 
 ***
 
+#### Dependencies
+Unix
+```
+clang-format
+cmake 
+ninja-build
+pkg-config
+zip
+libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxinerama-dev libglu1-mesa-dev
+```
+
 #### Building Projects
 To build any of the projects in the src/ directory, simply ```cd``` into that project directory and run the following:
 

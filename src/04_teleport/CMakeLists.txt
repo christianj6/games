@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(Game)
 
 find_package(fmt REQUIRED)
-find_package(eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 
 # Force compile commands generation
