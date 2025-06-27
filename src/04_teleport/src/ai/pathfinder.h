@@ -1,3 +1,5 @@
+#include <cstring>
+
 /*
 Copyright (c) 2000-2013 Lee Thomason (www.grinninglizard.com)
 Micropather
