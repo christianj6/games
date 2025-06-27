@@ -25,8 +25,8 @@ Renderer::Renderer() {
 
   // Set ambient light
   int ambientLoc = GetShaderLocation(shader, "ambient");
-  SetShaderValue(shader, ambientLoc, (float[4]){0.2f, 0.2f, 0.2f, 1.0f},
-                 SHADER_UNIFORM_VEC4);
+  float shader_values[4] = {0.2f, 0.2f, 0.2f, 1.0f};
+  SetShaderValue(shader, ambientLoc, shader_values, SHADER_UNIFORM_VEC4);
 }
 
 void Renderer::update(Camera camera) {
