@@ -1,4 +1,5 @@
 #include "core/app.h"
+#include "raylib.h"
 
 // TODO: improve build instructions for vcpkg
 // TODO: web assembly build for itch.io publish
@@ -18,17 +19,19 @@
  */
 
 int main() {
-  const int monitor = 0;
-  int width = GetMonitorWidth(monitor);
-  int height = GetMonitorHeight(monitor);
-  int monitorX = GetMonitorPosition(monitor).x;
-  int monitorY = GetMonitorPosition(monitor).y;
+  // TODO: better solution for the wsl windowing issues
+  // const int monitor = 0;
+  // int width = GetMonitorWidth(monitor);
+  // int height = GetMonitorHeight(monitor);
+  // int monitorX = GetMonitorPosition(monitor).x;
+  // int monitorY = GetMonitorPosition(monitor).y;
 
+  // SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-  InitWindow(width, height, "Teleport");
-  SetWindowPosition(monitorX, monitorY);
-  ToggleBorderlessWindowed();
-  DisableCursor();
+  InitWindow(2560, 1440, "Teleport");
+  // SetWindowPosition(monitorX, monitorY);
+  // ToggleBorderlessWindowed();
+  // DisableCursor();
 
   App app{true};
   while (app.run()) {
