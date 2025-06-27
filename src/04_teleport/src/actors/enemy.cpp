@@ -1,7 +1,9 @@
 #include "enemy.h"
+#include "ai/nodes.h"
 #include "fmt/core.h"
 #include "raymath.h"
 #include "utils/random.h"
+#include "utils/resource_dir.h"
 #include <fmt/base.h>
 
 Enemy::Enemy()
@@ -10,6 +12,28 @@ Enemy::Enemy()
       horizontal_fov(PI / 2.0f), vertical_fov(PI / 3.0f), vision_range(20.0f),
       forward_vector({1.0f, 0.0f, 0.0f}) {
   position = get_random_world_position(2);
+  SearchAndSetResourceDir("resources");
+
+  // build behavior tree by composing nodes with file
+  BehaviorTreeFactory factory;
+
+  // The recommended way to create a Node is through inheritance.
+  factory.registerNodeType<ApproachObject>("ApproachObject");
+
+  // Registering a SimpleActionNode using a function pointer.
+  // You can use C++11 lambdas or std::bind
+  factory.registerSimpleCondition("CheckBattery",
+                                  [&](TreeNode &) { return CheckBattery(); });
+
+  // You can also create SimpleActionNodes using methods of a class
+  GripperInterface gripper;
+  factory.registerSimpleAction("OpenGripper",
+                               [&](TreeNode &) { return gripper.open(); });
+  factory.registerSimpleAction("CloseGripper",
+                               [&](TreeNode &) { return gripper.close(); });
+
+  tree = std::make_unique<Tree>(
+      factory.createTreeFromFile("behavior/enemy_tree.xml"));
 }
 
 bool Enemy::is_in_vision_cone(const Vector3 &target) const {
@@ -38,6 +62,8 @@ bool Enemy::is_in_vision_cone(const Vector3 &target) const {
 }
 
 bool Enemy::update(float dt, Vector3 &current_player_position) {
+  tree->tickOnce();
+
   bool is_killable = false;
   switch (current_state) {
   case (EnemyState::CHASING):

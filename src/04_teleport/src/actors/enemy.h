@@ -1,12 +1,15 @@
 #pragma once
 
+#include "behaviortree_cpp/bt_factory.h"
 #include "raylib.h"
+#include <memory>
 
 enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
 
 class Enemy {
 public:
   Enemy();
+  Enemy(Enemy &&) = default; // Add move constructor for BT
   bool update(float, Vector3 &);
   void draw();
   Vector3 get_position() { return position; }
@@ -37,4 +40,7 @@ private:
   void update_forward_vector();
   bool is_in_vision_cone(const Vector3 &target) const;
   void draw_vision_cone() const;
+
+  // behavior tree stuff
+  std::unique_ptr<BT::Tree> tree;
 };

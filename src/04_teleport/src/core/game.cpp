@@ -26,7 +26,7 @@ Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world() {
       // if no collision, place the enemy
       // otherwise give up; its simpler than a retry mechanism and isnt a big
       // deal for this kind of game
-      enemies.push_back(enemy);
+      enemies.push_back(std::move(enemy)); // need to move bc of how BT works
     }
   }
 }
