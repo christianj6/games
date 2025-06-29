@@ -9,6 +9,7 @@ Vector3 get_random_world_position(std::optional<float> y) {
   } else {
     y = random_world_position();
   }
-  return Vector3{static_cast<float>(random_world_position()), y.value(),
+  return Vector3{static_cast<float>(random_world_position()),
+                 static_cast<float>(y.value()),
                  static_cast<float>(random_world_position())};
 }

@@ -50,18 +50,18 @@ void Renderer::configure_lighting() {
   for (int i = 0; i < NUM_SPHERES; i++) {
     sphere_lights[i] =
         CreateLight(LIGHT_POINT, sphere_positions[i], Vector3Zero(),
-                    (Color){255, 50, 50, 255}, shader);
+                    Color{255, 50, 50, 255}, shader);
   }
 
-  CreateLight(LIGHT_POINT, (Vector3){0, CORNER_HEIGHT, 0}, Vector3Zero(),
+  CreateLight(LIGHT_POINT, Vector3{0, CORNER_HEIGHT, 0}, Vector3Zero(),
               DARKPURPLE, shader);
 
-  CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, AREA_SIZE},
+  CreateLight(LIGHT_POINT, Vector3{AREA_SIZE, CORNER_HEIGHT, AREA_SIZE},
               Vector3Zero(), DARKPURPLE, shader);
 
-  CreateLight(LIGHT_POINT, (Vector3){0, CORNER_HEIGHT, AREA_SIZE},
-              Vector3Zero(), DARKPURPLE, shader);
+  CreateLight(LIGHT_POINT, Vector3{0, CORNER_HEIGHT, AREA_SIZE}, Vector3Zero(),
+              DARKPURPLE, shader);
 
-  CreateLight(LIGHT_POINT, (Vector3){AREA_SIZE, CORNER_HEIGHT, 0},
-              Vector3Zero(), DARKPURPLE, shader);
+  CreateLight(LIGHT_POINT, Vector3{AREA_SIZE, CORNER_HEIGHT, 0}, Vector3Zero(),
+              DARKPURPLE, shader);
 }

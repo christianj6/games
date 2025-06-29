@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
+if (WIN32)
+    set(CMAKE_C_COMPILER "cl")
+    set(CMAKE_CXX_COMPILER "cl")
+endif()
+
 project(Game)
 
 find_package(fmt REQUIRED)
@@ -43,6 +48,13 @@ if(APPLE)
     add_definitions(-DPLATFORM_DESKTOP)
     # Disable deprecation warnings on macOS
     add_compile_options(-Wno-deprecated-declarations)
+elseif(WIN32)
+    add_definitions(-D_GLFW_WIN32)
+    add_definitions(-DPLATFORM_DESKTOP)
+    # Prevent Windows.h from including too much
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    # Disable CRT secure warnings
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif(UNIX)
     add_definitions(-D_GLFW_X11)
     add_definitions(-D_GNU_SOURCE)
