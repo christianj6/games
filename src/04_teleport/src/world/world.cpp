@@ -136,7 +136,7 @@ void World::draw() {
   }
   renderer.draw();
   // Simple pathfinding test in a small area
-  bool pathTest = true;
+  bool pathTest = false;
   if (pathTest) {
     pather->Reset();
     micropather::MPVector<void *> path;
