@@ -7,8 +7,10 @@ main
 _archive/
 **/bin
 **/build
+**/build_wsl
 .aider*
 .env
 **/.cache
 .DS_Store
 **/vcpkg_installed
+**/compile_commands.json
