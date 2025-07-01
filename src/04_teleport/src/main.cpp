@@ -19,18 +19,9 @@
  */
 
 int main() {
-  // TODO: better solution for the wsl windowing issues
-  const int monitor = 0;
-  // int width = GetMonitorWidth(monitor);
-  // int height = GetMonitorHeight(monitor);
-  // int monitorX = GetMonitorPosition(monitor).x;
-  // int monitorY = GetMonitorPosition(monitor).y;
-
-  // SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
+  SetTargetFPS(60);
   InitWindow(2460, 1440, "Teleport");
-  // SetWindowPosition(monitorX, monitorY);
-  // ToggleBorderlessWindowed();
   DisableCursor();
 
   App app{true};
