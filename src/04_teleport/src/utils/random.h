@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include <Eigen/Dense>
 #include <optional>
 #include <random>
 #include <type_traits>
@@ -30,3 +31,7 @@ template <typename T> T RandomNumberGenerator<T>::operator()() {
 }
 
 Vector3 get_random_world_position(std::optional<float>);
+
+Vector3 get_random_unobstructed_world_position(
+    std::optional<float>,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
