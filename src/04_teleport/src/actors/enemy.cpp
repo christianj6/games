@@ -189,59 +189,32 @@ void Enemy::draw() {
 }
 
 void Enemy::draw_current_path() {
-  // Draw start and end points
-  // DrawSphere({static_cast<float>(position.x), 3.0f, position.z * 1.0f}, 2.0f,
-  //            GREEN);
-  DrawSphere({static_cast<float>(current_patrol_target.x), 3.0f,
-              current_patrol_target.z * 1.0f},
-             2.0f, RED);
-
-  // Draw path
   for (unsigned i = 0; i < current_path.size() - 1; ++i) {
     Node current = Node::FromState(current_path[i]);
     Node next = Node::FromState(current_path[i + 1]);
-
-    // Draw line segments between path points
     DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
                {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
-
-    // Draw small spheres at each path point
     DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
   }
 }
 
 bool Enemy::generate_new_path(int startX, int startZ, int endX, int endZ,
                               micropather::MicroPather *pather) {
-
   // reset pathfinding variables
   pather->Reset();
   current_path = micropather::MPVector<void *>();
   float totalCost = 0;
 
-  fmt::print("Both positions are walkable\n");
   Node startNode(startX, startZ);
   Node endNode(endX, endZ);
-
   if (!startNode.IsValid() || !endNode.IsValid()) {
-    fmt::print("Invalid node coordinates!\n");
     return false;
   }
-
-  fmt::print("Created start node ({},{}) and end node ({},{})\n", startNode.x,
-             startNode.y, endNode.x, endNode.y);
-
-  fmt::print("\nTesting path from ({},{}) to ({},{})\n", startX, startZ, endX,
-             endZ);
-
   void *startState = startNode.ToState();
   void *endState = endNode.ToState();
   int result = pather->Solve(startState, endState, &current_path, &totalCost);
-
   if (result == micropather::MicroPather::SOLVED) {
-    fmt::print("Path found! Cost: {:.2f}\n", totalCost);
     return true;
-  } else {
-    fmt::print("No path found! Error code: {}\n", result);
   }
   return false;
 }
