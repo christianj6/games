@@ -4,7 +4,6 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "utils/random.h"
-#include "utils/resource_dir.h"
 #include <fmt/base.h>
 
 Enemy::Enemy()
@@ -13,8 +12,6 @@ Enemy::Enemy()
       horizontal_fov(PI / 2.0f), vertical_fov(PI / 3.0f), vision_range(20.0f),
       forward_vector({1.0f, 0.0f, 0.0f}) {
   position = get_random_world_position(2);
-  // TODO: we should only call this once at a higher scope
-  SearchAndSetResourceDir("resources");
 
   // // build behavior tree by composing nodes with file
   // BehaviorTreeFactory factory;

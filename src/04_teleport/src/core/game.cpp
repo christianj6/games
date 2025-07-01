@@ -1,8 +1,10 @@
 #include "game.h"
 #include "raylib.h"
 #include <stdlib.h>
+#include "utils/resource_dir.h"
 
 Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world(), map() {
+  SearchAndSetResourceDir("resources");
   // try to place 20 enemies
   const int n_enemies = 20;
   pather = new micropather::MicroPather(&map, 250);
