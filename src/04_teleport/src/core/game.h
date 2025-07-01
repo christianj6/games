@@ -9,6 +9,7 @@ class Game {
 public:
   // game is just passing through the debug bool
   Game(bool);
+  ~Game();
   void update();
   void draw();
 
@@ -17,4 +18,6 @@ private:
   Player player;
   World world;
   std::vector<Enemy> enemies;
+  Map map;
+  micropather::MicroPather *pather;
 };

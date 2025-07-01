@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ai/pathfinder.h"
 #include "behaviortree_cpp/bt_factory.h"
 #include "raylib.h"
+#include <Eigen/Dense>
 #include <memory>
 
 enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
@@ -9,8 +11,12 @@ enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
 class Enemy {
 public:
   Enemy();
+  ~Enemy() = default;
   Enemy(Enemy &&) = default; // Add move constructor for BT
-  bool update(float, Vector3 &);
+  bool update(
+      float, Vector3 &,
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
+      micropather::MicroPather *);
   void draw();
   Vector3 get_position() { return position; }
   void disable();
@@ -43,4 +49,10 @@ private:
 
   // behavior tree stuff
   std::unique_ptr<BT::Tree> tree;
+
+  // pathfinding
+  micropather::MPVector<void *> current_path;
+  void draw_current_path();
+  bool generate_new_path(int startX, int startZ, int endX, int endZ,
+                         micropather::MicroPather *pather);
 };

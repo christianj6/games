@@ -2,9 +2,12 @@
 #include "raylib.h"
 #include <stdlib.h>
 
-Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world() {
+Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world(), map() {
   // try to place 20 enemies
   const int n_enemies = 20;
+  pather = new micropather::MicroPather(&map, 250);
+  // because world is static we can set the world data once
+  map.set_vector_space_data(world.get_voxel_space_data());
   for (int i = 0; i < n_enemies; i++) {
     Enemy enemy;
     Vector3 pos = enemy.get_position();
@@ -40,7 +43,8 @@ void Game::update() {
   world.update(dt, player.get_camera());
   Vector3 current_player_position = player.get_position();
   for (auto &enemy : enemies) {
-    bool is_killable = enemy.update(dt, current_player_position);
+    bool is_killable = enemy.update(dt, current_player_position,
+                                    world.get_voxel_space_data(), pather);
     if (is_killable && trying_to_kill) {
       enemy.disable();
     }
@@ -63,3 +67,5 @@ void Game::draw() {
   hud.draw(player.get_position());
   EndDrawing();
 }
+
+Game::~Game() { delete pather; }

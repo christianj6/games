@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "ai/behavior_nodes.h"
 #include "fmt/core.h"
+#include "raylib.h"
 #include "raymath.h"
 #include "utils/random.h"
 #include "utils/resource_dir.h"
@@ -15,26 +16,27 @@ Enemy::Enemy()
   // TODO: we should only call this once at a higher scope
   SearchAndSetResourceDir("resources");
 
-  // build behavior tree by composing nodes with file
-  BehaviorTreeFactory factory;
-
-  // The recommended way to create a Node is through inheritance.
-  factory.registerNodeType<ApproachObject>("ApproachObject");
-
-  // Registering a SimpleActionNode using a function pointer.
-  // You can use C++11 lambdas or std::bind
-  factory.registerSimpleCondition("CheckBattery",
-                                  [&](TreeNode &) { return CheckBattery(); });
-
-  // You can also create SimpleActionNodes using methods of a class
-  GripperInterface gripper;
-  factory.registerSimpleAction("OpenGripper",
-                               [&](TreeNode &) { return gripper.open(); });
-  factory.registerSimpleAction("CloseGripper",
-                               [&](TreeNode &) { return gripper.close(); });
-
-  tree = std::make_unique<Tree>(
-      factory.createTreeFromFile("behavior_trees/enemy_tree.xml"));
+  // // build behavior tree by composing nodes with file
+  // BehaviorTreeFactory factory;
+  //
+  // // The recommended way to create a Node is through inheritance.
+  // factory.registerNodeType<ApproachObject>("ApproachObject");
+  //
+  // // Registering a SimpleActionNode using a function pointer.
+  // // You can use C++11 lambdas or std::bind
+  // factory.registerSimpleCondition("CheckBattery",
+  //                                 [&](TreeNode &) { return CheckBattery();
+  //                                 });
+  //
+  // // You can also create SimpleActionNodes using methods of a class
+  // GripperInterface gripper;
+  // factory.registerSimpleAction("OpenGripper",
+  //                              [&](TreeNode &) { return gripper.open(); });
+  // factory.registerSimpleAction("CloseGripper",
+  //                              [&](TreeNode &) { return gripper.close(); });
+  //
+  // tree = std::make_unique<Tree>(
+  //     factory.createTreeFromFile("behavior_trees/enemy_tree.xml"));
 }
 
 bool Enemy::is_in_vision_cone(const Vector3 &target) const {
@@ -62,8 +64,12 @@ bool Enemy::is_in_vision_cone(const Vector3 &target) const {
   return true;
 }
 
-bool Enemy::update(float dt, Vector3 &current_player_position) {
-  tree->tickOnce();
+bool Enemy::update(
+    float dt, Vector3 &current_player_position,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &world_data,
+    micropather::MicroPather *pathfinder) {
+  // tree->tickOnce();
 
   bool is_killable = false;
   switch (current_state) {
@@ -76,6 +82,15 @@ bool Enemy::update(float dt, Vector3 &current_player_position) {
   case (EnemyState::DEAD):
     break;
   case (EnemyState::PATROLLING):
+    current_patrol_target =
+        get_random_unobstructed_world_position(1, world_data);
+    current_patrol_target.y += 1;
+    if (!generate_new_path(position.x, position.z, current_patrol_target.x,
+                           current_patrol_target.z, pathfinder)) {
+      // simple retry
+      // current_state = EnemyState::PATROLLING;
+    }
+    current_state = EnemyState::CHASING;
     // TODO: implement patrolling behavior
     /*
      * use behavior tree as much as possible
@@ -85,18 +100,18 @@ bool Enemy::update(float dt, Vector3 &current_player_position) {
      * so that node will either return RUNNING or SUCCESS
      * once reach the end (success), repeat
      */
-    float distance_to_player =
-        Vector3Length(Vector3Subtract(current_player_position, position));
-
-    can_see_player = is_in_vision_cone(current_player_position);
-
-    if (distance_to_player <= 3.5f) {
-      color = RED;
-      is_killable = true;
-    } else {
-      color = DARKGRAY;
-    }
     break;
+  }
+  float distance_to_player =
+      Vector3Length(Vector3Subtract(current_player_position, position));
+
+  can_see_player = is_in_vision_cone(current_player_position);
+
+  if (distance_to_player <= 3.5f) {
+    color = RED;
+    is_killable = true;
+  } else {
+    color = DARKGRAY;
   }
   return is_killable;
 }
@@ -167,6 +182,66 @@ void Enemy::draw_vision_cone() const {
 void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
-    draw_vision_cone();
+    // draw_vision_cone();
+    DrawSphere(current_patrol_target, 1.0f, YELLOW);
+    // draw_current_path();
   }
+}
+
+void Enemy::draw_current_path() {
+  // Draw start and end points
+  // DrawSphere({static_cast<float>(position.x), 3.0f, position.z * 1.0f}, 2.0f,
+  //            GREEN);
+  DrawSphere({static_cast<float>(current_patrol_target.x), 3.0f,
+              current_patrol_target.z * 1.0f},
+             2.0f, RED);
+
+  // Draw path
+  for (unsigned i = 0; i < current_path.size() - 1; ++i) {
+    Node current = Node::FromState(current_path[i]);
+    Node next = Node::FromState(current_path[i + 1]);
+
+    // Draw line segments between path points
+    DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
+               {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
+
+    // Draw small spheres at each path point
+    DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
+  }
+}
+
+bool Enemy::generate_new_path(int startX, int startZ, int endX, int endZ,
+                              micropather::MicroPather *pather) {
+
+  // reset pathfinding variables
+  pather->Reset();
+  current_path = micropather::MPVector<void *>();
+  float totalCost = 0;
+
+  fmt::print("Both positions are walkable\n");
+  Node startNode(startX, startZ);
+  Node endNode(endX, endZ);
+
+  if (!startNode.IsValid() || !endNode.IsValid()) {
+    fmt::print("Invalid node coordinates!\n");
+    return false;
+  }
+
+  fmt::print("Created start node ({},{}) and end node ({},{})\n", startNode.x,
+             startNode.y, endNode.x, endNode.y);
+
+  fmt::print("\nTesting path from ({},{}) to ({},{})\n", startX, startZ, endX,
+             endZ);
+
+  void *startState = startNode.ToState();
+  void *endState = endNode.ToState();
+  int result = pather->Solve(startState, endState, &current_path, &totalCost);
+
+  if (result == micropather::MicroPather::SOLVED) {
+    fmt::print("Path found! Cost: {:.2f}\n", totalCost);
+    return true;
+  } else {
+    fmt::print("No path found! Error code: {}\n", result);
+  }
+  return false;
 }
