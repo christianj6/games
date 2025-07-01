@@ -13,8 +13,6 @@ float Map::LeastCostEstimate(void *stateStart, void *stateEnd) {
 
   // Manhattan distance
   float cost = abs(end.x - start.x) + abs(end.y - start.y);
-  fmt::print("Estimating cost from ({},{}) to ({},{}): {}\n", start.x, start.y,
-             end.x, end.y, cost);
   return cost;
 }
 
@@ -22,7 +20,6 @@ void Map::AdjacentCost(void *state,
                        MP_VECTOR<micropather::StateCost> *adjacent) {
   Node current = Node::FromState(state);
 
-  fmt::print("Finding neighbors for ({},{})\n", current.x, current.y);
   const int VOXEL_SIZE = 85;
 
   // Four possible moves: right, left, forward, back
@@ -62,12 +59,10 @@ void Map::AdjacentCost(void *state,
           stateCost.state = (void *)(size_t)neighbor.ToState();
           stateCost.cost = 1.0f;
           adjacent->push_back(stateCost);
-          fmt::print("  Added neighbor ({},{})\n", newX, newZ);
         }
       }
     }
   }
-  fmt::print("Found {} neighbors\n", adjacent->size());
 }
 
 void Map::PrintStateInfo(void *state) {
