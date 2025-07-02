@@ -76,4 +76,13 @@ private:
 
 private:
   Node find_nearest_valid_node(const Vector3 &target_pos) const;
+  BT::NodeStatus shoot_projectile_at_player(const Vector3 &player_position);
+
+  // Projectile parameters
+  static constexpr float PROJECTILE_SPEED = 0.5f;
+  static constexpr float SHOOT_COOLDOWN = 1.0f; // Time between shots
+  float shoot_timer = 0.0f;
+  bool projectile_active = false;
+  Vector3 projectile_position{0, 0, 0};
+  Vector3 projectile_direction{0, 0, 0};
 };

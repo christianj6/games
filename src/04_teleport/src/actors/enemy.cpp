@@ -56,6 +56,43 @@ BT::NodeStatus Enemy::move_towards_next_path_node() {
   return BT::NodeStatus::FAILURE;
 }
 
+BT::NodeStatus
+Enemy::shoot_projectile_at_player(const Vector3 &player_position) {
+  fmt::println("shooting");
+  if (shoot_timer > 0) {
+    shoot_timer -= GetFrameTime();
+  }
+
+  // Update existing projectile if active
+  if (projectile_active) {
+    projectile_position =
+        Vector3Add(projectile_position,
+                   Vector3Scale(projectile_direction, PROJECTILE_SPEED));
+
+    // Deactivate if too far
+    if (Vector3Length(Vector3Subtract(projectile_position, position)) > 50.0f) {
+      projectile_active = false;
+    }
+    return BT::NodeStatus::FAILURE;
+  }
+
+  // Start new projectile if cooldown complete
+  if (shoot_timer <= 0) {
+    // Calculate direction to player
+    projectile_direction = Vector3Subtract(player_position, position);
+    projectile_direction = Vector3Normalize(projectile_direction);
+
+    // Initialize projectile at enemy position
+    projectile_position = position;
+    projectile_active = true;
+
+    // Reset shoot timer
+    shoot_timer = SHOOT_COOLDOWN;
+  }
+
+  return BT::NodeStatus::FAILURE;
+}
+
 void Enemy::configure_tree_factory(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data,
@@ -69,6 +106,9 @@ void Enemy::configure_tree_factory(
   });
   factory->registerSimpleAction("GetPathtoPlayer", [&](BT::TreeNode &) {
     return generate_path_to_player(world_data, current_player_position);
+  });
+  factory->registerSimpleAction("ShootPlayer", [&](BT::TreeNode &) {
+    return shoot_projectile_at_player(current_player_position);
   });
 }
 
@@ -102,7 +142,6 @@ bool Enemy::update(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data) {
   // set some useful variables
-  color = DARKGRAY;
   bool is_killable = false;
   can_see_player = is_in_vision_cone(current_player_position);
   float distance_to_player =
@@ -133,9 +172,9 @@ bool Enemy::update(
     switch (current_state) {
     case (EnemyState::CHASING):
       color = ORANGE;
-      // configure_tree_factory(world_data, current_player_position);
-      // tree = std::make_unique<BT::Tree>(
-      //     factory->createTreeFromFile("behavior_trees/enemy_chasing.xml"));
+      configure_tree_factory(world_data, current_player_position);
+      tree = std::make_unique<BT::Tree>(
+          factory->createTreeFromFile("behavior_trees/enemy_chasing.xml"));
       break;
     case (EnemyState::SEARCHING):
       color = PURPLE;
@@ -144,6 +183,7 @@ bool Enemy::update(
     case (EnemyState::DEAD):
       break;
     case (EnemyState::PATROLLING):
+      color = DARKGRAY;
       // configure the tree here bc of some caching issues
       configure_tree_factory(world_data, current_player_position);
       tree = std::make_unique<BT::Tree>(
@@ -156,7 +196,7 @@ bool Enemy::update(
   // for the next project
 
   // state transitions
-  if (can_see_player) {
+  if (current_state == EnemyState::PATROLLING && can_see_player) {
     tree.reset();
     current_state = EnemyState::CHASING;
   }
@@ -165,7 +205,6 @@ bool Enemy::update(
     current_state = EnemyState::SEARCHING;
     search_timer = 0.0f; // Reset timer when entering search state
   }
-
   if (current_state == EnemyState::SEARCHING) {
     search_timer += dt; // Update timer while searching
     if (search_timer > SEARCH_TIMER_MAX) {
@@ -181,6 +220,10 @@ bool Enemy::update(
   if (distance_to_player <= 3.5f) {
     is_killable = true;
     color = RED;
+  } else {
+    if (current_state == EnemyState::PATROLLING) {
+      color = DARKGRAY;
+    }
   }
 
   return is_killable;
@@ -256,6 +299,7 @@ void Enemy::draw_vision_cone() const {
 void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
+    DrawSphere(projectile_position, 0.3f, RED);
     // draw_vision_cone();
     // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();
