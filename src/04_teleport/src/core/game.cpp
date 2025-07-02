@@ -1,6 +1,5 @@
 #include "game.h"
 #include "raylib.h"
-#include <stdlib.h>
 #include "utils/resource_dir.h"
 
 Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world(), map() {
