@@ -3,11 +3,16 @@
 #include "raylib.h"
 #include <memory>
 
+struct PlayerAction {
+  bool attack = false;
+  bool blink = false;
+};
+
 class Player {
 public:
   Player();
   Player(std::unique_ptr<IMovemementController>);
-  bool update(
+  PlayerAction update(
       float,
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   void draw(

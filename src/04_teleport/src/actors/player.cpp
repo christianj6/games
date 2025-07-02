@@ -26,7 +26,7 @@ void Player::setup_camera() {
 }
 
 // TODO: extract collision detection into abstraction
-bool Player::update(
+PlayerAction Player::update(
     float dt,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &vector_space_data) {
@@ -99,7 +99,7 @@ bool Player::update(
   }
   move_camera();
 
-  return attack();
+  return {attack(), is_blinking};
 }
 
 void Player::draw(

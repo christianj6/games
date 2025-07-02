@@ -41,13 +41,16 @@ void Game::update() {
   // and resort to hacks or unmanaged data passing to do this; in a next
   // iteration we likely need to extend the gameplay layer to handle this
   float dt = GetFrameTime();
-  bool trying_to_kill = player.update(dt, world.get_voxel_space_data());
+  PlayerAction player_actions = player.update(dt, world.get_voxel_space_data());
   world.update(dt, player.get_camera());
   Vector3 current_player_position = player.get_position();
   for (auto &enemy : enemies) {
-    bool is_killable =
-        enemy.update(dt, current_player_position, world.get_voxel_space_data());
-    if (is_killable && trying_to_kill) {
+    bool is_killable = false;
+    if (!player_actions.blink) {
+      is_killable = enemy.update(dt, current_player_position,
+                                 world.get_voxel_space_data());
+    }
+    if (is_killable && player_actions.attack) {
       enemy.disable();
     }
   }

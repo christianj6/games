@@ -219,7 +219,7 @@ void Enemy::draw_vision_cone() const {
 void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
-    draw_vision_cone();
+    // draw_vision_cone();
     // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();
   }
