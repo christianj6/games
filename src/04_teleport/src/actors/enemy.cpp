@@ -58,37 +58,23 @@ BT::NodeStatus Enemy::move_towards_next_path_node() {
 
 BT::NodeStatus
 Enemy::shoot_projectile_at_player(const Vector3 &player_position) {
-  fmt::println("shooting");
   if (shoot_timer > 0) {
-    shoot_timer -= GetFrameTime();
-  }
-
-  // Update existing projectile if active
-  if (projectile_active) {
-    projectile_position =
-        Vector3Add(projectile_position,
-                   Vector3Scale(projectile_direction, PROJECTILE_SPEED));
-
-    // Deactivate if too far
-    if (Vector3Length(Vector3Subtract(projectile_position, position)) > 50.0f) {
-      projectile_active = false;
-    }
     return BT::NodeStatus::FAILURE;
   }
 
-  // Start new projectile if cooldown complete
-  if (shoot_timer <= 0) {
-    // Calculate direction to player
-    projectile_direction = Vector3Subtract(player_position, position);
-    projectile_direction = Vector3Normalize(projectile_direction);
+  // Calculate direction to player
+  Vector3 direction = Vector3Subtract(player_position, position);
+  direction = Vector3Normalize(direction);
 
-    // Initialize projectile at enemy position
-    projectile_position = position;
-    projectile_active = true;
+  // Add new projectile
+  projectiles.push_back({
+      position,  // start at enemy position
+      direction, // direction to player
+      true       // active
+  });
 
-    // Reset shoot timer
-    shoot_timer = SHOOT_COOLDOWN;
-  }
+  // Reset shoot timer
+  shoot_timer = SHOOT_COOLDOWN;
 
   return BT::NodeStatus::FAILURE;
 }
@@ -146,6 +132,30 @@ bool Enemy::update(
   can_see_player = is_in_vision_cone(current_player_position);
   float distance_to_player =
       Vector3Length(Vector3Subtract(current_player_position, position));
+
+  // Update shoot timer
+  if (shoot_timer > 0) {
+    shoot_timer -= GetFrameTime();
+  }
+
+  // Update existing projectiles
+  for (auto &proj : projectiles) {
+    if (proj.active) {
+      proj.position = Vector3Add(
+          proj.position, Vector3Scale(proj.direction, PROJECTILE_SPEED));
+
+      // Deactivate if too far
+      if (Vector3Length(Vector3Subtract(proj.position, position)) > 50.0f) {
+        proj.active = false;
+      }
+    }
+  }
+
+  // Remove inactive projectiles
+  projectiles.erase(
+      std::remove_if(projectiles.begin(), projectiles.end(),
+                     [](const Projectile &p) { return !p.active; }),
+      projectiles.end());
 
   // main behavior logic using behavior_trees
   if (tree) {
@@ -299,7 +309,13 @@ void Enemy::draw_vision_cone() const {
 void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
-    DrawSphere(projectile_position, 0.3f, RED);
+
+    // Draw active projectiles
+    for (const auto &proj : projectiles) {
+      if (proj.active) {
+        DrawSphere(proj.position, 0.3f, RED);
+      }
+    }
     // draw_vision_cone();
     // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();

@@ -82,7 +82,11 @@ private:
   static constexpr float PROJECTILE_SPEED = 0.5f;
   static constexpr float SHOOT_COOLDOWN = 1.0f; // Time between shots
   float shoot_timer = 0.0f;
-  bool projectile_active = false;
-  Vector3 projectile_position{0, 0, 0};
-  Vector3 projectile_direction{0, 0, 0};
+
+  struct Projectile {
+    Vector3 position;
+    Vector3 direction;
+    bool active;
+  };
+  std::vector<Projectile> projectiles;
 };
