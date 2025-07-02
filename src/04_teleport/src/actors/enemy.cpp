@@ -1,39 +1,67 @@
 #include "enemy.h"
-#include "ai/behavior_nodes.h"
 #include "fmt/core.h"
 #include "raylib.h"
 #include "raymath.h"
 #include "utils/random.h"
+#include <behaviortree_cpp/basic_types.h>
+#include <behaviortree_cpp/bt_factory.h>
 #include <fmt/base.h>
+#include <memory>
 
-Enemy::Enemy()
+Enemy::Enemy(micropather::MicroPather *pather)
     : radius(1.0f), color(DARKGRAY), current_state(EnemyState::PATROLLING),
       horizontal_rotation(0.0f), vertical_rotation(0.0f),
       horizontal_fov(PI / 2.0f), vertical_fov(PI / 3.0f), vision_range(20.0f),
-      forward_vector({1.0f, 0.0f, 0.0f}) {
+      forward_vector({1.0f, 0.0f, 0.0f}), pather(pather),
+      movement_speed_patrol(0.2f), movement_speed_chase(0.5f),
+      current_path_index() {
   position = get_random_world_position(2);
+  // configure_tree_factory();
+}
 
-  // // build behavior tree by composing nodes with file
-  // BehaviorTreeFactory factory;
-  //
-  // // The recommended way to create a Node is through inheritance.
-  // factory.registerNodeType<ApproachObject>("ApproachObject");
-  //
-  // // Registering a SimpleActionNode using a function pointer.
-  // // You can use C++11 lambdas or std::bind
-  // factory.registerSimpleCondition("CheckBattery",
-  //                                 [&](TreeNode &) { return CheckBattery();
-  //                                 });
-  //
-  // // You can also create SimpleActionNodes using methods of a class
-  // GripperInterface gripper;
-  // factory.registerSimpleAction("OpenGripper",
-  //                              [&](TreeNode &) { return gripper.open(); });
-  // factory.registerSimpleAction("CloseGripper",
-  //                              [&](TreeNode &) { return gripper.close(); });
-  //
-  // tree = std::make_unique<Tree>(
-  //     factory.createTreeFromFile("behavior_trees/enemy_tree.xml"));
+BT::NodeStatus Enemy::move_towards_next_path_node() {
+  // Check if we have a valid path
+  if (current_path.size() == 0) {
+    return BT::NodeStatus::FAILURE;
+  }
+
+  // Check if we've completed the entire path
+  if (current_path_index >= current_path.size()) {
+    current_path_index = 0;
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  // Move towards current target node
+  Vector3 target_position = current_path[current_path_index];
+  Vector3 direction = Vector3Subtract(target_position, position);
+  float distance = Vector3Length(direction);
+  direction = Vector3Normalize(direction);
+  position =
+      Vector3Add(position, Vector3Scale(direction, movement_speed_patrol));
+  forward_vector = Vector3Normalize(Vector3{direction.x, 0.0f, direction.z});
+
+  // Check if we've reached current node
+  const float NODE_REACH_THRESHOLD = 0.5f;
+  if (distance < NODE_REACH_THRESHOLD) {
+    current_path_index++;
+    // fmt::println("{}", current_path_index);
+    // fmt::println("{}", current_path.size());
+  }
+
+  // Always return FAILURE unless we've completed the entire path
+  return BT::NodeStatus::FAILURE;
+}
+
+void Enemy::configure_tree_factory(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &world_data) {
+  factory = std::make_unique<BT::BehaviorTreeFactory>();
+  factory->registerSimpleAction("FindNewPath", [&](BT::TreeNode &) {
+    return generate_new_path(world_data);
+  });
+  factory->registerSimpleAction("FollowPath", [&](BT::TreeNode &) {
+    return move_towards_next_path_node();
+  });
 }
 
 bool Enemy::is_in_vision_cone(const Vector3 &target) const {
@@ -62,49 +90,59 @@ bool Enemy::is_in_vision_cone(const Vector3 &target) const {
 }
 
 bool Enemy::update(
-    float dt, Vector3 &current_player_position,
+    float dt, const Vector3 &current_player_position,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
-        &world_data,
-    micropather::MicroPather *pathfinder) {
-  // tree->tickOnce();
-
-  bool is_killable = false;
-  switch (current_state) {
-  case (EnemyState::CHASING):
-    // TODO
-    break;
-  case (EnemyState::SEARCHING):
-    // TODO
-    break;
-  case (EnemyState::DEAD):
-    break;
-  case (EnemyState::PATROLLING):
-    current_patrol_target =
-        get_random_unobstructed_world_position(1, world_data);
-    current_patrol_target.y += 1;
-    if (!generate_new_path(position.x, position.z, current_patrol_target.x,
-                           current_patrol_target.z, pathfinder)) {
-      // simple retry next frame
-      current_state = EnemyState::PATROLLING;
-    } else {
-      current_state = EnemyState::CHASING;
+        &world_data) {
+  if (tree) {
+    // fmt::print("trying to tick\n");
+    BT::NodeStatus result = tree->tickOnce();
+    // fmt::print("result!");
+    // decide what to do based on result of tree tick
+    switch (result) {
+    case (BT::NodeStatus::SUCCESS):
+      // reached the end
+      tree.reset();
+      break;
+    case (BT::NodeStatus::FAILURE):
+      // in progress
+      break;
+    // we never engage these states
+    // but keep them here to keep lsp happy
+    case (BT::NodeStatus::RUNNING):
+      break;
+    case (BT::NodeStatus::IDLE):
+      break;
+    case (BT::NodeStatus::SKIPPED):
+      break;
     }
-    // TODO: implement patrolling behavior
-    /*
-     * use behavior tree as much as possible
-     * pick random, unobstructed point on the map
-     * calculate the path -> store the nodes somewhere
-     * use a BT::node to keep track of path progress and move a bit each tick()
-     * so that node will either return RUNNING or SUCCESS
-     * once reach the end (success), repeat
-     */
-    break;
+  } else {
+    // transition between states
+    switch (current_state) {
+    case (EnemyState::CHASING):
+      // TODO
+      break;
+    case (EnemyState::SEARCHING):
+      // TODO
+      break;
+    case (EnemyState::DEAD):
+      break;
+    case (EnemyState::PATROLLING):
+      // fmt::println("building a new tree");
+      // put the random point selection here for convenience
+      // fmt::print("{}, {}\n", current_patrol_target.x,
+      // current_patrol_target.z);
+      configure_tree_factory(world_data);
+      tree = std::make_unique<BT::Tree>(
+          factory->createTreeFromFile("behavior_trees/enemy_patrolling.xml"));
+      // generate_new_path();
+      break;
+    }
   }
+  // killability
+  bool is_killable = false;
   float distance_to_player =
       Vector3Length(Vector3Subtract(current_player_position, position));
-
   can_see_player = is_in_vision_cone(current_player_position);
-
   if (distance_to_player <= 3.5f) {
     color = RED;
     is_killable = true;
@@ -187,43 +225,95 @@ void Enemy::draw() {
 }
 
 void Enemy::draw_current_path() {
-  // Need at least 2 points to draw a path
-  if (current_path.size() < 2)
+  // // Need at least 2 points to draw a path
+  // if (current_path.size() < 2)
+  //   return;
+  //
+  // for (unsigned i = 0; i < current_path.size() - 1; ++i) {
+  //   // Skip invalid state pointers
+  //   if (!current_path[i] || !current_path[i + 1])
+  //     continue;
+  //
+  //   // Convert path points to nodes
+  //   Node current = Node::FromState(current_path[i]);
+  //   Node next = Node::FromState(current_path[i + 1]);
+  //
+  //   // Draw path segment and waypoint marker
+  //   DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
+  //              {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
+  //   DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
+  // }
+  if (current_path.size() < 2) {
     return;
-
+  }
   for (unsigned i = 0; i < current_path.size() - 1; ++i) {
-    // Skip invalid state pointers
-    if (!current_path[i] || !current_path[i + 1])
-      continue;
+    Vector3 current = current_path[i];
+    Vector3 next = current_path[i + 1];
 
-    // Convert path points to nodes
-    Node current = Node::FromState(current_path[i]);
-    Node next = Node::FromState(current_path[i + 1]);
-
-    // Draw path segment and waypoint marker
-    DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
-               {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
-    DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
+    DrawLine3D({current.x, 3.0f, current.z}, {next.x, 3.0f, next.z}, YELLOW);
+    DrawSphere({current.x, 3.0f, current.z}, 0.5f, BLUE);
   }
 }
 
-bool Enemy::generate_new_path(int startX, int startZ, int endX, int endZ,
-                              micropather::MicroPather *pather) {
-  // reset pathfinding variables
-  pather->Reset();
-  current_path = micropather::MPVector<void *>();
+// BT::NodeStatus Enemy::generate_new_path() {
+//   fmt::print("find new path");
+//   // reset pathfinding variables
+//   // pather->Reset();
+//   current_path = micropather::MPVector<void *>();
+//   float totalCost = 0;
+//
+//   Node startNode(position.x, position.z);
+//   Node endNode(current_patrol_target.x, current_patrol_target.z);
+//   if (!startNode.IsValid() || !endNode.IsValid()) {
+//     return BT::NodeStatus::FAILURE;
+//   }
+//   void *startState = startNode.ToState();
+//   void *endState = endNode.ToState();
+//   int result = pather->Solve(startState, endState, &current_path,
+//   &totalCost); if (result == micropather::MicroPather::SOLVED) {
+//     return BT::NodeStatus::SUCCESS;
+//   }
+//   return BT::NodeStatus::FAILURE;
+// }
+
+BT::NodeStatus Enemy::generate_new_path(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &world_data) {
+  // fmt::print("find new path\n");
+  current_patrol_target = get_random_unobstructed_world_position(1, world_data);
+  current_patrol_target.y += 1;
+
+  micropather::MPVector<void *> raw_path;
   float totalCost = 0;
 
-  Node startNode(startX, startZ);
-  Node endNode(endX, endZ);
+  Node startNode(position.x, position.z);
+  Node endNode(current_patrol_target.x, current_patrol_target.z);
+
   if (!startNode.IsValid() || !endNode.IsValid()) {
-    return false;
+    // fmt::print("{}, {}, {}, {}\n", position.x, position.z,
+    //            current_patrol_target.z, current_patrol_target.z);
+    fmt::println("failed path valid");
+    return BT::NodeStatus::FAILURE;
   }
+
   void *startState = startNode.ToState();
   void *endState = endNode.ToState();
-  int result = pather->Solve(startState, endState, &current_path, &totalCost);
+
+  int result = pather->Solve(startState, endState, &raw_path, &totalCost);
+
   if (result == micropather::MicroPather::SOLVED) {
-    return true;
+    current_path.clear();
+    for (size_t i = 0; i < raw_path.size(); ++i) {
+      Node node = Node::FromState(raw_path[i]);
+      current_path.push_back(Vector3{static_cast<float>(node.x), position.y,
+                                     static_cast<float>(node.y)});
+    }
+    current_path_index = 0;
+    // return BT::NodeStatus::FAILURE;
+    fmt::println("found a path");
+    return BT::NodeStatus::SUCCESS;
   }
-  return false;
+  fmt::println("failed path default");
+  // abort
+  return BT::NodeStatus::FAILURE;
 }

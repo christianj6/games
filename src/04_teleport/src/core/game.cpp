@@ -7,10 +7,11 @@ Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world(), map() {
   // try to place 20 enemies
   const int n_enemies = 20;
   pather = new micropather::MicroPather(&map, 250);
+  pather->Reset();
   // because world is static we can set the world data once
   map.set_vector_space_data(world.get_voxel_space_data());
   for (int i = 0; i < n_enemies; i++) {
-    Enemy enemy;
+    Enemy enemy(pather);
     Vector3 pos = enemy.get_position();
     auto voxel_space = world.get_voxel_space_data();
 
@@ -44,8 +45,8 @@ void Game::update() {
   world.update(dt, player.get_camera());
   Vector3 current_player_position = player.get_position();
   for (auto &enemy : enemies) {
-    bool is_killable = enemy.update(dt, current_player_position,
-                                    world.get_voxel_space_data(), pather);
+    bool is_killable =
+        enemy.update(dt, current_player_position, world.get_voxel_space_data());
     if (is_killable && trying_to_kill) {
       enemy.disable();
     }

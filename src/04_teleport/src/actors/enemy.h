@@ -4,19 +4,19 @@
 #include "behaviortree_cpp/bt_factory.h"
 #include "raylib.h"
 #include <Eigen/Dense>
+#include <behaviortree_cpp/basic_types.h>
 #include <memory>
 
 enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
 
 class Enemy {
 public:
-  Enemy();
-  ~Enemy() = default;
+  Enemy(micropather::MicroPather *);
+  ~Enemy(){};
   Enemy(Enemy &&) = default; // Add move constructor for BT
   bool update(
-      float, Vector3 &,
-      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
-      micropather::MicroPather *);
+      float, const Vector3 &,
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   void draw();
   Vector3 get_position() { return position; }
   void disable();
@@ -51,8 +51,17 @@ private:
   std::unique_ptr<BT::Tree> tree;
 
   // pathfinding
-  micropather::MPVector<void *> current_path;
+  // micropather::MPVector<void *> current_path;
+  std::vector<Vector3> current_path;
+  size_t current_path_index = 0;
+  micropather::MicroPather *pather;
+  std::unique_ptr<BT::BehaviorTreeFactory> factory;
+  void configure_tree_factory(
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   void draw_current_path();
-  bool generate_new_path(int startX, int startZ, int endX, int endZ,
-                         micropather::MicroPather *pather);
+  // utils for pathfinding
+  BT::NodeStatus move_towards_next_path_node();
+  BT::NodeStatus generate_new_path(
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+          &world_data);
 };
