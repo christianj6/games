@@ -84,10 +84,11 @@ bool Enemy::update(
     current_patrol_target.y += 1;
     if (!generate_new_path(position.x, position.z, current_patrol_target.x,
                            current_patrol_target.z, pathfinder)) {
-      // simple retry
-      // current_state = EnemyState::PATROLLING;
+      // simple retry next frame
+      current_state = EnemyState::PATROLLING;
+    } else {
+      current_state = EnemyState::CHASING;
     }
-    current_state = EnemyState::CHASING;
     // TODO: implement patrolling behavior
     /*
      * use behavior tree as much as possible
@@ -186,9 +187,20 @@ void Enemy::draw() {
 }
 
 void Enemy::draw_current_path() {
+  // Need at least 2 points to draw a path
+  if (current_path.size() < 2)
+    return;
+
   for (unsigned i = 0; i < current_path.size() - 1; ++i) {
+    // Skip invalid state pointers
+    if (!current_path[i] || !current_path[i + 1])
+      continue;
+
+    // Convert path points to nodes
     Node current = Node::FromState(current_path[i]);
     Node next = Node::FromState(current_path[i + 1]);
+
+    // Draw path segment and waypoint marker
     DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
                {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
     DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
