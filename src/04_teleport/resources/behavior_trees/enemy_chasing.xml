@@ -3,7 +3,7 @@
         <SequenceWithMemory>
           <Fallback>
             <RetryUntilSuccessful num_attempts="5">
-              <FindNewPath/>
+              <GetPathtoPlayer/>
             </RetryUntilSuccessful>
           </Fallback>
           <FollowPath/>

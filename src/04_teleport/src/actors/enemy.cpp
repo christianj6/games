@@ -58,13 +58,17 @@ BT::NodeStatus Enemy::move_towards_next_path_node() {
 
 void Enemy::configure_tree_factory(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
-        &world_data) {
+        &world_data,
+    const Vector3 &current_player_position) {
   factory = std::make_unique<BT::BehaviorTreeFactory>();
   factory->registerSimpleAction("FindNewPath", [&](BT::TreeNode &) {
     return generate_new_path(world_data);
   });
   factory->registerSimpleAction("FollowPath", [&](BT::TreeNode &) {
     return move_towards_next_path_node();
+  });
+  factory->registerSimpleAction("GetPathtoPlayer", [&](BT::TreeNode &) {
+    return generate_path_to_player(world_data, current_player_position);
   });
 }
 
@@ -97,6 +101,14 @@ bool Enemy::update(
     float dt, const Vector3 &current_player_position,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data) {
+  // set some useful variables
+  color = DARKGRAY;
+  bool is_killable = false;
+  can_see_player = is_in_vision_cone(current_player_position);
+  float distance_to_player =
+      Vector3Length(Vector3Subtract(current_player_position, position));
+
+  // main behavior logic using behavior_trees
   if (tree) {
     BT::NodeStatus result = tree->tickOnce();
     switch (result) {
@@ -117,35 +129,60 @@ bool Enemy::update(
       break;
     }
   } else {
-    // transition between states
+    // mapping from states to behavior trees
     switch (current_state) {
     case (EnemyState::CHASING):
-      // TODO
+      color = ORANGE;
+      // configure_tree_factory(world_data, current_player_position);
+      // tree = std::make_unique<BT::Tree>(
+      //     factory->createTreeFromFile("behavior_trees/enemy_chasing.xml"));
       break;
     case (EnemyState::SEARCHING):
+      color = PURPLE;
       // TODO
       break;
     case (EnemyState::DEAD):
       break;
     case (EnemyState::PATROLLING):
       // configure the tree here bc of some caching issues
-      configure_tree_factory(world_data);
+      configure_tree_factory(world_data, current_player_position);
       tree = std::make_unique<BT::Tree>(
           factory->createTreeFromFile("behavior_trees/enemy_patrolling.xml"));
       break;
     }
   }
-  // killability
-  bool is_killable = false;
-  float distance_to_player =
-      Vector3Length(Vector3Subtract(current_player_position, position));
-  can_see_player = is_in_vision_cone(current_player_position);
-  if (distance_to_player <= 3.5f) {
-    color = RED;
-    is_killable = true;
-  } else {
-    color = DARKGRAY;
+  // this logic is really messy and hard to comprehend
+  // we have some nice tools here but need a better concept
+  // for the next project
+
+  // state transitions
+  if (can_see_player) {
+    tree.reset();
+    current_state = EnemyState::CHASING;
   }
+  if (current_state == EnemyState::CHASING && !can_see_player) {
+    tree.reset();
+    current_state = EnemyState::SEARCHING;
+    search_timer = 0.0f; // Reset timer when entering search state
+  }
+
+  if (current_state == EnemyState::SEARCHING) {
+    search_timer += dt; // Update timer while searching
+    if (search_timer > SEARCH_TIMER_MAX) {
+      tree.reset();
+      current_state = EnemyState::PATROLLING;
+    }
+  }
+
+  // in the future we can also represent killability via
+  // a state like vulnerable (tricky because that would be multiple states)
+
+  // color coding
+  if (distance_to_player <= 3.5f) {
+    is_killable = true;
+    color = RED;
+  }
+
   return is_killable;
 }
 
@@ -252,6 +289,39 @@ BT::NodeStatus Enemy::generate_new_path(
 
   if (!startNode.IsValid() || !endNode.IsValid()) {
     return BT::NodeStatus::FAILURE;
+  }
+
+  void *startState = startNode.ToState();
+  void *endState = endNode.ToState();
+
+  int result = pather->Solve(startState, endState, &raw_path, &totalCost);
+
+  if (result == micropather::MicroPather::SOLVED) {
+    current_path.clear();
+    for (size_t i = 0; i < raw_path.size(); ++i) {
+      Node node = Node::FromState(raw_path[i]);
+      current_path.push_back(Vector3{static_cast<float>(node.x), position.y,
+                                     static_cast<float>(node.y)});
+    }
+    current_path_index = 0;
+    return BT::NodeStatus::SUCCESS;
+  }
+  return BT::NodeStatus::FAILURE;
+}
+
+BT::NodeStatus Enemy::generate_path_to_player(
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &world_data,
+    const Vector3 &current_player_position) {
+  micropather::MPVector<void *> raw_path;
+  float totalCost = 0;
+
+  Node startNode(position.x, position.z);
+  Node endNode(current_player_position.x, current_player_position.z);
+
+  if (!startNode.IsValid() || !endNode.IsValid()) {
+    // return BT::NodeStatus::FAILURE;
+    return BT::NodeStatus::SUCCESS;
   }
 
   void *startState = startNode.ToState();

@@ -42,6 +42,10 @@ private:
   float movement_speed_chase;
   Vector3 current_patrol_target;
 
+  static constexpr float SEARCH_TIMER_MAX =
+      3.0f; // Search for 3 seconds before giving up
+  float search_timer = 0.0f;
+
   // Helper methods for vision cone
   void update_forward_vector();
   bool is_in_vision_cone(const Vector3 &target) const;
@@ -57,11 +61,19 @@ private:
   micropather::MicroPather *pather;
   std::unique_ptr<BT::BehaviorTreeFactory> factory;
   void configure_tree_factory(
-      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
+      const Vector3 &);
   void draw_current_path();
   // utils for pathfinding
   BT::NodeStatus move_towards_next_path_node();
   BT::NodeStatus generate_new_path(
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
           &world_data);
+  BT::NodeStatus generate_path_to_player(
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+          &world_data,
+      const Vector3 &current_player_position);
+
+private:
+  Node find_nearest_valid_node(const Vector3 &target_pos) const;
 };
