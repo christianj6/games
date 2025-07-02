@@ -13,10 +13,9 @@ Enemy::Enemy(micropather::MicroPather *pather)
       horizontal_rotation(0.0f), vertical_rotation(0.0f),
       horizontal_fov(PI / 2.0f), vertical_fov(PI / 3.0f), vision_range(20.0f),
       forward_vector({1.0f, 0.0f, 0.0f}), pather(pather),
-      movement_speed_patrol(0.2f), movement_speed_chase(0.5f),
+      movement_speed_patrol(0.05f), movement_speed_chase(0.2f),
       current_path_index() {
   position = get_random_world_position(2);
-  // configure_tree_factory();
 }
 
 BT::NodeStatus Enemy::move_towards_next_path_node() {
@@ -38,14 +37,19 @@ BT::NodeStatus Enemy::move_towards_next_path_node() {
   direction = Vector3Normalize(direction);
   position =
       Vector3Add(position, Vector3Scale(direction, movement_speed_patrol));
-  forward_vector = Vector3Normalize(Vector3{direction.x, 0.0f, direction.z});
+
+  // Update rotation to match movement direction
+  horizontal_rotation = atan2f(direction.z, direction.x);
+  vertical_rotation = asinf(direction.y);
+
+  // Update forward vector based on current rotation
+  forward_vector =
+      Vector3{cosf(horizontal_rotation), 0.0f, sinf(horizontal_rotation)};
 
   // Check if we've reached current node
   const float NODE_REACH_THRESHOLD = 0.5f;
   if (distance < NODE_REACH_THRESHOLD) {
     current_path_index++;
-    // fmt::println("{}", current_path_index);
-    // fmt::println("{}", current_path.size());
   }
 
   // Always return FAILURE unless we've completed the entire path
@@ -94,19 +98,16 @@ bool Enemy::update(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data) {
   if (tree) {
-    // fmt::print("trying to tick\n");
     BT::NodeStatus result = tree->tickOnce();
-    // fmt::print("result!");
-    // decide what to do based on result of tree tick
     switch (result) {
     case (BT::NodeStatus::SUCCESS):
-      // reached the end
+      // reset tree once we have reached the end
       tree.reset();
       break;
     case (BT::NodeStatus::FAILURE):
-      // in progress
+      // signifies an in progress tree
       break;
-    // we never engage these states
+    // we never engage these statuses
     // but keep them here to keep lsp happy
     case (BT::NodeStatus::RUNNING):
       break;
@@ -127,14 +128,10 @@ bool Enemy::update(
     case (EnemyState::DEAD):
       break;
     case (EnemyState::PATROLLING):
-      // fmt::println("building a new tree");
-      // put the random point selection here for convenience
-      // fmt::print("{}, {}\n", current_patrol_target.x,
-      // current_patrol_target.z);
+      // configure the tree here bc of some caching issues
       configure_tree_factory(world_data);
       tree = std::make_unique<BT::Tree>(
           factory->createTreeFromFile("behavior_trees/enemy_patrolling.xml"));
-      // generate_new_path();
       break;
     }
   }
@@ -171,13 +168,15 @@ void Enemy::draw_vision_cone() const {
       float h_angle =
           -h_half_angle + (horizontal_fov * h / horizontal_segments);
 
-      // Calculate point on the cone surface
-      float cos_h = cosf(h_angle);
-      float sin_h = sinf(h_angle);
-      float cos_v = cosf(v_angle);
-      float sin_v = sinf(v_angle);
+      // Calculate base angles
+      float h_angle_world = h_angle + horizontal_rotation;
 
-      Vector3 direction = {cos_v * cos_h, sin_v, cos_v * sin_h};
+      // Calculate point on the cone surface
+      Vector3 direction = {
+          cosf(v_angle) * cosf(h_angle_world), // x
+          sinf(v_angle),                       // y
+          cosf(v_angle) * sinf(h_angle_world)  // z
+      };
 
       Vector3 end_point =
           Vector3Add(position, Vector3Scale(direction, vision_range));
@@ -186,10 +185,12 @@ void Enemy::draw_vision_cone() const {
       Color cone_color = can_see_player ? RED : YELLOW;
       if (h < horizontal_segments) {
         // Calculate next horizontal point
-        float next_h_angle =
-            -h_half_angle + (horizontal_fov * (h + 1) / horizontal_segments);
-        Vector3 next_direction = {cos_v * cosf(next_h_angle), sin_v,
-                                  cos_v * sinf(next_h_angle)};
+        float next_h_angle_world =
+            (-h_half_angle + (horizontal_fov * (h + 1) / horizontal_segments)) +
+            horizontal_rotation;
+        Vector3 next_direction = {cosf(v_angle) * cosf(next_h_angle_world),
+                                  sinf(v_angle),
+                                  cosf(v_angle) * sinf(next_h_angle_world)};
         Vector3 next_point =
             Vector3Add(position, Vector3Scale(next_direction, vision_range));
         DrawLine3D(end_point, next_point, ColorAlpha(cone_color, 0.3f));
@@ -199,9 +200,9 @@ void Enemy::draw_vision_cone() const {
         // Calculate next vertical point
         float next_v_angle =
             -v_half_angle + (vertical_fov * (v + 1) / vertical_segments);
-        Vector3 next_direction = {cosf(next_v_angle) * cos_h,
+        Vector3 next_direction = {cosf(next_v_angle) * cosf(h_angle_world),
                                   sinf(next_v_angle),
-                                  cosf(next_v_angle) * sin_h};
+                                  cosf(next_v_angle) * sinf(h_angle_world)};
         Vector3 next_point =
             Vector3Add(position, Vector3Scale(next_direction, vision_range));
         DrawLine3D(end_point, next_point, ColorAlpha(cone_color, 0.3f));
@@ -218,31 +219,13 @@ void Enemy::draw_vision_cone() const {
 void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
-    // draw_vision_cone();
-    DrawSphere(current_patrol_target, 1.0f, YELLOW);
+    draw_vision_cone();
+    // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();
   }
 }
 
 void Enemy::draw_current_path() {
-  // // Need at least 2 points to draw a path
-  // if (current_path.size() < 2)
-  //   return;
-  //
-  // for (unsigned i = 0; i < current_path.size() - 1; ++i) {
-  //   // Skip invalid state pointers
-  //   if (!current_path[i] || !current_path[i + 1])
-  //     continue;
-  //
-  //   // Convert path points to nodes
-  //   Node current = Node::FromState(current_path[i]);
-  //   Node next = Node::FromState(current_path[i + 1]);
-  //
-  //   // Draw path segment and waypoint marker
-  //   DrawLine3D({current.x * 1.0f, 3.0f, current.y * 1.0f},
-  //              {next.x * 1.0f, 3.0f, next.y * 1.0f}, YELLOW);
-  //   DrawSphere({current.x * 1.0f, 3.0f, current.y * 1.0f}, 0.5f, BLUE);
-  // }
   if (current_path.size() < 2) {
     return;
   }
@@ -255,31 +238,9 @@ void Enemy::draw_current_path() {
   }
 }
 
-// BT::NodeStatus Enemy::generate_new_path() {
-//   fmt::print("find new path");
-//   // reset pathfinding variables
-//   // pather->Reset();
-//   current_path = micropather::MPVector<void *>();
-//   float totalCost = 0;
-//
-//   Node startNode(position.x, position.z);
-//   Node endNode(current_patrol_target.x, current_patrol_target.z);
-//   if (!startNode.IsValid() || !endNode.IsValid()) {
-//     return BT::NodeStatus::FAILURE;
-//   }
-//   void *startState = startNode.ToState();
-//   void *endState = endNode.ToState();
-//   int result = pather->Solve(startState, endState, &current_path,
-//   &totalCost); if (result == micropather::MicroPather::SOLVED) {
-//     return BT::NodeStatus::SUCCESS;
-//   }
-//   return BT::NodeStatus::FAILURE;
-// }
-
 BT::NodeStatus Enemy::generate_new_path(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data) {
-  // fmt::print("find new path\n");
   current_patrol_target = get_random_unobstructed_world_position(1, world_data);
   current_patrol_target.y += 1;
 
@@ -290,9 +251,6 @@ BT::NodeStatus Enemy::generate_new_path(
   Node endNode(current_patrol_target.x, current_patrol_target.z);
 
   if (!startNode.IsValid() || !endNode.IsValid()) {
-    // fmt::print("{}, {}, {}, {}\n", position.x, position.z,
-    //            current_patrol_target.z, current_patrol_target.z);
-    fmt::println("failed path valid");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -309,11 +267,7 @@ BT::NodeStatus Enemy::generate_new_path(
                                      static_cast<float>(node.y)});
     }
     current_path_index = 0;
-    // return BT::NodeStatus::FAILURE;
-    fmt::println("found a path");
     return BT::NodeStatus::SUCCESS;
   }
-  fmt::println("failed path default");
-  // abort
   return BT::NodeStatus::FAILURE;
 }
