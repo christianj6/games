@@ -27,15 +27,24 @@ void Hud::draw(Vector3 player_position, int current_player_health) {
     DrawFPS(15, 15);
     DrawText(player_position_string.c_str(), 15, 40, 20, RED);
   } else {
-    DrawRectangle(10, 10, 500, 133, Fade(SKYBLUE, 0.5f));
-    DrawRectangleLines(10, 10, 500, 133, BLUE);
+    DrawRectangle(10, 20, 500, 133, Fade(SKYBLUE, 0.5f));
+    DrawRectangleLines(10, 20, 500, 133, BLUE);
+    if (IsGamepadAvailable(0)) {
+      DrawText("Left trigger to teleport", 15, 35, 20, BLACK);
+      DrawText("A to jump (double jump is possible)", 15, 20 * 2 + 15, 20,
+               BLACK);
+      DrawText("Right bumper to kill enemy when close", 15, 20 * 3 + 15, 20,
+               BLACK);
+    } else {
+      DrawText("Right click to teleport", 15, 35, 20, BLACK);
+      DrawText("SPACE to jump (double jump is possible)", 15, 20 * 2 + 15, 20,
+               BLACK);
+      DrawText("Left click to kill enemy when close", 15, 20 * 3 + 15, 20,
+               BLACK);
+    }
 
-    DrawText("Left trigger to teleport", 15, 15, 20, BLACK);
-    DrawText("A to jump", 15, 15 * 2 + 15, 20, BLACK);
-    DrawText("Right bumper to kill enemy when close", 15, 15 * 3 + 15, 20,
-             BLACK);
-    DrawText("If kill all enemies you win", 15, 15 * 4 + 15, 20, BLACK);
-    DrawText("If enemies shoot you, then you can die", 15, 15 * 5 + 15, 20,
+    DrawText("If kill all enemies you win", 15, 20 * 4 + 15, 20, BLACK);
+    DrawText("If enemies shoot you four times, you lose", 15, 20 * 5 + 15, 20,
              BLACK);
   }
 }
