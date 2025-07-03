@@ -10,6 +10,7 @@
  * too dark
  * game feel for movement can be improved
  * health bar would be better
+ * better abstractions, more modular and well-architected
  */
 
 int main() {

@@ -66,5 +66,5 @@ void Map::AdjacentCost(void *state,
 }
 
 void Map::PrintStateInfo(void *state) {
-  // TODO
+  // only for debug
 }

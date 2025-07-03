@@ -1,13 +1,7 @@
  <root BTCPP_format="4" >
      <BehaviorTree ID="MainTree">
         <SequenceWithMemory>
-          <!-- <Fallback> -->
-          <!--   <RetryUntilSuccessful num_attempts="5"> -->
-          <!--     <GetPathtoPlayer/> -->
-          <!--   </RetryUntilSuccessful> -->
-          <!-- </Fallback> -->
           <ShootPlayer/>
-          <!-- <FollowPath/> -->
         </SequenceWithMemory>
      </BehaviorTree>
  </root>
