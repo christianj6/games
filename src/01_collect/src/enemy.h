@@ -1,7 +1,6 @@
 #pragma once
 #include "raylib.h"
 
-
 class Enemy {
 public:
   Enemy();
@@ -12,4 +11,3 @@ private:
   Vector2 position;
   bool hit_player = false;
 };
-

@@ -11,4 +11,3 @@ public:
 private:
   Vector2 position;
 };
-
