@@ -5,17 +5,10 @@
 // TODO: web assembly build for itch.io publish
 // TODO: polish and finish
 
-// SCOPE
+// TODO: for next game 
 /*
- * main idea: same as shoot but more refined
- * xbox controller input support
- * enemies similar to shoot but with better abstractions for managing behavior
- * enemies have real grid-based pathfinding
- * GOAP out of scope: rely on behaviortree_cpp for AI abstractions and just wrap
- * for my needs stop when the main gameplay loop is identical to shoot (hide,
- * teleport, shoot, etc.)
- * game world has limited visual clutter (eg vines or small plants)
- * use mesh instancing systems from before to implement the visual clutter
+ * too dark
+ * game feel for movement can be improved
  */
 
 int main() {
