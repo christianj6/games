@@ -1,5 +1,6 @@
 #include "game.h"
 #include "actors/enemy.h"
+#include "movement/input.h"
 #include "raylib.h"
 #include "utils/resource_dir.h"
 
@@ -40,6 +41,10 @@ Game::Game(bool debug_mode_enabled)
 }
 
 int Game::update() {
+  if (IsGamepadAvailable(0)) {
+    player.set_movement_controller(std::make_unique<PlayerMovementController>(
+        std::make_unique<ControllerInputProvider>()));
+  }
   // noticing that i want to pass different signals between the actors
   // and resort to hacks or unmanaged data passing to do this; in a next
   // iteration we likely need to extend the gameplay layer to handle this

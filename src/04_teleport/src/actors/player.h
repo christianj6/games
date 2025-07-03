@@ -23,6 +23,10 @@ public:
   void reset_health() { health = 100; }
   int check_health() { return health; }
   void reset_position();
+  void set_movement_controller(
+      std::unique_ptr<IMovemementController> new_controller) {
+    movement_controller = std::move(new_controller);
+  }
 
 private:
   Vector3 position;
