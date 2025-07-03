@@ -3,37 +3,33 @@ Practicing C++ with Raylib.
 
 ***
 
-#### Dependencies
+#### Installing Dependencies
 Unix
 ```
-clang-format
-cmake 
-ninja-build
-pkg-config
-zip
-libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev libxinerama-dev libglu1-mesa-dev
+sudo apt install clang-format cmake ninja-build pkg-config zip
 ```
+
+Windows 
+```
+winget install Ninja-build.Ninja
+
+```
+[Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/downloads/)
+
+***
 
 #### Building Projects
-To build any of the projects in the src/ directory, simply ```cd``` into that project directory and run the following:
-
-For Premake:
+To build any of the projects in the src/ directory, run the ```build.sh``` script of that project from the project root dir; for example:
 ```
-cd build
-./premake5.osx gmake2
-
-cd ..
-make
+bash ./src/02_hide/build.sh
 ```
 
-For CMake (ensure CMake and Ninja are installed first):
+Later projects also support builds on Windows with a .bat file:
 ```
-mkdir -p build && cd build 
-cmake .. -G Ninja
-ninja
+.\src\04_teleport\build.bat
 ```
 
-Note: Builds from 04_teleport and beyond require vcpkg located in the project superior directory.
+Note: Builds from 04_teleport and beyond require vcpkg located in the project superior directory. For more information on setting up vcpkg, check [this resource](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell).
 
 ***
 
@@ -91,8 +87,8 @@ Build System: vcpkg, CMake, Ninja
 
 ***
 
-#### 06_mingle
-Experimenting with NPC interactions via llama.cpp and multithreading. Expanding skills with performance and code organization while scoping larger project.
+#### 06_jam
+Kenney Jam 2025.
 
 Build System: vcpkg, CMake, Ninja
 
@@ -103,8 +99,7 @@ Build System: vcpkg, CMake, Ninja
 - [x] Collect
 - [x] Hide
 - [x] Shoot
-- [ ] Teleport
+- [x] Teleport
 - [ ] Explore
-- [ ] Mingle
+- [ ] Jam
 - [ ] Tidy, finish, plan larger project
-    - [ ] Add instruction card to each game
