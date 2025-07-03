@@ -135,7 +135,9 @@ void Player::draw(
       }
     }
 
-    DrawSphere(blink_target, 0.75f, BLUE);
+    Color sphere_color = BLUE;
+    sphere_color.a = 100;
+    DrawSphere(blink_target, 0.75f, sphere_color);
   }
 }
 
