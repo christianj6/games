@@ -310,6 +310,13 @@ void Enemy::draw() {
   if (!(current_state == EnemyState::DEAD)) {
     DrawSphere(position, radius, color);
 
+    // Draw direction indicator using a small light beam
+    Vector3 beam_end = Vector3Add(
+        position, Vector3Scale(Vector3{cosf(horizontal_rotation), 0.0f,
+                                       sinf(horizontal_rotation)},
+                               3.0f));
+    DrawLine3D(position, beam_end, YELLOW);
+
     // Draw active projectiles
     for (const auto &proj : projectiles) {
       if (proj.active) {
