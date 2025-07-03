@@ -128,6 +128,10 @@ EnemySignals Enemy::update(
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
         &world_data,
     bool any_enemy_can_see_player) {
+  if (current_state == EnemyState::DEAD) {
+    // if enemy is dead do nothing
+    return {false, false};
+  }
   // set some useful variables
   bool is_killable = false;
   can_see_player = is_in_vision_cone(current_player_position);
@@ -183,13 +187,11 @@ EnemySignals Enemy::update(
     // mapping from states to behavior trees
     switch (current_state) {
     case (EnemyState::CHASING):
-      color = ORANGE;
       configure_tree_factory(world_data, current_player_position);
       tree = std::make_unique<BT::Tree>(
           factory->createTreeFromFile("behavior_trees/enemy_chasing.xml"));
       break;
     case (EnemyState::SEARCHING):
-      color = PURPLE;
       configure_tree_factory(world_data, current_player_position);
       tree = std::make_unique<BT::Tree>(
           factory->createTreeFromFile("behavior_trees/enemy_searching.xml"));
@@ -197,7 +199,6 @@ EnemySignals Enemy::update(
     case (EnemyState::DEAD):
       break;
     case (EnemyState::PATROLLING):
-      color = DARKGRAY;
       // configure the tree here bc of some caching issues
       configure_tree_factory(world_data, current_player_position);
       tree = std::make_unique<BT::Tree>(
@@ -240,9 +241,16 @@ EnemySignals Enemy::update(
   if (distance_to_player <= 3.5f) {
     is_killable = true;
     color = RED;
+    color.a = 100;
   } else {
     if (current_state == EnemyState::PATROLLING) {
       color = DARKGRAY;
+    }
+    if (current_state == EnemyState::CHASING) {
+      color = RED;
+    }
+    if (current_state == EnemyState::SEARCHING) {
+      color = YELLOW;
     }
   }
 
@@ -328,13 +336,13 @@ void Enemy::draw() {
     // draw_vision_cone();
     // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();
-  }
-  if (current_state != EnemyState::CHASING) {
-    Vector3 beam_end = Vector3Add(
-        position, Vector3Scale(Vector3{cosf(horizontal_rotation), 0.0f,
-                                       sinf(horizontal_rotation)},
-                               3.0f));
-    DrawLine3D(position, beam_end, YELLOW);
+    if (current_state != EnemyState::CHASING) {
+      Vector3 beam_end = Vector3Add(
+          position, Vector3Scale(Vector3{cosf(horizontal_rotation), 0.0f,
+                                         sinf(horizontal_rotation)},
+                                 3.0f));
+      DrawLine3D(position, beam_end, YELLOW);
+    }
   }
 }
 
