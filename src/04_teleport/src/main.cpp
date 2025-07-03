@@ -24,7 +24,7 @@ int main() {
   InitWindow(2460, 1440, "Teleport");
   DisableCursor();
 
-  App app{true};
+  App app{false};
   while (app.run()) {
   }
   CloseWindow();

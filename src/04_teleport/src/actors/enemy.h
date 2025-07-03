@@ -26,6 +26,8 @@ public:
   void draw();
   Vector3 get_position() { return position; }
   void disable();
+  void reset() { current_state = EnemyState::PATROLLING; }
+  EnemyState get_state() const { return current_state; }
 
 private:
   Vector3 position;

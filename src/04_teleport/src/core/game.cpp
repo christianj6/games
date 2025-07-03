@@ -9,7 +9,7 @@ Game::Game(bool debug_mode_enabled)
       global_player_visibility_flag(false) {
   SearchAndSetResourceDir("resources");
   // try to place 20 enemies
-  const int n_enemies = 20;
+  const int n_enemies = 7;
   pather = new micropather::MicroPather(&map, 250);
   pather->Reset();
   // because world is static we can set the world data once
@@ -82,9 +82,25 @@ int Game::update() {
     player.reset_health();
     player.reset_position();
     return 1;
-  } else {
-    return 0;
   }
+
+  // Check if all enemies are disabled
+  bool all_enemies_dead =
+      std::all_of(enemies.begin(), enemies.end(), [](const Enemy &e) {
+        return e.get_state() == EnemyState::DEAD;
+      });
+
+  if (all_enemies_dead) {
+    player.reset_health();
+    player.reset_position();
+    // Reset all enemies
+    for (auto &enemy : enemies) {
+      enemy.reset();
+    }
+    return 2;
+  }
+
+  return 0;
 }
 
 void Game::draw() {
