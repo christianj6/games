@@ -41,13 +41,12 @@ bool ControllerInputProvider::get_input_jump() {
 }
 
 bool ControllerInputProvider::get_input_attack() {
-  return IsGamepadButtonPressed(
-      0, GAMEPAD_BUTTON_LEFT_FACE_DOWN); // A/Cross button
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1); // RB
 }
 
 bool ControllerInputProvider::get_input_action() {
-  return IsGamepadButtonPressed(0,
-                                GAMEPAD_BUTTON_RIGHT_TRIGGER_1); // RB/R1 button
+  return IsGamepadButtonDown(0,
+                             GAMEPAD_BUTTON_LEFT_TRIGGER_2); // LT
 }
 
 Vector3 KeyboardInputProvider::get_input_movement_vector() {
