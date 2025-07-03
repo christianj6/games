@@ -1,5 +1,6 @@
 #include "world.h"
 #include "enemy.h"
+#include <cmath>
 
 bool World::is_on_screen(const Vector2 &position) const {
   float margin = 100.0f; // Extra buffer zone around screen

@@ -5,7 +5,6 @@
 #include "world.h"
 #include <memory>
 
-
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_FULLSCREEN_MODE);
   InitWindow(0, 0, "Hide");

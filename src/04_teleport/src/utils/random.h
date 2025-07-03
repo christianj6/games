@@ -1,0 +1,42 @@
+#pragma once
+#include "raylib.h"
+#include <Eigen/Dense>
+#include <optional>
+#include <random>
+#include <type_traits>
+
+template <typename T> class RandomNumberGenerator {
+public:
+  RandomNumberGenerator(T, T);
+  T operator()();
+
+private:
+  // conditionally define the distribution type based on T
+  using Distribution = std::conditional_t<std::is_floating_point_v<T>,
+                                          std::uniform_real_distribution<T>,
+                                          std::uniform_int_distribution<T>>;
+  Distribution distribution;
+  std::mt19937 generator;
+};
+
+// template class definitions must be in the .h file bc of compiler ish
+template <typename T>
+RandomNumberGenerator<T>::RandomNumberGenerator(T start, T end)
+    : generator(std::random_device{}()) {
+  distribution = Distribution(start, end);
+}
+
+template <typename T> T RandomNumberGenerator<T>::operator()() {
+  return distribution(generator);
+}
+
+Vector3 get_random_world_position(std::optional<float>);
+
+Vector3 get_random_unobstructed_world_position(
+    std::optional<float>,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
+
+Vector3 find_unobstructed_position_near(
+    const Vector2 &center,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &vector_space_data);

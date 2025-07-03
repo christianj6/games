@@ -6,8 +6,15 @@ main
 *.dll
 _archive/
 **/bin
-**/build
+# **/build
+**/build_wsl
 .aider*
 .env
 **/.cache
 .DS_Store
+**/vcpkg_installed
+**/compile_commands.json
+
+# specify build dirs for this project
+src/03_shoot/build
+src/04_teleport/build

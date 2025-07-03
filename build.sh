@@ -1,19 +1,4 @@
 #!/bin/bash
 
-# change to build different games
-PROJECT="03_shoot"
-set -e 
-
-# format
-cd src/${PROJECT}/src 
-clang-format -i -- **.cpp **.h
-
-# cmake+ninja
-cd ..
-mkdir -p build
-cd build
-cmake .. -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-ninja
-
-# run the game 
-./bin/Debug/Game
+# alternative command to hook into windows from wsl
+cmd.exe /c "C:\Users\Christian\Desktop\repos\games\src\04_teleport\build.bat"

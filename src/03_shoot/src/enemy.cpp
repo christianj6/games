@@ -12,7 +12,9 @@ Enemy::Enemy()
       position(get_random_position(20.0f)),
       vision_angle(PI / 3.0f), // 60 degrees
       vision_range(20.0f), facing_direction({1.0f, 0.0f, 0.0f}),
-      chase_cooldown_timer(0.0f) {
+      chase_cooldown_timer(0.0f), collision_checker(nullptr),
+      patrol_point_update_timer(0.0f), current_patrol_point_index(0),
+      can_see_player(false), debug(false) {
   state = EnemyState::PATROL;
   generate_patrol_points(10);
 }
@@ -104,12 +106,12 @@ void Enemy::update(float dt, const Vector3 &current_player_position) {
 
     // if player in vision cone then enemy should be able to see player
     bool in_vision_cone = angle <= effective_vision_angle / 2.0f;
-    if (in_vision_cone && collision_checker != nullptr) {
+    if (in_vision_cone && collision_checker) {
       Ray ray = {position, to_player_normalized};
       // checks if the current enemy vision ray hits an obstacle
-      can_see_player =
-          !collision_checker->check_collision_ray(ray, distance_to_player)
-               .collision;
+      CollisionInfo collision =
+          collision_checker->check_collision_ray(ray, distance_to_player);
+      can_see_player = !collision.collision;
     } else {
       can_see_player = false;
     }

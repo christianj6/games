@@ -1,4 +1,5 @@
 #include "obstacle.h"
+#include <math.h>
 
 Obstacle::Obstacle(Vector2 starting_position) : GameObject(starting_position) {}
 

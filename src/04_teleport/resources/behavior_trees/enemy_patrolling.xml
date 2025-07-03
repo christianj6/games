@@ -1,0 +1,12 @@
+ <root BTCPP_format="4" >
+     <BehaviorTree ID="MainTree">
+        <SequenceWithMemory>
+          <Fallback>
+            <RetryUntilSuccessful num_attempts="5">
+              <FindNewPath/>
+            </RetryUntilSuccessful>
+          </Fallback>
+          <FollowPath/>
+        </SequenceWithMemory>
+     </BehaviorTree>
+ </root>
