@@ -5,11 +5,10 @@ int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
   SetTargetFPS(60);
   InitWindow(2460, 1440, "Shoot");
-  DisableCursor();
 
   Game game;
-  DisableCursor();
-
+  // disable cursor causes problems with camera in wsl; comment out if needed
+  // DisableCursor();
   while (!WindowShouldClose()) {
     game.update();
     game.draw();
