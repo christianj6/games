@@ -31,6 +31,7 @@ public:
 private:
   Vector3 position;
   Camera camera;
+  const float PLAY_AREA_SIZE = 85.0f;
   const float MOVE_SPEED = 10.0f;
   const float MOUSE_SENSITIVITY = 0.003f;
   const float JUMP_FORCE = 14.0f;

@@ -66,6 +66,14 @@ PlayerAction Player::update(
       }
     }
 
+    // Clamp player position within play area
+    camera.position.x = std::clamp(camera.position.x, 0.0f, PLAY_AREA_SIZE);
+    camera.position.z = std::clamp(camera.position.z, 0.0f, PLAY_AREA_SIZE);
+
+    // Update target to maintain relative view direction after clamping
+    Vector3 view_offset = Vector3Subtract(camera.target, camera.position);
+    camera.target = Vector3Add(camera.position, view_offset);
+
     if (camera.position.y <= ground_height) {
       camera.position.y = ground_height;
       vertical_velocity = 0.0f;
@@ -127,8 +135,15 @@ void Player::draw(
       int check_z = static_cast<int>(blink_target.z);
       int check_y = static_cast<int>(blink_target.y);
 
-      // Check if we hit a block
-      if (vector_space_data[check_y](check_x, check_z)) {
+      // First check if we're within play area bounds
+      blink_target.x = std::clamp(blink_target.x, 0.0f, PLAY_AREA_SIZE);
+      blink_target.z = std::clamp(blink_target.z, 0.0f, PLAY_AREA_SIZE);
+
+      // Check if we hit a block or would go outside play area
+      if (check_x < 0 || check_z < 0 ||
+          check_x >= vector_space_data[check_y].cols() ||
+          check_z >= vector_space_data[check_y].rows() ||
+          vector_space_data[check_y](check_x, check_z)) {
         found_collision = true;
         // Step back slightly from collision
         blink_target = Vector3Add(
@@ -136,6 +151,9 @@ void Player::draw(
             Vector3Scale(direction,
                          dist - step * 6)); // move back 6*step so ball does not
                                             // overlap w obstacles
+        // Clamp the stepped-back position too
+        blink_target.x = std::clamp(blink_target.x, 0.0f, PLAY_AREA_SIZE);
+        blink_target.z = std::clamp(blink_target.z, 0.0f, PLAY_AREA_SIZE);
         break;
       }
     }

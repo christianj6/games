@@ -5,7 +5,7 @@
 // TODO: web assembly build for itch.io publish
 // TODO: polish and finish
 
-// TODO: for next game 
+// TODO: for next game
 /*
  * too dark
  * game feel for movement can be improved
