@@ -1,20 +1,11 @@
 #include "game.h"
 #include "raylib.h"
 
-
 int main() {
-  const int monitor = 0;
-  int width = GetMonitorWidth(monitor);
-  int height = GetMonitorHeight(monitor);
-
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-  InitWindow(width, height, "Shoot");
-
-  // Center window on the current monitor
-  int monitorX = GetMonitorPosition(monitor).x;
-  int monitorY = GetMonitorPosition(monitor).y;
-  SetWindowPosition(monitorX, monitorY);
-  ToggleBorderlessWindowed();
+  SetTargetFPS(60);
+  InitWindow(2460, 1440, "Shoot");
+  DisableCursor();
 
   Game game;
   DisableCursor();

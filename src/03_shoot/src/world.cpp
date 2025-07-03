@@ -141,7 +141,7 @@ void World::draw() {
   DrawPlane((Vector3){0.0f, 0.0f, 0.0f},
             (Vector2){playing_field_size, playing_field_size}, LIGHTGRAY);
 
-  if (weapon) {
+  if (weapon && weapon.get()) {
     weapon->draw();
   }
   for (auto &obstacle : obstacles) {
@@ -259,10 +259,13 @@ CollisionInfo World::check_collision_ray(Ray ray, float max_distance) const {
 }
 
 void World::update(float dt, const Vector3 &current_player_position) {
-  // the only thing which needs updating is the enemies
-  // all other objects either have no state, or their state is managed with
-  // flags
-  for (auto &enemy : enemies) {
-    enemy->update(dt, current_player_position);
+  // Check if any enemies are null before updating
+  for (auto it = enemies.begin(); it != enemies.end();) {
+    if (*it) {
+      (*it)->update(dt, current_player_position);
+      ++it;
+    } else {
+      it = enemies.erase(it);
+    }
   }
 }

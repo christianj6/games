@@ -7,7 +7,7 @@
  * the player is just a camera with some collision
  * logic and the projectiles (spawned from the camera so we put them here)
  */
-Player::Player() : camera() {
+Player::Player() : camera(), world(nullptr), has_weapon(false) {
   // Start in the southwest corner, looking diagonally across map
   camera.position = (Vector3){-45.0f, 1.8f, 45.0f}; // SW corner
   camera.target = (Vector3){45.0f, 1.8f, -45.0f};   // Look toward NE corner
@@ -17,8 +17,10 @@ Player::Player() : camera() {
 }
 
 Vector3 Player::try_move(Vector3 movement) const {
-  if (!world)
+  if (!world) {
+    TraceLog(LOG_WARNING, "World pointer is null in Player::try_move");
     return movement;
+  }
 
   // Try full movement first
   Vector3 new_pos = {camera.position.x + movement.x, camera.position.y,
