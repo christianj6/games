@@ -44,3 +44,8 @@
  * movement does not feel nice
  * health bar is better than percentage
  */
+
+// TODO: notes
+/*
+ * consider renaming to "defend"
+ */
