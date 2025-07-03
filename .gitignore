@@ -18,3 +18,4 @@ _archive/
 # specify build dirs for this project
 src/03_shoot/build
 src/04_teleport/build
+src/05_explore/build
