@@ -144,11 +144,21 @@ EnemySignals Enemy::update(
     shoot_timer -= GetFrameTime();
   }
 
+  bool projectile_hit = false;
   // Update existing projectiles
   for (auto &proj : projectiles) {
     if (proj.active) {
       proj.position = Vector3Add(
           proj.position, Vector3Scale(proj.direction, PROJECTILE_SPEED));
+
+      // Check collision with player
+      float dist_to_player = Vector3Length(
+          Vector3Subtract(proj.position, current_player_position));
+      if (dist_to_player < 1.0f) { // Using 1.0 as collision radius
+        proj.active = false;
+        projectile_hit = true;
+        continue;
+      }
 
       // Deactivate if too far
       if (Vector3Length(Vector3Subtract(proj.position, position)) > 50.0f) {
@@ -254,7 +264,7 @@ EnemySignals Enemy::update(
     }
   }
 
-  return {can_see_player, is_killable};
+  return {can_see_player, is_killable, projectile_hit};
 }
 
 void Enemy::disable() { current_state = EnemyState::DEAD; }

@@ -11,6 +11,7 @@ enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
 struct EnemySignals {
   bool player_is_visible = false;
   bool enemy_is_killable = false;
+  bool projectile_hit_player = false;
 };
 
 class Enemy {

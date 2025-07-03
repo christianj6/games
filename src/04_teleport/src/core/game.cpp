@@ -63,6 +63,9 @@ void Game::update() {
       // if any enemy can see the player, we set to true
       global_player_visibility_flag = true;
     }
+    if (enemy_signals.projectile_hit_player) {
+      player.decrease_health(25);
+    }
   }
   // furthermore, passing signals between the enemies is not convenient; here
   // we definitely need some kind of blackboarding or global state management
@@ -81,7 +84,7 @@ void Game::draw() {
   }
   EndMode3D();
 
-  hud.draw(player.get_position());
+  hud.draw(player.get_position(), player.check_health());
   EndDrawing();
 }
 

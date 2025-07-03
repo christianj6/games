@@ -8,7 +8,7 @@
 
 Player::Player()
     : movement_controller(std::make_unique<PlayerMovementController>(
-          std::make_unique<ControllerInputProvider>())) {
+          std::make_unique<KeyboardInputProvider>())) {
   setup_camera();
 }
 

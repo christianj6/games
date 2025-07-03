@@ -19,6 +19,8 @@ public:
       const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
   Vector3 get_position() { return camera.position; }
   Camera get_camera() { return camera; }
+  void decrease_health(int amount) { health -= amount; }
+  int check_health() { return health; }
 
 private:
   Vector3 position;
@@ -39,4 +41,5 @@ private:
   void jump();
   void blink();
   bool attack();
+  int health = 100;
 };

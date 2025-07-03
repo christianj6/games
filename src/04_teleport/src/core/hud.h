@@ -5,7 +5,7 @@ class Hud {
 public:
   Hud(bool);
   void update(float);
-  void draw(Vector3);
+  void draw(Vector3, int);
 
 private:
   bool debug_mode_enabled;

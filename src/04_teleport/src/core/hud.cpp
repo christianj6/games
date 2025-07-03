@@ -1,16 +1,20 @@
 #include "hud.h"
 #include "fmt/core.h"
 #include "raylib.h"
+#include <fmt/format.h>
 #include <string>
 
 Hud::Hud(bool debug_mode_enabled) : debug_mode_enabled(debug_mode_enabled) {}
 
-void Hud::draw(Vector3 player_position) {
+void Hud::draw(Vector3 player_position, int current_player_health) {
   int screenWidth = GetScreenWidth();
   int screenHeight = GetScreenHeight();
 
   // reticle
   DrawCircle(screenWidth / 2, screenHeight / 2, 2, WHITE);
+  // health
+  DrawText(fmt::format("Health: {}%", current_player_health).c_str(),
+           screenWidth - 150, 15, 20, BLUE);
 
   if (debug_mode_enabled) {
     DrawRectangle(10, 10, 300, 133, Fade(SKYBLUE, 0.5f));
