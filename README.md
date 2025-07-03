@@ -29,7 +29,9 @@ Later projects also support builds on Windows with a .bat file:
 .\src\04_teleport\build.bat
 ```
 
-Note: Builds from 04_teleport and beyond require vcpkg located in the project superior directory. For more information on setting up vcpkg, check [this resource](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell).
+Additional Points
+- Builds from 04_teleport and beyond require vcpkg located in the project superior directory. For more information on setting up vcpkg, check [this resource](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell).
+- Earlier projects also support builds on MacOS, as they are based on the [Raylib Quickstart](https://github.com/raylib-extras/raylib-quickstart).
 
 ***
 
