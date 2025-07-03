@@ -39,7 +39,7 @@ Game::Game(bool debug_mode_enabled)
   }
 }
 
-void Game::update() {
+int Game::update() {
   // noticing that i want to pass different signals between the actors
   // and resort to hacks or unmanaged data passing to do this; in a next
   // iteration we likely need to extend the gameplay layer to handle this
@@ -70,6 +70,16 @@ void Game::update() {
   // furthermore, passing signals between the enemies is not convenient; here
   // we definitely need some kind of blackboarding or global state management
   hud.update(dt);
+
+  // return codes
+  if (player.check_health() <= 0) {
+    // sneakily reset the health to allow restart
+    player.reset_health();
+    player.reset_position();
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 void Game::draw() {

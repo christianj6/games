@@ -20,7 +20,9 @@ public:
   Vector3 get_position() { return camera.position; }
   Camera get_camera() { return camera; }
   void decrease_health(int amount) { health -= amount; }
+  void reset_health() { health = 100; }
   int check_health() { return health; }
+  void reset_position();
 
 private:
   Vector3 position;

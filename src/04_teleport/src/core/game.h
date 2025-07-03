@@ -5,12 +5,16 @@
 #include "world/world.h"
 #include <vector>
 
+// the game also needs states like game over etc
+// in order to encapsulate this and distinguish from app
+
 class Game {
 public:
   // game is just passing through the debug bool
   Game(bool);
   ~Game();
-  void update();
+  // use the update return as a simple code
+  int update();
   void draw();
 
 private:

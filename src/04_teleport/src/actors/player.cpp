@@ -17,6 +17,11 @@ Player::Player(std::unique_ptr<IMovemementController> movement_controller)
   setup_camera();
 }
 
+void Player::reset_position() {
+  camera.position = Vector3{80.0f, 3.0f, 80.0f};
+  camera.target = Vector3{10.0f, 1.0f, 0.0f}; // Look forward along plane
+}
+
 void Player::setup_camera() {
   camera.position = Vector3{80.0f, 3.0f, 80.0f};
   camera.target = Vector3{10.0f, 1.0f, 0.0f}; // Look forward along plane
