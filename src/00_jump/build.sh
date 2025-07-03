@@ -8,7 +8,7 @@ cd src/${PROJECT}/src
 clang-format -i -- **.cpp **.h
 
 cd ../build
-./premake5.osx gmake2
+./premake5 gmake2
 
 # generate compile_commands.json using bear
 cd ..
