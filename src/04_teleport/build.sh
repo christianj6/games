@@ -14,4 +14,7 @@ cmake .. -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=../.
 ninja
 
 # copy the compile commands for configuring lsp
-cp src/$PROJECT/build_wsl/compile_commands.json src/$PROJECT
+cp compile_commands.json ../
+
+# run game
+./bin/Debug/Game
