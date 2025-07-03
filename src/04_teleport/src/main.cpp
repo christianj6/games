@@ -9,6 +9,7 @@
 /*
  * too dark
  * game feel for movement can be improved
+ * health bar would be better
  */
 
 int main() {

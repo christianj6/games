@@ -56,46 +56,42 @@ void App::handle_input() {
 
 void App::main_menu() {
   BeginDrawing();
-  ClearBackground(WHITE);
-  // TODO
-  DrawText("main menu", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, BLUE);
-  DrawText("press ENTER to play the game", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50, 40, RED);
-  DrawText("press ESCAPE to quit", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50 * 2, 40, RED);
+  ClearBackground(BLACK);
+  DrawText("MAIN MENU", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, WHITE);
+  DrawText("Press ENTER to play the game.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, GRAY);
+  DrawText("Press ESCAPE to quit.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50 * 2, 40, GRAY);
   EndDrawing();
 }
 
 void App::pause_menu() {
   BeginDrawing();
-  ClearBackground(WHITE);
-  // TODO
-  DrawText("pause", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, GREEN);
-  DrawText("press ENTER to quit", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50, 40, RED);
+  ClearBackground(DARKGRAY);
+  DrawText("PAUSE", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, BLUE);
+  DrawText("Press ENTER to quit.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, GRAY);
   EndDrawing();
 }
 
 void App::game_over() {
-  ClearBackground(WHITE);
-  // TODO
-  DrawText("loser", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, RED);
-  DrawText("press ENTER to play again", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50, 40, RED);
-  DrawText("press ESCAPE to quit", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50 * 2, 40, RED);
+  ClearBackground(BLACK);
+  DrawText("GAME OVER", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, RED);
+  DrawText("Press ENTER to play again.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, GRAY);
+  DrawText("Press ESCAPE to quit.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50 * 2, 40, GRAY);
   EndDrawing();
 }
 
 void App::game_win() {
   BeginDrawing();
   ClearBackground(WHITE);
-  // TODO
-  DrawText("winner", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, GREEN);
-  DrawText("press ENTER to play again", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50, 40, RED);
-  DrawText("press ESCAPE to quit", GetScreenWidth() / 2,
-           GetScreenHeight() / 2 + 50 * 2, 40, RED);
+  DrawText("YOU WIN!", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, GREEN);
+  DrawText("Press ENTER to play again.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50, 40, GRAY);
+  DrawText("Press ESCAPE to quit.", GetScreenWidth() / 2,
+           GetScreenHeight() / 2 + 50 * 2, 40, GRAY);
   EndDrawing();
 }
 
