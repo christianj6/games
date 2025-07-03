@@ -2,7 +2,6 @@
 #include "raylib.h"
 
 // TODO: improve build instructions for vcpkg
-// TODO: web assembly build for itch.io publish
 // TODO: polish and finish
 
 // TODO: for next game
@@ -11,6 +10,7 @@
  * game feel for movement can be improved
  * health bar would be better
  * better abstractions, more modular and well-architected
+ * webassembly build for itchio?
  */
 
 int main() {

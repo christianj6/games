@@ -79,6 +79,8 @@ Working with additional packages and development tools. First experiences with s
 
 Build System: vcpkg, CMake, Ninja
 
+![img](./img/04_teleport.png)
+
 ***
 
 #### 05_explore
