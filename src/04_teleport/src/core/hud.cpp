@@ -50,7 +50,6 @@ void Hud::draw(Vector3 player_position, int current_player_health) {
 }
 
 void Hud::update(float dt) {
-  // TODO: consider removing the debug_mode sink, leaving only this toggle
   if (IsKeyPressed(KEY_I)) {
     debug_mode_enabled = !debug_mode_enabled;
   }
