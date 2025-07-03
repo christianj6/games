@@ -123,15 +123,17 @@ bool Enemy::is_in_vision_cone(const Vector3 &target) const {
   return true;
 }
 
-bool Enemy::update(
+EnemySignals Enemy::update(
     float dt, const Vector3 &current_player_position,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
-        &world_data) {
+        &world_data,
+    bool any_enemy_can_see_player) {
   // set some useful variables
   bool is_killable = false;
   can_see_player = is_in_vision_cone(current_player_position);
   float distance_to_player =
       Vector3Length(Vector3Subtract(current_player_position, position));
+  const float min_distance_to_player = 15.0f;
 
   // Update shoot timer
   if (shoot_timer > 0) {
@@ -206,11 +208,17 @@ bool Enemy::update(
   // for the next project
 
   // state transitions
+  if (current_state != EnemyState::CHASING && any_enemy_can_see_player &&
+      distance_to_player <= min_distance_to_player) {
+    tree.reset();
+    current_state = EnemyState::CHASING;
+  }
   if (current_state == EnemyState::PATROLLING && can_see_player) {
     tree.reset();
     current_state = EnemyState::CHASING;
   }
-  if (current_state == EnemyState::CHASING && !can_see_player) {
+  if (current_state == EnemyState::CHASING && !can_see_player &&
+      !any_enemy_can_see_player) {
     tree.reset();
     current_state = EnemyState::SEARCHING;
     search_timer = 0.0f; // Reset timer when entering search state
@@ -236,7 +244,7 @@ bool Enemy::update(
     }
   }
 
-  return is_killable;
+  return {can_see_player, is_killable};
 }
 
 void Enemy::disable() { current_state = EnemyState::DEAD; }
@@ -307,16 +315,8 @@ void Enemy::draw_vision_cone() const {
 }
 
 void Enemy::draw() {
-  if (!(current_state == EnemyState::DEAD)) {
+  if (current_state != EnemyState::DEAD) {
     DrawSphere(position, radius, color);
-
-    // Draw direction indicator using a small light beam
-    Vector3 beam_end = Vector3Add(
-        position, Vector3Scale(Vector3{cosf(horizontal_rotation), 0.0f,
-                                       sinf(horizontal_rotation)},
-                               3.0f));
-    DrawLine3D(position, beam_end, YELLOW);
-
     // Draw active projectiles
     for (const auto &proj : projectiles) {
       if (proj.active) {
@@ -326,6 +326,13 @@ void Enemy::draw() {
     // draw_vision_cone();
     // DrawSphere(current_patrol_target, 1.0f, YELLOW);
     // draw_current_path();
+  }
+  if (current_state != EnemyState::CHASING) {
+    Vector3 beam_end = Vector3Add(
+        position, Vector3Scale(Vector3{cosf(horizontal_rotation), 0.0f,
+                                       sinf(horizontal_rotation)},
+                               3.0f));
+    DrawLine3D(position, beam_end, YELLOW);
   }
 }
 

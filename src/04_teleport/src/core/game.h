@@ -20,4 +20,5 @@ private:
   std::vector<Enemy> enemies;
   Map map;
   micropather::MicroPather *pather;
+  bool global_player_visibility_flag;
 };

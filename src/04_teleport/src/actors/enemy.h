@@ -8,15 +8,20 @@
 #include <memory>
 
 enum class EnemyState { PATROLLING, CHASING, SEARCHING, DEAD };
+struct EnemySignals {
+  bool player_is_visible = false;
+  bool enemy_is_killable = false;
+};
 
 class Enemy {
 public:
   Enemy(micropather::MicroPather *);
   ~Enemy(){};
   Enemy(Enemy &&) = default; // Add move constructor for BT
-  bool update(
+  EnemySignals update(
       float, const Vector3 &,
-      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
+      const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &,
+      bool);
   void draw();
   Vector3 get_position() { return position; }
   void disable();

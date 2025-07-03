@@ -1,8 +1,11 @@
 #include "game.h"
+#include "actors/enemy.h"
 #include "raylib.h"
 #include "utils/resource_dir.h"
 
-Game::Game(bool debug_mode_enabled) : hud(debug_mode_enabled), world(), map() {
+Game::Game(bool debug_mode_enabled)
+    : hud(debug_mode_enabled), world(), map(),
+      global_player_visibility_flag(false) {
   SearchAndSetResourceDir("resources");
   // try to place 20 enemies
   const int n_enemies = 20;
@@ -44,16 +47,25 @@ void Game::update() {
   PlayerAction player_actions = player.update(dt, world.get_voxel_space_data());
   world.update(dt, player.get_camera());
   Vector3 current_player_position = player.get_position();
+  global_player_visibility_flag =
+      false; // reset to false unless any enemy sees player
   for (auto &enemy : enemies) {
-    bool is_killable = false;
+    EnemySignals enemy_signals;
     if (!player_actions.blink) {
-      is_killable = enemy.update(dt, current_player_position,
-                                 world.get_voxel_space_data());
+      enemy_signals = enemy.update(dt, current_player_position,
+                                   world.get_voxel_space_data(),
+                                   global_player_visibility_flag);
     }
-    if (is_killable && player_actions.attack) {
+    if (enemy_signals.enemy_is_killable && player_actions.attack) {
       enemy.disable();
     }
+    if (enemy_signals.player_is_visible) {
+      // if any enemy can see the player, we set to true
+      global_player_visibility_flag = true;
+    }
   }
+  // furthermore, passing signals between the enemies is not convenient; here
+  // we definitely need some kind of blackboarding or global state management
   hud.update(dt);
 }
 
