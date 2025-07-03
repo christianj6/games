@@ -48,7 +48,7 @@ private:
   Vector3 current_patrol_target;
 
   static constexpr float SEARCH_TIMER_MAX =
-      3.0f; // Search for 3 seconds before giving up
+      6.0f; // Search for 3 seconds before giving up
   float search_timer = 0.0f;
 
   // Helper methods for vision cone

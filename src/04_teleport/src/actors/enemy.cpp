@@ -190,7 +190,9 @@ EnemySignals Enemy::update(
       break;
     case (EnemyState::SEARCHING):
       color = PURPLE;
-      // TODO
+      configure_tree_factory(world_data, current_player_position);
+      tree = std::make_unique<BT::Tree>(
+          factory->createTreeFromFile("behavior_trees/enemy_searching.xml"));
       break;
     case (EnemyState::DEAD):
       break;
@@ -391,7 +393,10 @@ BT::NodeStatus Enemy::generate_path_to_player(
   float totalCost = 0;
 
   Node startNode(position.x, position.z);
-  Node endNode(current_player_position.x, current_player_position.z);
+  Vector3 position_close_to_player = find_unobstructed_position_near(
+      Vector2{current_player_position.x, current_player_position.z},
+      world_data);
+  Node endNode(position_close_to_player.x, position_close_to_player.z);
 
   if (!startNode.IsValid() || !endNode.IsValid()) {
     // return BT::NodeStatus::FAILURE;

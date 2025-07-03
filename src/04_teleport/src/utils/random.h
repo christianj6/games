@@ -35,3 +35,8 @@ Vector3 get_random_world_position(std::optional<float>);
 Vector3 get_random_unobstructed_world_position(
     std::optional<float>,
     const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>> &);
+
+Vector3 find_unobstructed_position_near(
+    const Vector2 &center,
+    const std::vector<Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>>
+        &vector_space_data);
