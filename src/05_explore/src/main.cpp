@@ -56,6 +56,8 @@ int main() {
   InitWindow(400, 200, "Explore");
   DisableCursor();
 
+  // TODO: app run call
+
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
