@@ -25,10 +25,10 @@
  * enemies player must explore the open world to find the assets, while avoiding
  * enemies assets can be used to create traps, or NPCs throw/shoot them player
  * can attack enemies by getting close but it is very risky NPCs can heal the
- * when exploring the world you are motivated to stay unseen bc enemies are very difficult
- * same goes for when enemies attacking, motivating the NPC-based defense strategy
- * player between waves if all NPCs die you lose if make it through all the
- * waves you win
+ * when exploring the world you are motivated to stay unseen bc enemies are very
+ * difficult same goes for when enemies attacking, motivating the NPC-based
+ * defense strategy player between waves if all NPCs die you lose if make it
+ * through all the waves you win
  */
 
 // TODO: expanded teleportation
