@@ -1,55 +1,69 @@
-// TODO: nonfunctional goals
+// TODO: world and movement
 /*
- * clean architecture
- * better performance than teleport
- * reduce invest in additional tooling, in order to
- * focus more on core game implementation
- * make it silly; have fun with it
+ * simplified voxel mesh rendering strategy
+ * world is generally structured the same (pillars)
+ * pillars are larger and better placed so it is easier to jump between them
+ * player camera with improved game feel 
+ * teleportation mechanic from teleport
+ * world chunking based on player position
+ * home chunk defined in loaded json; has a more "specific" shape
+ * feedback: too dark, movement does not feel nice
+ * opti
+ * checkpoint: larger game world with chunking and nice player movement
  */
 
-// TODO: functional goals
+// TODO: friends and home
 /*
- * larger game world through mesh chunking
- * limited use of kenney assets
- * sounds
- * limited communication from NPCs, anticipating brownies
+ * start working with meshes to make the home area look a bit more interesting
+ * friend actors with limited animations and behavior trees
+ * friend ai can be puppeteered by director ai
+ * player can talk to friends with a simple text-based system
+ * checkpoint: friends roam around the nicer looking home area
  */
 
-// TODO: game loop
+// TODO: quests
 /*
- * "tower defense with light exploration"
- * NPCs roam around a specified area
- * player can "chat" with NPCs in a limited, scripted way
- * enemies attack in waves according to a timer
- * between waves, NPCs periodically request assets which are used to attack
- * enemies player must explore the open world to find the assets, while avoiding
- * enemies assets can be used to create traps, or NPCs throw/shoot them player
- * can attack enemies by getting close but it is very risky NPCs can heal the
- * when exploring the world you are motivated to stay unseen bc enemies are very
- * difficult same goes for when enemies attacking, motivating the NPC-based
- * defense strategy player between waves if all NPCs die you lose if make it
- * through all the waves you win
+ * director ai can trigger friends to request items
+ * if friend needs something they get an exclamation mark above their head
+ * if player talks with friend while in this state, they will give the player a quest 
+ * requested item is placed in the world and shown in the hud
+ * player can search the open world for the item, collect it, and bring it back
+ * checkpoint: friends periodically request items, quests are managed, and player can complete
  */
 
-// TODO: expanded teleportation
+// TODO: enemies 
 /*
- * right-click and hold to teleport as before
- * quick tapping right-click teleports back to previous location
- * left-click while holding places a spot for teleportation
- * teleportation depends on mana which is dropped by slain enemies
+ * enemy actors with limited animations and behavior trees 
+ * enemy behavior tree for stealth gameplay
+ * enemies can be made by the director to just stay in a 'guard' state
+ * enemy detection works with a timer shown on the enemy like dishonored
+ * enemies spawn around quest items to add challenge
+ * player can kill enemies by getting close and clicking a kill button
+ * enemies can kill player by shooting; game over state
+ * feedback: player health bar
+ * checkpoint: enemies added to world to make quests more interesting / challenging
  */
 
-// TODO: feedback from teleport
+// TODO: finish game loop 
 /*
- * too dark
- * movement does not feel nice
- * health bar is better than percentage
+ * when you have completed a quest for all friends, you win 
+ * simple narrative using text communication system
+ * playtest and balance, refine
+ * checkpoint: core game loop works and is kinda fun
  */
 
-// TODO: notes
+// TODO: polish
 /*
- * consider renaming to "defend"
+ * add sounds
+ * friends are interesting and fun
+ * enemies are challenging and interesting
+ * world is interesting to explore 
+ * game is performant
+ * code is clean
+ * stretch: expand teleportation mechanics
+ * checkpoint: game is finished
  */
+
 #include "raylib.h"
 
 int main() {

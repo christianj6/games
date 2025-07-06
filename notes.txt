@@ -22,3 +22,43 @@ deferred
 - bullet physics
 - cr.h / hot reloading
 
+
+// TODO: game loop
+/*
+ * "tower defense with light exploration"
+ * NPCs roam around a specified area
+ * player can "chat" with NPCs in a limited, scripted way
+ * enemies attack in waves according to a timer
+ * between waves, NPCs periodically request assets which are used to attack
+ * enemies player must explore the open world to find the assets, while avoiding
+ * enemies assets can be used to create traps, or NPCs throw/shoot them player
+ * can attack enemies by getting close but it is very risky NPCs can heal the
+ * when exploring the world you are motivated to stay unseen bc enemies are very
+ * difficult same goes for when enemies attacking, motivating the NPC-based
+ * defense strategy player between waves if all NPCs die you lose if make it
+ * through all the waves you win
+ */
+
+// TODO: expanded teleportation
+/*
+ * right-click and hold to teleport as before
+ * double-tapping right-click teleports back to previous location
+ * left-click while holding places a spot for teleportation
+ * player can throw a physics object (ball) which creates a blink target
+ * player can shoot a sticky object which creates a blink target
+ * teleportation depends on mana which is dropped by slain enemies
+ */
+
+general game dev algorithm
+- 1 week of scoping and refinement; you need time to reflect on the concept and refine
+  - select assets and tech; mise en place
+  - refine project structure
+  - prep backlog
+- dev 
+  - world and movement
+  - npcs 
+  - core gameplay loop 
+  - sequentially fill out systems etc.
+  - iterate 
+  - polish
+
