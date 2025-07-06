@@ -9,6 +9,8 @@ _archive/
 # **/build
 **/build_wsl
 .aider*
+.aider.chat.history.md 
+.aider.input.history
 .env
 **/.cache
 .DS_Store
