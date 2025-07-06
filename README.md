@@ -104,4 +104,14 @@ Build System: vcpkg, CMake, Ninja
 - [x] Teleport
 - [ ] Explore
 - [ ] Jam
-- [ ] Tidy, finish, plan larger project
+- [ ] Checkpoint, tidy, publish.
+- [ ] Mingle
+- [ ] Defend
+
+***
+
+#### Rules 
+- Each new project must be better than the previous.
+- Game jams are allowed to be less polished.
+
+***

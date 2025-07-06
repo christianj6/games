@@ -60,8 +60,9 @@
  * world is interesting to explore 
  * game is performant
  * code is clean
- * stretch: expand teleportation mechanics
  * checkpoint: game is finished
+ * ensure ready for kenney game jam
+ * stretch: expand teleportation mechanics
  */
 
 #include "raylib.h"
