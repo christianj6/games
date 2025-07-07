@@ -2,7 +2,6 @@
 #include "actor.h"
 
 class Player : public Actor {
-  public:
-    Player();
-
+public:
+  Player();
 };

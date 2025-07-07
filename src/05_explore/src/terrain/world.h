@@ -1,4 +1,2 @@
 #pragma once
-class World {
-
-};
+class World {};

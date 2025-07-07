@@ -1,6 +1,4 @@
-#pragma  once
+#pragma once
 #include "actor.h"
 
-class Enemy : public Actor {
-
-};
+class Enemy : public Actor {};
