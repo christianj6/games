@@ -1,7 +1,11 @@
 #include "game.h"
 #include "raylib.h"
+#include <memory>
 
-Game::Game() : world() {}
+Game::Game() : world() {
+  // TODO: make sure i am working with shared_ptr properly
+  player.set_world(std::make_shared<World>(world));
+}
 
 GameInfo Game::tick(bool debug) {
   if (current_state == GameState::RUNNING) {
@@ -18,12 +22,11 @@ GameInfo Game::tick(bool debug) {
 GameInfo Game::update() {
   float dt = GetFrameTime();
 
-  // TODO: sketch game loop
-  // blackboard.current_player_position = player.update(dt);
-  // world.update(dt, blackboard);
-  // for (auto& a : actors) {
-  //  a->update(dt, blackboard);
-  // }
+  blackboard.current_player_position = player.update(dt, blackboard);
+  world.update(dt, blackboard.current_player_position);
+  for (auto& a : actors) {
+    a->update(dt, blackboard);
+  }
 
   return {};
 }
@@ -34,15 +37,15 @@ void Game::draw() {
     DrawText("PAUSED", 20, 20, 20, RED);
   }
 
-  // BeginMode3D(player.get_camera());
-  // world.draw();
-  // player.draw(world.get_voxel_space_data());
-  // for (auto &enemy : enemies) {
-  //   enemy.draw();
-  // }
-  // EndMode3D();
-  //
-  // hud.draw(player.get_position(), player.check_health());
+  BeginMode3D(player.get_camera());
+  player.draw();
+  world.draw();
+  for (auto &a : actors) {
+    a->draw();
+  }
+  EndMode3D();
+
+  hud.draw(blackboard);
 }
 
 void Game::toggle_pause() {

@@ -1,6 +1,7 @@
 #pragma once
+#include "actors/actor.h"
+
 class Hud {
 public:
-  void update();
-  void draw();
+  void draw(Blackboard);
 };

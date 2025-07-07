@@ -1,2 +1,8 @@
 #pragma once
-class World {};
+#include "raylib.h"
+
+class World {
+  public:
+    void update(float, Vector3);
+    void draw();
+};

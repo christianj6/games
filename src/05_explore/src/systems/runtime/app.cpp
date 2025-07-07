@@ -1,7 +1,5 @@
 #include "app.h"
-#include "fmt/core.h"
 #include "raylib.h"
-#include "systems/runtime/game.h"
 
 bool App::run(bool debug) {
   BeginDrawing();

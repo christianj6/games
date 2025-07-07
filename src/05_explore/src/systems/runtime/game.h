@@ -4,15 +4,12 @@
 
 #include "hud.h"
 #include "terrain/world.h"
-
 #include "actors/actor.h"
 #include "actors/player.h"
 
 enum class GameState { RUNNING, PAUSED, WIN, LOSE };
 
 struct GameInfo {};
-
-struct Blackboard {};
 
 class Game {
 public:
