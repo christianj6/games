@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <memory>
 
-Game::Game() : world() {
+Game::Game() {
   // TODO: make sure i am working with shared_ptr properly
   player.set_world(std::make_shared<World>(world));
 }
