@@ -1,4 +1,7 @@
 #pragma once
 #include "actor.h"
 
-class Friend : public Actor {};
+class Friend : public Actor {
+  public:
+    Friend();
+};

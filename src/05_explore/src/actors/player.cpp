@@ -5,7 +5,7 @@ Player::Player() {
   // TODO
 }
 
-Vector3 Player::update(float dt, Blackboard) {
+Vector3 Player::update(float dt, Blackboard&) {
   return current_position;
 }
 
