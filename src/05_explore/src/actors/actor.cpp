@@ -1,4 +1,5 @@
 #include "actor.h"
+#include "systems/movement/controller.h"
 #include <memory>
 
 void Actor::set_world(std::shared_ptr<World> world) {
@@ -16,7 +17,7 @@ Vector3 add_vectors(Vector3 v1, Vector3 v2) {
   return v1;
 }
 
-Vector3 Actor::update(float, Blackboard &) {
+MovementUpdate Actor::update(float, Blackboard &) {
   const MovementUpdate update = movement_controller->tick();
   Vector3 candidate_position = add_vectors(current_position, update.position);
   if (world->position_is_acceptable(candidate_position)) {
@@ -25,5 +26,5 @@ Vector3 Actor::update(float, Blackboard &) {
 
   // TODO
 
-  return current_position;
+  return update;
 }

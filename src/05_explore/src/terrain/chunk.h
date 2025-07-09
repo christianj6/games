@@ -6,8 +6,9 @@ public:
   Chunk();
   void load();
   void unload();
+  void draw();
+  bool loaded = false;
 
 private:
-  bool loaded;
   Vector2 position;
 };

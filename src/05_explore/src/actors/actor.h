@@ -13,7 +13,7 @@ class Actor {
 public:
   Actor() = default;
   virtual void get_nearest_available_position(Vector3); // public?
-  virtual Vector3 update(float, Blackboard &);
+  virtual MovementUpdate update(float, Blackboard &);
   virtual void draw() = 0;
 
   void set_world(std::shared_ptr<World>);

@@ -1,4 +1,5 @@
 #include "input.h"
+#include "raylib.h"
 
 Vector3 KeyboardInputProvider::get_input_movement_vector() {
   Vector3 movement = {0};
@@ -20,7 +21,9 @@ Vector3 KeyboardInputProvider::get_input_movement_vector() {
   return movement;
 }
 
-Vector2 KeyboardInputProvider::get_input_look_vector() { return {0.0f, 0.0f}; }
+Vector2 KeyboardInputProvider::get_input_look_vector() {
+  return GetMouseDelta();
+}
 
 bool KeyboardInputProvider::get_input_jump() { return false; }
 

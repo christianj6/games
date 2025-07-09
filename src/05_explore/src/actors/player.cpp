@@ -1,5 +1,6 @@
 #include "player.h"
 #include "actors/actor.h"
+#include "systems/movement/controller.h"
 
 Player::Player() {
   setup_camera();
@@ -18,11 +19,22 @@ void Player::setup_camera() {
   camera.projection = CAMERA_PERSPECTIVE;
 }
 
-Vector3 Player::update(float dt, Blackboard &blackboard) {
-  Actor::update(dt, blackboard);
+MovementUpdate Player::update(float dt, Blackboard &blackboard) {
+  // TODO: movement is made relative to camera direction
+  MovementUpdate update = Actor::update(dt, blackboard);
   camera.position = current_position;
 
-  return current_position;
+  float camera_sensitivity = 0.095f;
+  UpdateCameraPro(&camera, Vector3{0},
+                  Vector3{update.camera.x * camera_sensitivity,
+                          update.camera.y * camera_sensitivity, 0.0f},
+                  0.0f);
+  return {
+      current_position,
+      {camera.position.x, camera.position.y},
+      false,
+      false,
+  };
 }
 
 void Player::draw() {

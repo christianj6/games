@@ -22,7 +22,7 @@ GameInfo Game::tick(bool debug) {
 GameInfo Game::update() {
   float dt = GetFrameTime();
 
-  blackboard.current_player_position = player.update(dt, blackboard);
+  blackboard.current_player_position = player.update(dt, blackboard).position;
   world.update(dt, blackboard.current_player_position);
   for (auto &a : actors) {
     a->update(dt, blackboard);
@@ -37,9 +37,6 @@ void Game::draw() {
   }
 
   BeginMode3D(player.get_camera());
-
-  // TODO: remove this debug circle
-  DrawSphere({1.f, 3.f, 1.f}, 2, BLUE);
 
   player.draw();
   world.draw();
