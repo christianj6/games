@@ -1,7 +1,8 @@
 #pragma once
-#include "raylib.h"
 #include "input.h"
+#include "raylib.h"
 #include "systems/ai/behavior.h"
+#include <memory>
 
 struct MovementUpdate {
   Vector3 position;
@@ -11,20 +12,25 @@ struct MovementUpdate {
 };
 
 class MovementController {
-  public:
-    virtual MovementUpdate tick() = 0;
+public:
+  virtual ~MovementController() = default;
+  virtual MovementUpdate tick() = 0;
 };
 
 class UserMovementController : public MovementController {
-  public:
-    MovementUpdate tick();
-  private:
-    InputProvider input_provider;
+public:
+  MovementUpdate tick() override;
+  void set_input_provider(std::unique_ptr<InputProvider>);
+
+private:
+  std::unique_ptr<InputProvider> input_provider =
+      std::make_unique<KeyboardInputProvider>();
 };
 
 class AiMovementController : public MovementController {
-  public:
-    MovementUpdate tick();
-  private:
-    BehaviorTree behavior_tree;
+public:
+  MovementUpdate tick() override;
+
+private:
+  BehaviorTree behavior_tree;
 };

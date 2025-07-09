@@ -4,7 +4,7 @@
 
 Game::Game() {
   // TODO: make sure i am working with shared_ptr properly
-  player.set_world(std::make_shared<World>(world));
+  // player.set_world(std::make_shared<World>(&world));
 }
 
 GameInfo Game::tick(bool debug) {
@@ -24,7 +24,7 @@ GameInfo Game::update() {
 
   blackboard.current_player_position = player.update(dt, blackboard);
   world.update(dt, blackboard.current_player_position);
-  for (auto& a : actors) {
+  for (auto &a : actors) {
     a->update(dt, blackboard);
   }
 
@@ -32,12 +32,15 @@ GameInfo Game::update() {
 }
 
 void Game::draw() {
-  DrawText("GAME", GetScreenWidth() / 2, GetScreenHeight() / 2, 20, BLACK);
   if (current_state == GameState::PAUSED) {
     DrawText("PAUSED", 20, 20, 20, RED);
   }
 
   BeginMode3D(player.get_camera());
+
+  // TODO: remove this debug circle
+  DrawSphere({1.f, 3.f, 1.f}, 2, BLUE);
+
   player.draw();
   world.draw();
   for (auto &a : actors) {

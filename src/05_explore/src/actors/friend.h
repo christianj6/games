@@ -2,6 +2,6 @@
 #include "actor.h"
 
 class Friend : public Actor {
-  public:
-    Friend();
+public:
+  Friend();
 };

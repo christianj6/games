@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
-#include "terrain/world.h"
 #include "systems/movement/controller.h"
+#include "terrain/world.h"
 
 #include <memory>
 
@@ -13,7 +13,7 @@ class Actor {
 public:
   Actor() = default;
   virtual void get_nearest_available_position(Vector3); // public?
-  virtual Vector3 update(float, Blackboard&);
+  virtual Vector3 update(float, Blackboard &);
   virtual void draw() = 0;
 
   void set_world(std::shared_ptr<World>);

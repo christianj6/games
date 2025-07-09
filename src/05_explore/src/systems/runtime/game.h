@@ -2,10 +2,10 @@
 #include <memory>
 #include <vector>
 
-#include "hud.h"
-#include "terrain/world.h"
 #include "actors/actor.h"
 #include "actors/player.h"
+#include "hud.h"
+#include "terrain/world.h"
 
 enum class GameState { RUNNING, PAUSED, WIN, LOSE };
 
