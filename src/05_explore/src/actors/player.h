@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "raylib.h"
 #include "systems/movement/controller.h"
-#include <memory>
 
 class Player : public Actor {
 public:
@@ -14,4 +13,5 @@ public:
 private:
   Camera3D camera;
   void setup_camera();
+  Vector3 adjust_movement_relative_to_camera(float, Vector3);
 };
