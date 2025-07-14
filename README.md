@@ -12,7 +12,6 @@ sudo apt install clang-format cmake ninja-build pkg-config zip
 Windows 
 ```
 winget install Ninja-build.Ninja
-
 ```
 [Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/downloads/)
 
