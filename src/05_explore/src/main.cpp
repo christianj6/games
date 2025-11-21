@@ -1,3 +1,8 @@
+// TODO: on tap
+/*
+ * get chunk/world system working with renderer to get a world on screen
+ */
+
 // TODO: world and movement
 /*
  * simplified voxel mesh rendering strategy
