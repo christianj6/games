@@ -1,290 +1,249 @@
-# chunkX chunkY localX localY localZ
-# Format: chunk position (chunkX, chunkY), voxel position (x=0-7, y=height, z=0-7)
+# Hybrid Voxel Format for 64x64 chunks
+# Coordinates range from 0-63 in each chunk
 
-# ===== CHUNK (0,0) - SPAWN: Central tower with platform =====
-# Platform floor
-0 0 2 0 2
-0 0 3 0 2
-0 0 4 0 2
-0 0 5 0 2
-0 0 2 0 3
-0 0 3 0 3
-0 0 4 0 3
-0 0 5 0 3
-0 0 2 0 4
-0 0 3 0 4
-0 0 4 0 4
-0 0 5 0 4
-0 0 2 0 5
-0 0 3 0 5
-0 0 4 0 5
-0 0 5 0 5
+# ===== CHUNK (0,0) - SPAWN: Central Plaza with Monument =====
+chunk 0 0
+  # Main plaza floor (30x30)
+  floor 17 17 46 46
 
-# Central tower (4 blocks tall)
-0 0 3 1 3
-0 0 4 1 3
-0 0 3 1 4
-0 0 4 1 4
-0 0 3 2 3
-0 0 4 2 3
-0 0 3 2 4
-0 0 4 2 4
-0 0 3 3 3
-0 0 4 3 3
-0 0 3 3 4
-0 0 4 3 4
-0 0 3 4 3
-0 0 4 4 3
-0 0 3 4 4
-0 0 4 4 4
+  # Central monument base (8x8, 3 blocks tall)
+  box 28 1 28 35 3 35
 
-# ===== CHUNK (1,0) - EAST: Small house =====
-# House floor
-1 0 1 0 1
-1 0 2 0 1
-1 0 3 0 1
-1 0 4 0 1
-1 0 1 0 2
-1 0 2 0 2
-1 0 3 0 2
-1 0 4 0 2
-1 0 1 0 3
-1 0 2 0 3
-1 0 3 0 3
-1 0 4 0 3
-1 0 1 0 4
-1 0 2 0 4
-1 0 3 0 4
-1 0 4 0 4
+  # Monument tower (4x4, 12 blocks tall)
+  box 30 4 30 33 15 33
 
-# House walls (hollow inside)
-1 0 1 1 1
-1 0 2 1 1
-1 0 3 1 1
-1 0 4 1 1
-1 0 1 1 4
-1 0 2 1 4
-1 0 3 1 4
-1 0 4 1 4
-1 0 1 1 2
-1 0 1 1 3
-1 0 4 1 2
-1 0 4 1 3
+  # Decorative corners (small pillars)
+  pillar 20 20 1 3
+  pillar 43 20 1 3
+  pillar 20 43 1 3
+  pillar 43 43 1 3
 
-# House walls layer 2
-1 0 1 2 1
-1 0 2 2 1
-1 0 3 2 1
-1 0 4 2 1
-1 0 1 2 4
-1 0 2 2 4
-1 0 3 2 4
-1 0 4 2 4
-1 0 1 2 2
-1 0 1 2 3
-1 0 4 2 2
-1 0 4 2 3
+# ===== CHUNK (1,0) - EAST: Large House =====
+chunk 1 0
+  # House foundation (24x20)
+  floor 10 12 33 31
 
-# Roof
-1 0 1 3 1
-1 0 2 3 1
-1 0 3 3 1
-1 0 4 3 1
-1 0 1 3 2
-1 0 2 3 2
-1 0 3 3 2
-1 0 4 3 2
-1 0 1 3 3
-1 0 2 3 3
-1 0 3 3 3
-1 0 4 3 3
-1 0 1 3 4
-1 0 2 3 4
-1 0 3 3 4
-1 0 4 3 4
+  # Main house structure (hollow, 5 blocks tall)
+  hollow_box 10 1 12 33 5 31
 
-# ===== CHUNK (-1,0) - WEST: Four pillars =====
-# Ground path
--1 0 3 0 3
--1 0 4 0 3
--1 0 5 0 3
--1 0 6 0 3
--1 0 3 0 4
--1 0 4 0 4
--1 0 5 0 4
--1 0 6 0 4
+  # Interior floor
+  floor 11 13 32 30 1
 
-# Four tall pillars in corners
--1 0 2 1 2
--1 0 2 2 2
--1 0 2 3 2
--1 0 2 4 2
--1 0 2 5 2
+  # Flat roof
+  floor 10 12 33 31 6
 
--1 0 5 1 2
--1 0 5 2 2
--1 0 5 3 2
--1 0 5 4 2
--1 0 5 5 2
+  # Chimney
+  pillar 14 16 7 10
 
--1 0 2 1 5
--1 0 2 2 5
--1 0 2 3 5
--1 0 2 4 5
--1 0 2 5 5
+  # Doorway (remove wall blocks)
+  voxel 21 1 12
+  voxel 22 1 12
+  voxel 21 2 12
+  voxel 22 2 12
 
--1 0 5 1 5
--1 0 5 2 5
--1 0 5 3 5
--1 0 5 4 5
--1 0 5 5 5
+# ===== CHUNK (-1,0) - WEST: Temple with Pillars =====
+chunk -1 0
+  # Temple floor (32x32)
+  floor 16 16 47 47
 
-# ===== CHUNK (0,1) - NORTH: Raised platform with stairs =====
-# Ground
-0 1 2 0 1
-0 1 3 0 1
-0 1 4 0 1
-0 1 5 0 1
-0 1 2 0 2
-0 1 3 0 2
-0 1 4 0 2
-0 1 5 0 2
+  # Outer pillars (8 blocks tall)
+  pillar 20 20 1 8
+  pillar 43 20 1 8
+  pillar 20 43 1 8
+  pillar 43 43 1 8
 
-# Stairs (going up)
-0 1 3 0 3
-0 1 4 0 3
-0 1 3 1 4
-0 1 4 1 4
-0 1 3 2 5
-0 1 4 2 5
+  # Inner pillars (6 blocks tall)
+  pillar 26 26 1 6
+  pillar 37 26 1 6
+  pillar 26 37 1 6
+  pillar 37 37 1 6
 
-# Raised platform
-0 1 2 3 5
-0 1 3 3 5
-0 1 4 3 5
-0 1 5 3 5
-0 1 2 3 6
-0 1 3 3 6
-0 1 4 3 6
-0 1 5 3 6
+  # Raised altar platform
+  box 29 1 29 34 2 34
 
-# ===== CHUNK (0,-1) - SOUTH: Long wall =====
-# Ground
-0 -1 2 0 5
-0 -1 3 0 5
-0 -1 4 0 5
-0 -1 5 0 5
-0 -1 2 0 6
-0 -1 3 0 6
-0 -1 4 0 6
-0 -1 5 0 6
+# ===== CHUNK (0,1) - NORTH: Watch Tower =====
+chunk 0 1
+  # Ground approach (pathway)
+  floor 26 8 37 20
 
-# Wall (spans entire width)
-0 -1 0 1 7
-0 -1 1 1 7
-0 -1 2 1 7
-0 -1 3 1 7
-0 -1 4 1 7
-0 -1 5 1 7
-0 -1 6 1 7
-0 -1 7 1 7
-0 -1 0 2 7
-0 -1 1 2 7
-0 -1 2 2 7
-0 -1 3 2 7
-0 -1 4 2 7
-0 -1 5 2 7
-0 -1 6 2 7
-0 -1 7 2 7
-0 -1 0 3 7
-0 -1 1 3 7
-0 -1 2 3 7
-0 -1 3 3 7
-0 -1 4 3 7
-0 -1 5 3 7
-0 -1 6 3 7
-0 -1 7 3 7
+  # Tower base (12x12)
+  hollow_box 26 0 26 37 4 37
 
-# ===== CHUNK (1,1) - NORTHEAST: Scattered blocks =====
-# Small ground patches
-1 1 1 0 1
-1 1 2 0 1
-1 1 1 0 2
-1 1 2 0 2
+  # Tower middle (10x10)
+  hollow_box 27 5 27 36 10 36
 
-1 1 5 0 5
-1 1 6 0 5
-1 1 5 0 6
-1 1 6 0 6
+  # Tower top (8x8)
+  hollow_box 28 11 28 35 15 35
 
-# Scattered towers
-1 1 1 1 1
-1 1 1 2 1
-1 1 1 3 1
+  # Battlements (corner posts)
+  pillar 28 28 16 18
+  pillar 35 28 16 18
+  pillar 28 35 16 18
+  pillar 35 35 16 18
 
-1 1 3 1 3
-1 1 3 2 3
+  # Top floor
+  floor 28 28 35 35 16
 
-1 1 6 1 6
-1 1 6 2 6
-1 1 6 3 6
-1 1 6 4 6
+# ===== CHUNK (0,-1) - SOUTH: Fortified Wall =====
+chunk 0 -1
+  # Ground before wall
+  floor 20 40 43 52
 
-# ===== CHUNK (-1,1) - NORTHWEST: Pyramid =====
-# Base layer
--1 1 3 0 3
--1 1 4 0 3
--1 1 5 0 3
--1 1 3 0 4
--1 1 4 0 4
--1 1 5 0 4
--1 1 3 0 5
--1 1 4 0 5
--1 1 5 0 5
+  # Main wall (full chunk width, 8 blocks tall)
+  wall_x 55 0 7 0 63
 
-# Layer 2
--1 1 3 1 3
--1 1 4 1 3
--1 1 5 1 3
--1 1 3 1 4
--1 1 4 1 4
--1 1 5 1 4
--1 1 3 1 5
--1 1 4 1 5
--1 1 5 1 5
+  # Wall walkway on top
+  floor 0 55 63 56 8
 
-# Layer 3
--1 1 3 2 4
--1 1 4 2 4
--1 1 5 2 4
+  # Battlements (alternating)
+  pillar 4 55 9 10
+  pillar 12 55 9 10
+  pillar 20 55 9 10
+  pillar 28 55 9 10
+  pillar 36 55 9 10
+  pillar 44 55 9 10
+  pillar 52 55 9 10
+  pillar 60 55 9 10
 
-# Top
--1 1 4 3 4
+  # Gate entrance
+  box 30 0 55 33 5 55
 
-# ===== CHUNK (2,0) - FAR EAST: Bridge =====
-# Ground supports
-2 0 1 0 3
-2 0 2 0 3
-2 0 1 0 4
-2 0 2 0 4
+# ===== CHUNK (1,1) - NORTHEAST: Farms =====
+chunk 1 1
+  # Large farm plots (ground level)
+  floor 5 5 25 25
+  floor 35 5 55 25
+  floor 5 35 25 55
+  floor 35 35 55 55
 
-2 0 5 0 3
-2 0 6 0 3
-2 0 5 0 4
-2 0 6 0 4
+  # Farm borders (raised edges)
+  hollow_box 5 1 5 25 1 25
+  hollow_box 35 1 5 55 1 25
+  hollow_box 5 1 35 25 1 55
+  hollow_box 35 1 35 55 1 55
 
-# Bridge pillars
-2 0 1 1 3
-2 0 1 2 3
-2 0 6 1 4
-2 0 6 2 4
+  # Barn structure
+  box 28 0 28 36 6 36
+  hollow_box 29 1 29 35 5 35
+  # Barn roof peak
+  floor 28 28 36 36 7
 
-# Elevated bridge deck
-2 0 2 3 3
-2 0 3 3 3
-2 0 4 3 3
-2 0 5 3 3
-2 0 2 3 4
-2 0 3 3 4
-2 0 4 3 4
-2 0 5 3 4
+# ===== CHUNK (-1,1) - NORTHWEST: Pyramid Complex =====
+chunk -1 1
+  # Pyramid base layer (20x20)
+  box 22 0 22 41 0 41
+
+  # Layer 2 (18x18)
+  box 23 1 23 40 1 40
+
+  # Layer 3 (16x16)
+  box 24 2 24 39 2 39
+
+  # Layer 4 (14x14)
+  box 25 3 25 38 3 38
+
+  # Layer 5 (12x12)
+  box 26 4 26 37 4 37
+
+  # Layer 6 (10x10)
+  box 27 5 27 36 5 36
+
+  # Layer 7 (8x8)
+  box 28 6 28 35 6 35
+
+  # Layer 8 (6x6)
+  box 29 7 29 34 7 34
+
+  # Layer 9 (4x4)
+  box 30 8 30 33 8 33
+
+  # Top (2x2)
+  box 31 9 31 32 9 32
+
+  # Entrance pathway
+  floor 22 12 41 21
+
+# ===== CHUNK (2,0) - FAR EAST: Bridge District =====
+chunk 2 0
+  # Ground platforms
+  floor 5 20 20 43
+  floor 43 20 58 43
+
+  # Bridge support towers
+  box 20 0 28 23 8 35
+  box 40 0 28 43 8 35
+
+  # Elevated bridge deck (at height 9)
+  floor 20 28 43 35 9
+
+  # Bridge railings
+  wall_z 20 10 11 28 35
+  wall_z 43 10 11 28 35
+
+# ===== CHUNK (-1,-1) - SOUTHWEST: Colosseum =====
+chunk -1 -1
+  # Outer wall ring (hollow cylinder)
+  hollow_box 12 0 12 51 6 51
+
+  # Arena floor
+  floor 20 20 43 43 0
+
+  # Seating tiers
+  hollow_box 16 1 16 47 1 47
+  hollow_box 18 2 18 45 2 45
+  hollow_box 20 3 20 43 3 43
+
+  # Entry archways (4 cardinal directions)
+  box 30 0 12 33 3 12  # North entrance
+  box 30 0 51 33 3 51  # South entrance
+  box 12 0 30 12 3 33  # West entrance
+  box 51 0 30 51 3 33  # East entrance
+
+# ===== CHUNK (1,-1) - SOUTHEAST: Garden Maze =====
+chunk 1 -1
+  # Full ground floor
+  floor 4 4 59 59
+
+  # Outer maze walls
+  hollow_box 4 1 4 59 3 59
+
+  # Complex maze interior (walls 3 blocks tall)
+  wall_z 12 1 3 8 28
+  wall_z 12 1 3 35 55
+  wall_z 24 1 3 8 20
+  wall_z 24 1 3 28 51
+  wall_z 36 1 3 12 32
+  wall_z 36 1 3 40 55
+  wall_z 48 1 3 8 24
+  wall_z 48 1 3 32 51
+
+  wall_x 8 1 3 16 28
+  wall_x 8 1 3 36 51
+  wall_x 20 1 3 16 32
+  wall_x 20 1 3 40 51
+  wall_x 32 1 3 12 28
+  wall_x 32 1 3 36 48
+  wall_x 44 1 3 16 32
+  wall_x 44 1 3 40 55
+  wall_x 51 1 3 12 24
+  wall_x 51 1 3 32 47
+
+  # Center fountain
+  box 30 0 30 33 2 33
+
+# ===== CHUNK (0,2) - FAR NORTH: Mountain Peak =====
+chunk 0 2
+  # Base layer (large)
+  floor 10 10 53 53 0
+
+  # Mountain layers going up
+  box 15 1 15 48 4 48
+  box 20 5 20 43 8 43
+  box 24 9 24 39 12 39
+  box 28 13 28 35 16 35
+
+  # Peak
+  pillar 31 31 17 22
+  pillar 32 31 17 22
+  pillar 31 32 17 22
+  pillar 32 32 17 22

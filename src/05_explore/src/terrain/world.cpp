@@ -9,7 +9,7 @@
 #include <thread>
 
 World::World() : should_exit_(false) {
-  chunk_size_ = 8;
+  chunk_size_ = 64;
   render_distance_ = 3;  // Load chunks within 3 chunks of player
 
   load_chunk_data("resources/maps/home.txt");
@@ -40,6 +40,68 @@ Chunk* World::get_or_create_chunk(int cx, int cy) {
     return ptr;
 }
 
+// ===== Shape Primitive Helpers =====
+
+void World::add_box(Chunk* chunk, int x1, int y1, int z1, int x2, int y2, int z2) {
+    for (int y = std::min(y1, y2); y <= std::max(y1, y2); y++) {
+        for (int z = std::min(z1, z2); z <= std::max(z1, z2); z++) {
+            for (int x = std::min(x1, x2); x <= std::max(x1, x2); x++) {
+                chunk->set_voxel(x, y, z);
+            }
+        }
+    }
+}
+
+void World::add_hollow_box(Chunk* chunk, int x1, int y1, int z1, int x2, int y2, int z2) {
+    int xmin = std::min(x1, x2), xmax = std::max(x1, x2);
+    int ymin = std::min(y1, y2), ymax = std::max(y1, y2);
+    int zmin = std::min(z1, z2), zmax = std::max(z1, z2);
+
+    for (int y = ymin; y <= ymax; y++) {
+        for (int z = zmin; z <= zmax; z++) {
+            for (int x = xmin; x <= xmax; x++) {
+                // Only fill edges
+                bool is_edge = (x == xmin || x == xmax ||
+                               z == zmin || z == zmax ||
+                               y == ymin || y == ymax);
+                if (is_edge) {
+                    chunk->set_voxel(x, y, z);
+                }
+            }
+        }
+    }
+}
+
+void World::add_floor(Chunk* chunk, int x1, int z1, int x2, int z2, int y) {
+    for (int z = std::min(z1, z2); z <= std::max(z1, z2); z++) {
+        for (int x = std::min(x1, x2); x <= std::max(x1, x2); x++) {
+            chunk->set_voxel(x, y, z);
+        }
+    }
+}
+
+void World::add_pillar(Chunk* chunk, int x, int z, int y1, int y2) {
+    for (int y = std::min(y1, y2); y <= std::max(y1, y2); y++) {
+        chunk->set_voxel(x, y, z);
+    }
+}
+
+void World::add_wall_x(Chunk* chunk, int z, int y1, int y2, int x1, int x2) {
+    for (int y = std::min(y1, y2); y <= std::max(y1, y2); y++) {
+        for (int x = std::min(x1, x2); x <= std::max(x1, x2); x++) {
+            chunk->set_voxel(x, y, z);
+        }
+    }
+}
+
+void World::add_wall_z(Chunk* chunk, int x, int y1, int y2, int z1, int z2) {
+    for (int y = std::min(y1, y2); y <= std::max(y1, y2); y++) {
+        for (int z = std::min(z1, z2); z <= std::max(z1, z2); z++) {
+            chunk->set_voxel(x, y, z);
+        }
+    }
+}
+
 bool World::load_chunk_data(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -47,26 +109,124 @@ bool World::load_chunk_data(const std::string& filename) {
         return false;
     }
 
+    Chunk* current_chunk = nullptr;
+    int line_num = 0;
     std::string line;
+
     while (std::getline(file, line)) {
-        // Skip comments or empty lines
+        line_num++;
+
+        // Trim leading whitespace
+        size_t start = line.find_first_not_of(" \t");
+        if (start == std::string::npos) continue; // Empty line
+        line = line.substr(start);
+
+        // Skip comments and empty lines
         if (line.empty() || line[0] == '#') continue;
 
         std::istringstream ss(line);
-        int chunkX, chunkY, x, y, z;
-        if (!(ss >> chunkX >> chunkY >> x >> y >> z)) {
-            std::cerr << "Invalid line in file: " << line << "\n";
-            continue;
+        std::string command;
+        ss >> command;
+
+        // Parse chunk command
+        if (command == "chunk") {
+            int cx, cy;
+            if (!(ss >> cx >> cy)) {
+                std::cerr << "Line " << line_num << ": Invalid chunk command\n";
+                continue;
+            }
+            current_chunk = get_or_create_chunk(cx, cy);
         }
-
-        Chunk* chunk = get_or_create_chunk(chunkX, chunkY);
-        chunk->set_voxel(x, y, z);
+        // Parse shape primitives
+        else if (command == "box") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x1, y1, z1, x2, y2, z2;
+            if (!(ss >> x1 >> y1 >> z1 >> x2 >> y2 >> z2)) {
+                std::cerr << "Line " << line_num << ": Invalid box command\n";
+                continue;
+            }
+            add_box(current_chunk, x1, y1, z1, x2, y2, z2);
+        }
+        else if (command == "hollow_box") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x1, y1, z1, x2, y2, z2;
+            if (!(ss >> x1 >> y1 >> z1 >> x2 >> y2 >> z2)) {
+                std::cerr << "Line " << line_num << ": Invalid hollow_box command\n";
+                continue;
+            }
+            add_hollow_box(current_chunk, x1, y1, z1, x2, y2, z2);
+        }
+        else if (command == "floor") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x1, z1, x2, z2, y = 0;
+            if (!(ss >> x1 >> z1 >> x2 >> z2)) {
+                std::cerr << "Line " << line_num << ": Invalid floor command\n";
+                continue;
+            }
+            ss >> y; // Optional y parameter
+            add_floor(current_chunk, x1, z1, x2, z2, y);
+        }
+        else if (command == "pillar") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x, z, y1, y2;
+            if (!(ss >> x >> z >> y1 >> y2)) {
+                std::cerr << "Line " << line_num << ": Invalid pillar command\n";
+                continue;
+            }
+            add_pillar(current_chunk, x, z, y1, y2);
+        }
+        else if (command == "wall_x") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int z, y1, y2, x1, x2;
+            if (!(ss >> z >> y1 >> y2 >> x1 >> x2)) {
+                std::cerr << "Line " << line_num << ": Invalid wall_x command\n";
+                continue;
+            }
+            add_wall_x(current_chunk, z, y1, y2, x1, x2);
+        }
+        else if (command == "wall_z") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x, y1, y2, z1, z2;
+            if (!(ss >> x >> y1 >> y2 >> z1 >> z2)) {
+                std::cerr << "Line " << line_num << ": Invalid wall_z command\n";
+                continue;
+            }
+            add_wall_z(current_chunk, x, y1, y2, z1, z2);
+        }
+        else if (command == "voxel") {
+            if (!current_chunk) {
+                std::cerr << "Line " << line_num << ": No active chunk\n";
+                continue;
+            }
+            int x, y, z;
+            if (!(ss >> x >> y >> z)) {
+                std::cerr << "Line " << line_num << ": Invalid voxel command\n";
+                continue;
+            }
+            current_chunk->set_voxel(x, y, z);
+        }
+        else {
+            std::cerr << "Line " << line_num << ": Unknown command '" << command << "'\n";
+        }
     }
-
-    // // Build meshes for all chunks
-    // for (auto& c : chunks_) {
-    //     c->load();
-    // }
 
     return true;
 }
