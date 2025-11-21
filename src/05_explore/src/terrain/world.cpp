@@ -12,7 +12,7 @@ void World::update(float dt, Vector3 current_player_position) {
 
 void World::draw() {
   // TODO: draw the chunks
-  DrawSphere({1.f, 3.f, 1.f}, 2, BLUE); // TODO: remove
+  DrawCubeWires({1.f, 3.f, 1.f}, 5, 5, 5, BLUE); // TODO: remove
   for (auto &c : chunks) {
     if (c->loaded) {
       c->draw();
