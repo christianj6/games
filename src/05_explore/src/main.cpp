@@ -73,8 +73,8 @@
 #include "systems/runtime/app.h"
 
 int main() {
-  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
-  InitWindow(800, 500, "Explore");
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_FULLSCREEN_MODE);
+  InitWindow(0, 0, "Explore");
   DisableCursor();
 
   App app;
