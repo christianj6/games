@@ -101,7 +101,7 @@ Build System: vcpkg, CMake, Ninja
 - [x] Hide
 - [x] Shoot
 - [x] Teleport
-- [ ] Explore
+- [ ] Explore (in progress)
 - [ ] Jam
 - [ ] Checkpoint, tidy, publish.
 - [ ] Mingle
