@@ -1,13 +1,31 @@
 #pragma once
 #include "raylib.h"
 #include <unordered_set>
+#include <vector>
+#include <atomic>
+#include <mutex>
+
+enum class ChunkState {
+  UNLOADED,
+  GENERATING,
+  READY_TO_UPLOAD,
+  LOADED
+};
+
+struct MeshData {
+  std::vector<float> vertices;
+  std::vector<float> normals;
+  std::vector<float> texcoords;
+  std::vector<unsigned short> indices;
+};
 
 class Chunk {
 public:
   Chunk(Vector2, int = 32);
   ~Chunk();
 
-  void load();
+  void generate_mesh();      // CPU-intensive, can run on worker thread
+  void upload_mesh();        // Must run on main thread (OpenGL)
   void unload();
   void draw();
 
@@ -17,13 +35,16 @@ public:
 
   Vector2 get_position() {return position_;}
 
-  bool loaded = false;
+  std::atomic<ChunkState> state{ChunkState::UNLOADED};
+  bool loaded = false;  // For backwards compatibility
 
 private:
   Vector2 position_;
   int size_;
   std::unordered_set<uint32_t> voxels_;
   Mesh mesh_;
+  MeshData mesh_data_;  // Temporary storage for mesh data before upload
+  std::mutex mesh_data_mutex_;  // Protects mesh_data_
 
   bool is_in_bounds(int, int, int) const;
 };

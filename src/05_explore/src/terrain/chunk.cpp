@@ -52,8 +52,8 @@ bool Chunk::is_filled(int x, int y, int z) const {
   return voxels_.contains(pack(x,y,z));
 }
 
-void Chunk::load() {
-    if (loaded) return;
+void Chunk::generate_mesh() {
+    if (state != ChunkState::GENERATING) return;
 
     std::vector<Vector3> verts;
     std::vector<Vector3> norms;
@@ -94,26 +94,69 @@ void Chunk::load() {
         }
     }
 
-    mesh_.vertexCount = verts.size();
-    mesh_.triangleCount = indices.size()/3;
+    // Store mesh data for later upload
+    {
+        std::lock_guard<std::mutex> lock(mesh_data_mutex_);
+        mesh_data_.vertices.resize(verts.size() * 3);
+        mesh_data_.normals.resize(norms.size() * 3);
+        mesh_data_.texcoords.resize(uvs.size() * 2);
+        mesh_data_.indices = indices;
 
-    mesh_.vertices = (float*)MemAlloc(mesh_.vertexCount * 3 * sizeof(float));
-    mesh_.normals  = (float*)MemAlloc(mesh_.vertexCount * 3 * sizeof(float));
-    mesh_.texcoords= (float*)MemAlloc(mesh_.vertexCount * 2 * sizeof(float));
-    mesh_.indices  = (unsigned short*)MemAlloc(indices.size() * sizeof(unsigned short));
+        for (size_t i = 0; i < verts.size(); i++) {
+            mesh_data_.vertices[i*3]   = verts[i].x;
+            mesh_data_.vertices[i*3+1] = verts[i].y;
+            mesh_data_.vertices[i*3+2] = verts[i].z;
 
-    memcpy(mesh_.vertices, verts.data(), verts.size()*3*sizeof(float));
-    memcpy(mesh_.normals, norms.data(), norms.size()*3*sizeof(float));
-    memcpy(mesh_.texcoords, uvs.data(), uvs.size()*2*sizeof(float));
-    memcpy(mesh_.indices, indices.data(), indices.size()*sizeof(unsigned short));
+            mesh_data_.normals[i*3]   = norms[i].x;
+            mesh_data_.normals[i*3+1] = norms[i].y;
+            mesh_data_.normals[i*3+2] = norms[i].z;
+
+            mesh_data_.texcoords[i*2]   = uvs[i].x;
+            mesh_data_.texcoords[i*2+1] = uvs[i].y;
+        }
+    }
+
+    state = ChunkState::READY_TO_UPLOAD;
+}
+
+void Chunk::upload_mesh() {
+    if (state != ChunkState::READY_TO_UPLOAD) return;
+
+    {
+        std::lock_guard<std::mutex> lock(mesh_data_mutex_);
+
+        mesh_.vertexCount = mesh_data_.vertices.size() / 3;
+        mesh_.triangleCount = mesh_data_.indices.size() / 3;
+
+        mesh_.vertices = (float*)MemAlloc(mesh_data_.vertices.size() * sizeof(float));
+        mesh_.normals  = (float*)MemAlloc(mesh_data_.normals.size() * sizeof(float));
+        mesh_.texcoords= (float*)MemAlloc(mesh_data_.texcoords.size() * sizeof(float));
+        mesh_.indices  = (unsigned short*)MemAlloc(mesh_data_.indices.size() * sizeof(unsigned short));
+
+        memcpy(mesh_.vertices, mesh_data_.vertices.data(), mesh_data_.vertices.size() * sizeof(float));
+        memcpy(mesh_.normals, mesh_data_.normals.data(), mesh_data_.normals.size() * sizeof(float));
+        memcpy(mesh_.texcoords, mesh_data_.texcoords.data(), mesh_data_.texcoords.size() * sizeof(float));
+        memcpy(mesh_.indices, mesh_data_.indices.data(), mesh_data_.indices.size() * sizeof(unsigned short));
+
+        // Clear temporary data
+        mesh_data_.vertices.clear();
+        mesh_data_.normals.clear();
+        mesh_data_.texcoords.clear();
+        mesh_data_.indices.clear();
+    }
 
     UploadMesh(&mesh_, false);
+
+    state = ChunkState::LOADED;
     loaded = true;
 }
 
 void Chunk::unload() {
-    if (!loaded) return;
-    UnloadMesh(mesh_);
+    if (state == ChunkState::LOADED) {
+        UnloadMesh(mesh_);
+        mesh_ = {0};  // Reset mesh structure
+    }
+    state = ChunkState::UNLOADED;
     loaded = false;
 }
 
