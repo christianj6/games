@@ -24,5 +24,6 @@ cd build
 # cp compile_commands.json ../
 
 # run game
-./bin/Debug/Game
+cd ..
+./build/bin/Debug/Game
 
