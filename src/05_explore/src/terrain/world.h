@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 class World {
 public:
@@ -13,5 +14,9 @@ public:
   bool position_is_acceptable(const Vector3);
 
 private:
-  std::vector<std::unique_ptr<Chunk>> chunks;
+  int chunk_size_;
+  std::vector<std::unique_ptr<Chunk>> chunks_;
+
+  bool load_chunk_data(const std::string&);
+  Chunk* get_or_create_chunk(int, int);
 };
