@@ -26,6 +26,7 @@ public:
 
 private:
   int chunk_size_;
+  int world_size_chunks_;  // length of nxn chunk world
   int render_distance_;  // in chunks
   std::vector<std::unique_ptr<Chunk>> chunks_;
 
@@ -40,12 +41,7 @@ private:
   Chunk* get_or_create_chunk(int, int);
   void chunk_loading_worker();
   void update_chunk_loading(Vector3 player_position);
+  void make_random_pillars(Chunk*);
 
-  // Shape primitive helpers
-  void add_box(Chunk*, int x1, int y1, int z1, int x2, int y2, int z2);
-  void add_hollow_box(Chunk*, int x1, int y1, int z1, int x2, int y2, int z2);
-  void add_floor(Chunk*, int x1, int z1, int x2, int z2, int y = 0);
-  void add_pillar(Chunk*, int x, int z, int y1, int y2);
-  void add_wall_x(Chunk*, int z, int y1, int y2, int x1, int x2);
-  void add_wall_z(Chunk*, int x, int y1, int y2, int z1, int z2);
+  void add_pillar(Chunk*, int, int, int);
 };
