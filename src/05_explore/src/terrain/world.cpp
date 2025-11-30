@@ -9,6 +9,8 @@
 #include <thread>
 #include <cctype>
 #include "utils/random.h"
+#include "rlights.h"
+#include "raymath.h"
 
 void World::make_random_pillars(Chunk* chunk) {
   int pillar_probability = 2;
@@ -31,7 +33,12 @@ World::World() : should_exit_(false) {
   world_size_chunks_ = 8;
   render_distance_ = 3;  // Load chunks within 3 chunks of player
 
-  load_chunk_data("resources/maps/home.txt");
+  // Start the chunk loading thread
+  loading_thread_ = std::thread(&World::chunk_loading_worker, this);
+}
+
+void World::build_chunks() {
+  load_chunk_data("maps/home.txt");
   for (int i = 0; i < world_size_chunks_; ++i) {
     for (int j = 0; j < world_size_chunks_; ++j) {
       // we hard-coded chunk 0,0
@@ -41,9 +48,9 @@ World::World() : should_exit_(false) {
       make_random_pillars(current_chunk);
     }
   }
-
-  // Start the chunk loading thread
-  loading_thread_ = std::thread(&World::chunk_loading_worker, this);
+  // TODO: better lighting
+  CreateLight(LIGHT_POINT, Vector3{50.0f, 10.0f, 0}, Vector3Zero(),
+              DARKPURPLE, renderer_->get_shader());
 }
 
 World::~World() {
@@ -56,13 +63,17 @@ World::~World() {
   }
 }
 
+void World::set_renderer(Renderer* renderer) {
+  renderer_ = renderer;
+}
+
 Chunk* World::get_or_create_chunk(int cx, int cy) {
     for (auto& c : chunks_) {
         if (c->get_position().x == cx && c->get_position().y == cy)
             return c.get();
     }
     // Not found → create new
-    auto chunk = std::make_unique<Chunk>(Vector2{float(cx), float(cy)}, chunk_size_);
+    auto chunk = std::make_unique<Chunk>(Vector2{float(cx), float(cy)}, chunk_size_, renderer_);
     Chunk* ptr = chunk.get();
     chunks_.push_back(std::move(chunk));
     return ptr;

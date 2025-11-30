@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "utils/graphics/renderer.h"
 #include <unordered_set>
 #include <vector>
 #include <atomic>
@@ -21,7 +22,7 @@ struct MeshData {
 
 class Chunk {
 public:
-  Chunk(Vector2, int = 32);
+  Chunk(Vector2, int = 32, Renderer* = nullptr);
   ~Chunk();
 
   void generate_mesh();      // CPU-intensive, can run on worker thread
@@ -46,5 +47,6 @@ private:
   MeshData mesh_data_;  // Temporary storage for mesh data before upload
   std::mutex mesh_data_mutex_;  // Protects mesh_data_
 
+  Material material_;
   bool is_in_bounds(int, int, int) const;
 };

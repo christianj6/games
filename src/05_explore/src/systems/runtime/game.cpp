@@ -5,6 +5,10 @@
 Game::Game() {
   // TODO: make sure i am working with shared_ptr properly
   // player.set_world(std::make_shared<World>(&world));
+
+  // TODO: remove sequential coupling
+  world.set_renderer(&renderer);
+  world.build_chunks();
 }
 
 GameInfo Game::tick(bool debug) {
@@ -24,6 +28,7 @@ GameInfo Game::update() {
 
   blackboard.current_player_position = player.update(dt, blackboard).position;
   world.update(dt, blackboard.current_player_position);
+  renderer.update(player.get_camera());
   for (auto &a : actors) {
     a->update(dt, blackboard);
   }

@@ -6,6 +6,7 @@
 #include "actors/player.h"
 #include "hud.h"
 #include "terrain/world.h"
+#include "utils/graphics/renderer.h"
 
 enum class GameState { RUNNING, PAUSED, WIN, LOSE };
 
@@ -28,6 +29,7 @@ private:
   Hud hud;
   World world;
   Player player;
+  Renderer renderer;
   std::vector<std::unique_ptr<Actor>> actors;
   Blackboard blackboard;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "chunk.h"
+#include "utils/graphics/renderer.h"
 #include "raylib.h"
 
 #include <memory>
@@ -23,12 +24,15 @@ public:
   void update(float, Vector3);
   void draw();
   bool position_is_acceptable(const Vector3);
+  void set_renderer(Renderer*);
+  void build_chunks();
 
 private:
   int chunk_size_;
   int world_size_chunks_;  // length of nxn chunk world
   int render_distance_;  // in chunks
   std::vector<std::unique_ptr<Chunk>> chunks_;
+  Renderer* renderer_;
 
   // Threading for chunk loading
   std::thread loading_thread_;

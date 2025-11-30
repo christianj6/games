@@ -1,5 +1,7 @@
 #include "chunk.h"
+#include "raylib.h"
 #include "raymath.h"
+#include "utils/graphics/renderer.h"
 
 // Directions for neighbor checking (6 faces)
 static const int DIRS[6][3] = {
@@ -28,8 +30,22 @@ inline void unpack(uint32_t k, int &x, int &y, int &z) {
     z = (k >> 20) & 0x3FF;
 }
 
-Chunk::Chunk(Vector2 position, int size) : position_(position), size_(size) {
+Material configure_material(Renderer* renderer) {
+  Material material_default = LoadMaterialDefault();
+  material_default.shader = renderer->get_shader();
+  // material_default.maps[MATERIAL_MAP_DIFFUSE].color = BLACK;
+
+  return material_default;
+}
+
+Chunk::Chunk(Vector2 position, int size, Renderer* renderer) : position_(position), size_(size) {
   mesh_ = {0};
+  if (renderer == nullptr) {
+    static Material default_material = LoadMaterialDefault();
+    material_ = default_material;
+  } else {
+    material_ = configure_material(renderer);
+  }
 }
 
 Chunk::~Chunk() {
@@ -161,6 +177,6 @@ void Chunk::unload() {
 }
 
 void Chunk::draw() {
-    DrawMesh(mesh_, LoadMaterialDefault(), MatrixTranslate(position_.x*size_,0,position_.y*size_));
+    DrawMesh(mesh_, material_, MatrixTranslate(position_.x*size_,0,position_.y*size_));
 }
 
