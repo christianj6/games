@@ -29,7 +29,7 @@ deferred
  * NPCs roam around a specified area
  * player can "chat" with NPCs in a limited, scripted way
  * enemies attack in waves according to a timer
- * between waves, NPCs periodically request assets which are used to attack
+ * between waves, NPCs periodically request assets which are used to attack (eg ammo)
  * enemies player must explore the open world to find the assets, while avoiding
  * enemies assets can be used to create traps, or NPCs throw/shoot them player
  * can attack enemies by getting close but it is very risky NPCs can heal the
