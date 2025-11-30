@@ -12,20 +12,42 @@
 #include "rlights.h"
 #include "raymath.h"
 
+
 void World::make_random_pillars(Chunk* chunk) {
-  int pillar_probability = 2;
-  RandomNumberGenerator<int> is_pillar(0, 100);
-  RandomNumberGenerator<int> random_height(1, 20);
-  for (int x = 0; x < chunk_size_; ++x) {
-    for (int y = 0; y < chunk_size_; ++y) {
-      if (is_pillar() < pillar_probability) {
-        add_pillar(chunk, x, y, random_height() + 1);
-      }
-      else {
-        add_pillar(chunk, x, y, 1);
-      }
+    RandomNumberGenerator<int> random_height(1, 20);
+    RandomNumberGenerator<int> random_size(2, 6); // pillar width/length
+    RandomNumberGenerator<int> random_pos(0, chunk_size_ - 1);
+    RandomNumberGenerator<int> is_pillar(0, 100);
+
+    const int pillar_probability = 75; // % chance per attempt
+    const int NUM_ATTEMPTS = 50;      // number of pillar attempts per chunk
+
+    // floor
+    for (int x = 0; x < chunk_size_; ++x) {
+        for (int y = 0; y < chunk_size_; ++y) {
+            add_pillar(chunk, x, y, 1);
+        }
     }
-  }
+
+    // random pillars
+    for (int n = 0; n < NUM_ATTEMPTS; ++n) {
+        if (is_pillar() >= pillar_probability) continue; // skip this attempt
+
+        int x = random_pos();
+        int y = random_pos();
+        int width = random_size();
+        int height = random_height(); // add on top of floor
+
+        // make sure pillar fits in the chunk
+        int max_x = std::min(x + width, chunk_size_);
+        int max_y = std::min(y + width, chunk_size_);
+
+        for (int dx = 0; dx < max_x - x; ++dx) {
+            for (int dy = 0; dy < max_y - y; ++dy) {
+                add_pillar(chunk, x + dx, y + dy, height);
+            }
+        }
+    }
 }
 
 World::World() : should_exit_(false) {
