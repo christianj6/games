@@ -12,10 +12,9 @@ Player::Player() {
 void Player::setup_camera() {
   // camera is slightly above the ground at the origin
   // TODO: better approach to synchronizing camera and obj position
-  current_position = Vector3{0.0f, 3.0f, -10.0f};
-  camera.position = Vector3{0.0f, 3.0f, -10.0f};
-  // looking towards the blue sphere (sphere is at {1, 3, 1} with radius 5)
-  camera.target = Vector3{1.0f, 3.0f, 1.0f};
+  current_position = Vector3{20.0f, 3.0f, 20.0f};
+  camera.position = Vector3{20.0f, 3.0f, 20.0f};
+  camera.target = Vector3{50.0f, 3.0f, 50.0f};
   camera.up = Vector3{0.0f, 1.0f, 0.0f};
   camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
