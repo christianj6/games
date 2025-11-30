@@ -1,28 +1,3 @@
-# planning here bc i don't have a good computer
-
-explore timeline 
-- scope and plan 
-- set up remotery to improve performance
-- review resources and familiarize with tooling
-  - behavior tree
-  - kenney
-  - raylib
-  - cmake
-- do it 
-  - core systems 
-  - simplest possible game loop
-  - iterate
-  - polish
-- consider sending to cherno
-- prep for kenney game jam
-
-deferred
-- flecs / other ecs lib
-- imgui
-- bullet physics
-- cr.h / hot reloading
-
-
 // TODO: game loop
 /*
  * "tower defense with light exploration"

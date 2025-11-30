@@ -1,27 +1,22 @@
 // TODO: on tap
 /*
- * get a more "final" world going (for purposes of this game)
- * user can move around the space and jump etc, collisions, etc.
+ * user can jump 
+ * collisions working 
+ * checkpoint: larger game world with chunking and pretty nice player movement
  */
 
-// TODO: world and movement
+// TODO: teleportation
 /*
- * simplified voxel mesh rendering strategy
- * world is generally structured the same (pillars)
- * pillars are larger and better placed so it is easier to jump between them
- * player camera with improved game feel
- * teleportation mechanic from teleport
- * world chunking based on player position
- * home chunk defined in loaded json; has a more "specific" shape
- * feedback: too dark, movement does not feel nice
- * opti
- * checkpoint: larger game world with chunking and nice player movement
+ * pressing shift once teleports you forward in direction of camera 
+ * holding does the same time-stop blink thing as before
+ * double tapping takes you back in your "jump list"
  */
 
 // TODO: friends and home
 /*
  * start working with meshes to make the home area look a bit more interesting
  * friend actors with limited animations and behavior trees
+ * friends wander around the home chunk, not running into things, and e.g. randomly interact with some objects
  * use mixamo and blender for a simple animation workflow
  * friend ai can be puppeteered by director ai
  * player can talk to friends with a simple text-based system
@@ -32,11 +27,11 @@
 /*
  * director ai can trigger friends to request items
  * if friend needs something they get an exclamation mark above their head
- * if player talks with friend while in this state, they will give the player a
+ * if player interacts with friend while in this state, they will give the player a
  * quest requested item is placed in the world and shown in the hud player can
  * search the open world for the item, collect it, and bring it back checkpoint:
  * friends periodically request items, quests are managed, and player can
- * complete
+ * complete these quests by getting items in the world
  */
 
 // TODO: enemies
@@ -55,6 +50,10 @@
 
 // TODO: finish game loop
 /*
+ * core idea: you go out and get stuff to satisfy the friends,
+ * with the goal of ultimately getting all the stuff. when you go out,
+ * narrative: you are getting ingredients for a recipe
+ * you engage in mini stealth/combat encounters with enemies
  * when you have completed a quest for all friends, you win
  * simple narrative using text communication system
  * playtest and balance, refine
@@ -64,6 +63,8 @@
 // TODO: polish
 /*
  * add sounds
+ * camera and movement: better game feel
+ * feedback: too dark, movement does not feel nice
  * friends are interesting and fun
  * enemies are challenging and interesting
  * world is interesting to explore
