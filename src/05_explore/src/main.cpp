@@ -1,7 +1,5 @@
 // TODO: on tap
 /*
- * get chunk/world system working with renderer to get a world on screen
- * add in "real" rendering with shaders
  * get a more "final" world going (for purposes of this game)
  * user can move around the space and jump etc, collisions, etc.
  */
