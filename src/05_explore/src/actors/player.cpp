@@ -55,9 +55,9 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   if (update.jump && jumps_remaining_ > 0) {
     vertical_velocity_ = jump_force_;
     jumps_remaining_--;
-  } else if (camera.position.y <= ground_height) {
+  } else if (current_position.y <= ground_height) {
     vertical_velocity_ = 0.0f;
-    camera.position.y = ground_height;
+    current_position.y = ground_height;
     jumps_remaining_ = max_jumps_;
   } else {
     vertical_velocity_ += gravity_ * dt;
