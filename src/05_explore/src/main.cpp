@@ -1,7 +1,6 @@
 // TODO: on tap
 /*
- * user can jump 
- * collisions working 
+ * all collisions working 
  * checkpoint: larger game world with chunking and pretty nice player movement
  */
 
