@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "systems/movement/controller.h"
+#include <fmt/base.h>
 
 Player::Player() {
   setup_camera();
@@ -29,9 +30,8 @@ Vector3 add_vectors_xz_only(Vector3 v1, Vector3 v2) {
 }
 
 Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
-  // Get camera direction and project onto horizontal plane (XZ) for flat movement
   Vector3 forward = {camera.target.x - camera.position.x,
-                     0.0f,  // Keep movement flat regardless of camera pitch
+                     camera.target.y - camera.position.y,
                      camera.target.z - camera.position.z};
   forward = Vector3Normalize(forward);
   Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
@@ -39,18 +39,36 @@ Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
   const float speed = 4.5f;
 
   Vector3 updated_movement = {
-      (right.x * movement.x + forward.x * movement.z) * speed * dt, 0.0f,
+      (right.x * movement.x + forward.x * movement.z) * speed * dt, 
+      movement.y,  // preserve vertical movement calculated elsewhere
       (right.z * movement.x + forward.z * movement.z) * speed * dt};
 
   return updated_movement;
 }
 
 MovementUpdate Player::update(float dt, Blackboard &blackboard) {
+  // get inputs and other update information
   MovementUpdate update = Actor::get_update(dt, blackboard);
-  update.position = adjust_movement_relative_to_camera(dt, update.position);
-  Vector3 candidate_position =
-      add_vectors_xz_only(current_position, update.position);
 
+  // handle jumping
+  const float ground_height = 3.0f;
+  if (update.jump && jumps_remaining_ > 0) {
+    vertical_velocity_ = jump_force_;
+    jumps_remaining_--;
+  } else if (camera.position.y <= ground_height) {
+    vertical_velocity_ = 0.0f;
+    camera.position.y = ground_height;
+    jumps_remaining_ = max_jumps_;
+  } else {
+    vertical_velocity_ += gravity_ * dt;
+  }
+  update.position.y = vertical_velocity_ * dt;
+
+  // get candidate position
+  update.position = adjust_movement_relative_to_camera(dt, update.position);
+  Vector3 candidate_position = Vector3Add(current_position, update.position);
+
+  // TODO: ask the world if it is okay to move into this position
   if (world->position_is_acceptable(candidate_position)) {
     current_position = candidate_position;
   }
@@ -74,7 +92,7 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   return {
       current_position,
       {camera.position.x, camera.position.y},
-      false,
+      update.jump,
       false,
   };
 }
