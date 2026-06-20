@@ -36,8 +36,8 @@ private:
   float bob_amplitude_ = 0.0f;
 
   // landing squash
-  const float squash_amount_ = 0.08f;
-  const float squash_spring_rate_ = 18.0f;
+  const float squash_amount_ = 0.22f;
+  const float squash_spring_rate_ = 10.0f;
   float squash_offset_ = 0.0f;
   float prev_vertical_velocity_ = 0.0f;
 
