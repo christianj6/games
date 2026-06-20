@@ -127,6 +127,8 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   if (sprint_mode_ == SprintMode::Toggle) {
     if (sprint_just_pressed)
       sprint_active_ = !sprint_active_;
+    if (!has_input)
+      sprint_active_ = false;
   } else {
     sprint_active_ = update.sprint;
   }
