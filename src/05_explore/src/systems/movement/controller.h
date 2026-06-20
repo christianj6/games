@@ -10,6 +10,7 @@ struct MovementUpdate {
   bool jump;
   bool blink;
   bool jump_held;
+  bool sprint;
 };
 
 class MovementController {

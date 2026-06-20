@@ -122,7 +122,8 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   if (input_len > 1.0f) { dir.x /= input_len; dir.z /= input_len; }
 
   bool has_input = input_len > 0.01f;
-  Vector3 target_vel = {dir.x * max_speed_, 0.0f, dir.z * max_speed_};
+  float speed = update.sprint ? sprint_speed_ : max_speed_;
+  Vector3 target_vel = {dir.x * speed, 0.0f, dir.z * speed};
   float rate = has_input ? accel_rate_ : decel_rate_;
   float t = rate * dt < 1.0f ? rate * dt : 1.0f;
   horizontal_velocity_.x += (target_vel.x - horizontal_velocity_.x) * t;

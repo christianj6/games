@@ -30,6 +30,10 @@ bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
 bool KeyboardInputProvider::get_input_jump_held() { return IsKeyDown(KEY_SPACE); }
 
+bool KeyboardInputProvider::get_input_sprint() {
+  return IsKeyDown(KEY_LEFT_SHIFT);
+}
+
 bool KeyboardInputProvider::get_input_blink() { return false; }
 
 float ControllerInputProvider::deadzone(float value, float threshold) {
@@ -55,6 +59,10 @@ bool ControllerInputProvider::get_input_jump() {
 
 bool ControllerInputProvider::get_input_jump_held() {
   return IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+}
+
+bool ControllerInputProvider::get_input_sprint() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_THUMB);
 }
 
 bool ControllerInputProvider::get_input_blink() {

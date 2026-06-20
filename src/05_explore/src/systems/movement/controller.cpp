@@ -16,5 +16,6 @@ MovementUpdate UserMovementController::tick() {
       input_provider->get_input_jump(),
       input_provider->get_input_blink(),
       input_provider->get_input_jump_held(),
+      input_provider->get_input_sprint(),
   };
 }
