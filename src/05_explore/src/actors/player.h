@@ -23,6 +23,7 @@ private:
   const float sprint_speed_ = 11.0f;
   const float accel_rate_ = 18.0f;
   const float decel_rate_ = 20.0f;
+  const float air_control_ = 0.15f;
   Vector3 horizontal_velocity_ = {0.0f, 0.0f, 0.0f};
   bool sprint_active_ = false;
   bool prev_sprint_ = false;

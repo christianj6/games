@@ -133,16 +133,17 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   bool sprint_just_pressed = update.sprint && !prev_sprint_;
   prev_sprint_ = update.sprint;
   if (sprint_mode_ == SprintMode::Toggle) {
-    if (sprint_just_pressed)
+    if (sprint_just_pressed && on_ground)
       sprint_active_ = !sprint_active_;
-    if (!has_input)
+    if (!has_input || !on_ground)
       sprint_active_ = false;
   } else {
-    sprint_active_ = update.sprint;
+    sprint_active_ = update.sprint && on_ground;
   }
   float speed = sprint_active_ ? sprint_speed_ : max_speed_;
   Vector3 target_vel = {dir.x * speed, 0.0f, dir.z * speed};
-  float rate = has_input ? accel_rate_ : decel_rate_;
+  float rate = (has_input ? accel_rate_ : decel_rate_) *
+               (on_ground ? 1.0f : air_control_);
   float t = rate * dt < 1.0f ? rate * dt : 1.0f;
   horizontal_velocity_.x += (target_vel.x - horizontal_velocity_.x) * t;
   horizontal_velocity_.z += (target_vel.z - horizontal_velocity_.z) * t;
