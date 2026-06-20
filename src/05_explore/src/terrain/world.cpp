@@ -342,10 +342,17 @@ bool World::is_solid(Vector3 pos) const {
 
 Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
                                   float max_dist) const {
-  const float step = 0.1f;
+  const float step       = 0.1f;
+  const float eye_height = 2.0f;
   Vector3 last_valid = origin;
   for (float dist = step; dist <= max_dist; dist += step) {
     Vector3 candidate = Vector3Add(origin, Vector3Scale(direction, dist));
+    // Hug the ground: if the ray dips below the floor, slide along it
+    // instead of stopping. This makes looking slightly downward work
+    // the same as looking forward.
+    float floor_cam_y = get_floor_height(candidate.x, candidate.z) + eye_height;
+    if (candidate.y < floor_cam_y)
+      candidate.y = floor_cam_y;
     if (position_is_acceptable(candidate))
       last_valid = candidate;
     else

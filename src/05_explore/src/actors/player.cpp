@@ -79,9 +79,18 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
 
   if (just_released) {
     if (blink_state_ == BlinkState::HOLDING) {
-      // Tap blink: instant teleport
-      Vector3 dir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-      do_blink(world->find_blink_target(current_position, dir, blink_max_range_));
+      // Tap blink: travel in movement direction (or camera-forward if idle),
+      // always horizontal so the player slides across the ground.
+      float h_spd = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
+                          horizontal_velocity_.z * horizontal_velocity_.z);
+      Vector3 tap_dir;
+      if (h_spd > 0.5f) {
+        tap_dir = Vector3Normalize({horizontal_velocity_.x, 0.0f, horizontal_velocity_.z});
+      } else {
+        Vector3 fwd = Vector3Subtract(camera.target, camera.position);
+        tap_dir = Vector3Normalize({fwd.x, 0.0f, fwd.z});
+      }
+      do_blink(world->find_blink_target(current_position, tap_dir, tap_blink_range_));
     } else if (blink_state_ == BlinkState::PREVIEWING) {
       // Hold blink: teleport to previewed target
       do_blink(blink_target_);

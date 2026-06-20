@@ -31,7 +31,8 @@ private:
 
   // blink — 0.0 = full stop, e.g. 0.15 = slow motion during hold preview
   const float blink_time_scale_    = 0.0f;
-  const float blink_max_range_     = 12.0f;
+  const float tap_blink_range_     = 18.0f; // tap travels farther (movement-direction)
+  const float hold_blink_range_    = 12.0f; // hold uses aimed range
   const int   tap_threshold_       = 10;   // frames; under = tap, over = hold
   const int   double_tap_window_   = 20;   // frames after release to detect double-tap
 
