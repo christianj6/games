@@ -57,6 +57,7 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     jumps_remaining_--;
     jump_buffer_ = 0;
     coyote_frames_ = 0;
+    squash_offset_ = takeoff_kick_;
   } else if (on_ground) {
     vertical_velocity_ = 0.0f;
     current_position.y = floor_y;
@@ -187,22 +188,49 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   camera.position = current_position;
   camera.target = Vector3Add(camera.position, look_dir);
 
+  // strafe tilt: rotate camera.up around forward axis by lateral velocity
+  Vector3 cam_fwd_h = Vector3Normalize({look_dir.x, 0.0f, look_dir.z});
+  Vector3 cam_right = Vector3Normalize(Vector3CrossProduct(cam_fwd_h, {0.0f, 1.0f, 0.0f}));
+  float lateral_vel = horizontal_velocity_.x * cam_right.x +
+                      horizontal_velocity_.z * cam_right.z;
+  float tilt_target = lateral_vel / sprint_speed_ * tilt_max_angle_;
+  if (tilt_target > tilt_max_angle_) tilt_target = tilt_max_angle_;
+  if (tilt_target < -tilt_max_angle_) tilt_target = -tilt_max_angle_;
+  tilt_current_ += (tilt_target - tilt_current_) * tilt_lerp_rate_ * dt;
+  float tilt_rad = tilt_current_ * DEG2RAD;
+  camera.up.x = cam_right.x * sinf(tilt_rad);
+  camera.up.y = cosf(tilt_rad);
+  camera.up.z = cam_right.z * sinf(tilt_rad);
+
   float camera_sensitivity = 0.095f;
   UpdateCameraPro(&camera, Vector3{0},
                   Vector3{update.camera.x * camera_sensitivity,
                           update.camera.y * camera_sensitivity, 0.0f},
                   0.0f);
 
-  // head bob: distance-driven sinusoidal Y offset, camera-only
+  // head bob: vertical + lateral, distance-driven, camera-only
   float h_speed = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
                         horizontal_velocity_.z * horizontal_velocity_.z);
   bob_timer_ += h_speed * bob_freq_ * dt;
   float target_amp = h_speed > 0.5f ? 1.0f : 0.0f;
   bob_amplitude_ += (target_amp - bob_amplitude_) * bob_fade_rate_ * dt;
-  float bob = sinf(bob_timer_) * bob_height_ * bob_amplitude_ *
-              (sprint_active_ ? bob_sprint_scale_ : 1.0f);
-  camera.position.y += bob;
-  camera.target.y += bob;
+  float bob_scale = bob_amplitude_ * (sprint_active_ ? bob_sprint_scale_ : 1.0f);
+  float bob_v = sinf(bob_timer_) * bob_height_ * bob_scale;
+  float bob_l = sinf(bob_timer_ * 0.5f) * bob_lateral_ * bob_scale;
+  camera.position.y += bob_v;
+  camera.target.y += bob_v;
+  camera.position.x += cam_right.x * bob_l;
+  camera.position.z += cam_right.z * bob_l;
+  camera.target.x += cam_right.x * bob_l;
+  camera.target.z += cam_right.z * bob_l;
+
+  // breathing: very slow sway when nearly still, fades out on movement
+  breathe_timer_ += dt;
+  float breathe_target = h_speed < 0.3f ? 1.0f : 0.0f;
+  breathe_amplitude_ += (breathe_target - breathe_amplitude_) * breathe_fade_rate_ * dt;
+  float breathe = sinf(breathe_timer_ * breathe_freq_) * breathe_height_ * breathe_amplitude_;
+  camera.position.y += breathe;
+  camera.target.y += breathe;
 
   // landing squash and FOV pulse — camera-only
   camera.position.y += squash_offset_;

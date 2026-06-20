@@ -28,19 +28,33 @@ private:
   bool sprint_active_ = false;
   bool prev_sprint_ = false;
 
-  // head bob
+  // strafe tilt
+  const float tilt_max_angle_ = 2.0f;
+  const float tilt_lerp_rate_ = 8.0f;
+  float tilt_current_ = 0.0f;
+
+  // head bob (vertical + lateral)
   const float bob_freq_ = 1.6f;
   const float bob_height_ = 0.06f;
+  const float bob_lateral_ = 0.025f;
   const float bob_sprint_scale_ = 1.5f;
   const float bob_fade_rate_ = 8.0f;
   float bob_timer_ = 0.0f;
   float bob_amplitude_ = 0.0f;
 
-  // landing squash
+  // landing squash / takeoff kick
   const float squash_amount_ = 0.22f;
+  const float takeoff_kick_ = 0.05f;
   const float squash_spring_rate_ = 10.0f;
   float squash_offset_ = 0.0f;
   float prev_vertical_velocity_ = 0.0f;
+
+  // breathing
+  const float breathe_freq_ = 1.88f;
+  const float breathe_height_ = 0.008f;
+  const float breathe_fade_rate_ = 3.0f;
+  float breathe_timer_ = 0.0f;
+  float breathe_amplitude_ = 0.0f;
 
   // fov
   const float base_fov_ = 60.0f;
