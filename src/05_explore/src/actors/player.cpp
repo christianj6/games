@@ -83,9 +83,9 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     vertical_velocity_ += grav * dt;
   }
 
-  // jump cut: releasing jump early caps ascent for a shorter hop
-  if (vertical_velocity_ > jump_cut_velocity_ && !update.jump_held)
-    vertical_velocity_ = jump_cut_velocity_;
+  // jump cut: releasing jump early applies extra downward force for a shorter hop
+  if (vertical_velocity_ > 0.0f && !update.jump_held)
+    vertical_velocity_ += jump_cut_gravity_ * dt;
 
   float new_y = current_position.y + vertical_velocity_ * dt;
   if (vertical_velocity_ > 0.0f) {
