@@ -78,7 +78,7 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     jumps_remaining_ = max_jumps_;
   } else {
     float grav = vertical_velocity_ < 0.0f ? gravity_ * fall_multiplier_ : gravity_;
-    if (fabsf(vertical_velocity_) < apex_hang_threshold_)
+    if (vertical_velocity_ > 0.0f && vertical_velocity_ < apex_hang_threshold_)
       grav *= apex_hang_reduction_;
     vertical_velocity_ += grav * dt;
   }
