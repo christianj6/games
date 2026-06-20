@@ -38,30 +38,20 @@ void Player::do_blink(Vector3 target) {
 }
 
 void Player::handle_blink(const MovementUpdate &update, World *world) {
-  bool held         = update.blink_held;
-  bool just_released = !held && prev_blink_held_;
-  bool just_pressed  =  held && !prev_blink_held_;
-  prev_blink_held_  = held;
-
-  // Tick release counter for double-tap window
-  if (blink_release_frames_ > 0) {
-    blink_release_frames_++;
-    if (blink_release_frames_ > double_tap_window_)
-      blink_release_frames_ = 0; // window expired
+  // Recall: single LB tap — jump to most recent anchor
+  if (update.recall && !jump_list_.empty()) {
+    BlinkCommand cmd = jump_list_.pop();
+    do_blink(cmd.from);
   }
 
+  bool held          = update.blink_held;
+  bool just_released = !held && prev_blink_held_;
+  bool just_pressed  =  held && !prev_blink_held_;
+  prev_blink_held_   = held;
+
   if (just_pressed) {
-    if (blink_release_frames_ > 0) {
-      // Double-tap: recall most recent anchor
-      blink_release_frames_ = 0;
-      if (!jump_list_.empty()) {
-        BlinkCommand cmd = jump_list_.pop();
-        do_blink(cmd.from);
-      }
-    } else {
-      blink_state_       = BlinkState::HOLDING;
-      blink_hold_frames_ = 0;
-    }
+    blink_state_       = BlinkState::HOLDING;
+    blink_hold_frames_ = 0;
   }
 
   if (held) {
@@ -95,9 +85,8 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
       // Hold blink: teleport to previewed target
       do_blink(blink_target_);
     }
-    blink_state_          = BlinkState::IDLE;
-    blink_hold_frames_    = 0;
-    blink_release_frames_ = 1; // start counting for next double-tap
+    blink_state_       = BlinkState::IDLE;
+    blink_hold_frames_ = 0;
   }
 }
 

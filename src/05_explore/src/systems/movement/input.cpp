@@ -38,6 +38,8 @@ bool KeyboardInputProvider::get_input_blink() { return false; }
 
 bool KeyboardInputProvider::get_input_blink_held() { return false; }
 
+bool KeyboardInputProvider::get_input_recall() { return false; }
+
 float ControllerInputProvider::deadzone(float value, float threshold) {
   return fabsf(value) > threshold ? value : 0.0f;
 }
@@ -68,9 +70,13 @@ bool ControllerInputProvider::get_input_sprint() {
 }
 
 bool ControllerInputProvider::get_input_blink() {
-  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
 }
 
 bool ControllerInputProvider::get_input_blink_held() {
-  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_recall() {
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
 }

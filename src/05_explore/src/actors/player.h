@@ -31,15 +31,13 @@ private:
 
   // blink — 0.0 = full stop, e.g. 0.15 = slow motion during hold preview
   const float blink_time_scale_    = 0.0f;
-  const float tap_blink_range_     = 18.0f; // tap travels farther (movement-direction)
-  const float hold_blink_range_    = 12.0f; // hold uses aimed range
+  const float tap_blink_range_     = 18.0f;
+  const float hold_blink_range_    = 24.0f;
   const int   tap_threshold_       = 10;   // frames; under = tap, over = hold
-  const int   double_tap_window_   = 20;   // frames after release to detect double-tap
 
   enum class BlinkState { IDLE, HOLDING, PREVIEWING };
   BlinkState blink_state_         = BlinkState::IDLE;
   int  blink_hold_frames_         = 0;
-  int  blink_release_frames_      = 0; // counts up after release; 0 = not tracking
   bool prev_blink_held_           = false;
   Vector3 blink_target_           = {0, 0, 0};
   JumpList jump_list_;
