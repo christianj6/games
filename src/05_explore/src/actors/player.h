@@ -16,11 +16,16 @@ private:
   Vector3 camera_relative_direction(Vector3 input);
 
   // horizontal movement
+  enum class SprintMode { Hold, Toggle };
+  const SprintMode sprint_mode_ = SprintMode::Toggle;
+
   const float max_speed_ = 6.5f;
   const float sprint_speed_ = 11.0f;
   const float accel_rate_ = 18.0f;
   const float decel_rate_ = 20.0f;
   Vector3 horizontal_velocity_ = {0.0f, 0.0f, 0.0f};
+  bool sprint_active_ = false;
+  bool prev_sprint_ = false;
 
   // jumping
   const float gravity_ = -20.0f;
