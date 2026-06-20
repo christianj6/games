@@ -36,6 +36,9 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
 
   const float eye_height = 2.0f;
 
+  // time dilation: hold-blink scales world/actor dt via blackboard
+  blackboard.time_scale = update.blink_held ? blink_time_scale_ : 1.0f;
+
   // vertical: snap to voxel-aware floor, apply gravity/jump
   float floor_y =
       world->get_floor_height(current_position.x, current_position.z) +

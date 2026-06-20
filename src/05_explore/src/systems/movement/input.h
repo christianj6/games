@@ -11,6 +11,7 @@ public:
   virtual bool get_input_jump_held() = 0;
   virtual bool get_input_sprint() = 0;
   virtual bool get_input_blink() = 0;
+  virtual bool get_input_blink_held() = 0;
   // virtual bool get_input_attack() = 0;
   // virtual bool get_input_pause() = 0;
   // virtual bool get_input_confirm() = 0;
@@ -25,6 +26,7 @@ public:
   bool get_input_jump_held() override;
   bool get_input_sprint() override;
   bool get_input_blink() override;
+  bool get_input_blink_held() override;
   // bool get_input_attack() override;
   // bool get_input_pause() override;
   // bool get_input_confirm() override;
@@ -39,6 +41,7 @@ public:
   bool get_input_jump_held() override;
   bool get_input_sprint() override;
   bool get_input_blink() override;
+  bool get_input_blink_held() override;
 
 private:
   static float deadzone(float value, float threshold = 0.15f);

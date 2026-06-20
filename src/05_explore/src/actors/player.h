@@ -28,6 +28,9 @@ private:
   bool sprint_active_ = false;
   bool prev_sprint_ = false;
 
+  // blink — 0.0 = full stop, e.g. 0.15 = slow motion
+  const float blink_time_scale_ = 0.0f;
+
   // strafe tilt
   const float tilt_max_angle_ = 2.0f;
   const float tilt_lerp_rate_ = 8.0f;

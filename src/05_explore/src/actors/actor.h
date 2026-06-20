@@ -8,6 +8,7 @@
 struct Blackboard {
   Vector3 current_player_position;
   World *world = nullptr;
+  float time_scale = 1.0f; // set by player during hold-blink; applied to world/actor dt
 };
 
 class Actor {

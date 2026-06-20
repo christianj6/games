@@ -11,6 +11,7 @@ struct MovementUpdate {
   bool blink;
   bool jump_held;
   bool sprint;
+  bool blink_held; // true every frame the blink button is held down
 };
 
 class MovementController {

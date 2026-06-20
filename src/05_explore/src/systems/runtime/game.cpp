@@ -27,10 +27,11 @@ GameInfo Game::update() {
   float dt = GetFrameTime();
 
   blackboard.current_player_position = player.update(dt, blackboard).position;
-  world.update(dt, blackboard.current_player_position);
+  float scaled_dt = dt * blackboard.time_scale;
+  world.update(scaled_dt, blackboard.current_player_position);
   renderer.update(player.get_camera());
   for (auto &a : actors) {
-    a->update(dt, blackboard);
+    a->update(scaled_dt, blackboard);
   }
 
   return {};
