@@ -340,6 +340,20 @@ bool World::is_solid(Vector3 pos) const {
   return false;
 }
 
+Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
+                                  float max_dist) const {
+  const float step = 0.1f;
+  Vector3 last_valid = origin;
+  for (float dist = step; dist <= max_dist; dist += step) {
+    Vector3 candidate = Vector3Add(origin, Vector3Scale(direction, dist));
+    if (position_is_acceptable(candidate))
+      last_valid = candidate;
+    else
+      break;
+  }
+  return last_valid;
+}
+
 bool World::is_ceiling_blocked(Vector3 camera_pos) const {
   // Narrow radius — wall clearance (0.35) keeps us away from wall faces,
   // so this only fires for voxels genuinely above the player's head

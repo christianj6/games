@@ -1,6 +1,7 @@
 #pragma once
 #include "actor.h"
 #include "raylib.h"
+#include "systems/movement/blink_command.h"
 #include "systems/movement/controller.h"
 
 class Player : public Actor {
@@ -28,8 +29,22 @@ private:
   bool sprint_active_ = false;
   bool prev_sprint_ = false;
 
-  // blink — 0.0 = full stop, e.g. 0.15 = slow motion
-  const float blink_time_scale_ = 0.0f;
+  // blink — 0.0 = full stop, e.g. 0.15 = slow motion during hold preview
+  const float blink_time_scale_    = 0.0f;
+  const float blink_max_range_     = 12.0f;
+  const int   tap_threshold_       = 10;   // frames; under = tap, over = hold
+  const int   double_tap_window_   = 20;   // frames after release to detect double-tap
+
+  enum class BlinkState { IDLE, HOLDING, PREVIEWING };
+  BlinkState blink_state_         = BlinkState::IDLE;
+  int  blink_hold_frames_         = 0;
+  int  blink_release_frames_      = 0; // counts up after release; 0 = not tracking
+  bool prev_blink_held_           = false;
+  Vector3 blink_target_           = {0, 0, 0};
+  JumpList jump_list_;
+
+  void handle_blink(const MovementUpdate &update, World *world);
+  void do_blink(Vector3 target);
 
   // strafe tilt
   const float tilt_max_angle_ = 2.0f;

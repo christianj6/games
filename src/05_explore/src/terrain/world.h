@@ -27,6 +27,7 @@ public:
   bool position_is_acceptable(Vector3) const;
   bool is_ceiling_blocked(Vector3) const;
   float get_floor_height(float, float) const;
+  Vector3 find_blink_target(Vector3 origin, Vector3 direction, float max_dist) const;
   void set_renderer(Renderer *);
   void build_chunks();
 
