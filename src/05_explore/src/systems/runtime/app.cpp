@@ -18,7 +18,9 @@ bool App::run(bool debug) {
     break;
   case ApplicationState::GAME:
     // TODO: consider using GameInfo return to streamline this condition
-    if (game.get_current_state() == GameState::PAUSED && IsKeyPressed(KEY_Q)) {
+    if (game.get_current_state() == GameState::PAUSED &&
+        (IsKeyPressed(KEY_Q) ||
+         IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE_LEFT))) {
       current_state = ApplicationState::QUIT;
     } else {
       game.tick(debug);

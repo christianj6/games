@@ -36,7 +36,7 @@ Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
   forward = Vector3Normalize(forward);
   Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
 
-  const float speed = 4.5f;
+  const float speed = 6.5f;
 
   Vector3 updated_movement = {
       (right.x * movement.x + forward.x * movement.z) * speed * dt,

@@ -41,7 +41,7 @@ Vector3 ControllerInputProvider::get_input_movement_vector() {
 }
 
 Vector2 ControllerInputProvider::get_input_look_vector() {
-  const float look_scale = 100.0f;
+  const float look_scale = 30.0f;
   float x = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X));
   float y = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y));
   return {x * look_scale, y * look_scale};

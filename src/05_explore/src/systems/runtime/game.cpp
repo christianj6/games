@@ -15,7 +15,8 @@ GameInfo Game::tick(bool debug) {
   if (current_state == GameState::RUNNING) {
     update();
   }
-  if (IsKeyPressed(KEY_ESCAPE)) {
+  if (IsKeyPressed(KEY_ESCAPE) ||
+      IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE_RIGHT)) {
     toggle_pause();
   }
   draw();
