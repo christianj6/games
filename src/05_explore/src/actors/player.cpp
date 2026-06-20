@@ -64,6 +64,12 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
       // Update target every frame so it tracks camera rotation
       Vector3 dir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
       blink_target_ = world->find_blink_target(current_position, dir, hold_blink_range_);
+
+      // Elevated: target floor is notably higher than player's current floor
+      const float eye_height = 2.0f;
+      float origin_floor = world->get_floor_height(current_position.x, current_position.z);
+      float target_floor = world->get_floor_height(blink_target_.x, blink_target_.z);
+      blink_target_elevated_ = (target_floor > origin_floor + 1.0f);
     }
   }
 
@@ -331,8 +337,8 @@ void Player::draw() {
     Color c = BLUE;
     c.a = 120;
     // Cone when landing elevated (on top of a pillar); sphere on flat ground
-    if (blink_target_.y > current_position.y + 1.5f) {
-      // Upside-down cone: tip pointing down at landing spot, wide end above
+    if (blink_target_elevated_) {
+      // Upside-down cone: wide end up, tip pointing down at the pillar surface
       DrawCylinder({blink_target_.x, blink_target_.y, blink_target_.z},
                    0.5f, 0.0f, 1.2f, 8, c);
     } else {

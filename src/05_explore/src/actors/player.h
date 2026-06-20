@@ -40,6 +40,7 @@ private:
   int  blink_hold_frames_         = 0;
   bool prev_blink_held_           = false;
   Vector3 blink_target_           = {0, 0, 0};
+  bool    blink_target_elevated_  = false;
   JumpList jump_list_;
 
   void handle_blink(const MovementUpdate &update, World *world);
