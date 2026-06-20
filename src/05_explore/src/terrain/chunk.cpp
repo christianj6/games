@@ -86,7 +86,7 @@ void Chunk::generate_mesh() {
         // for the world floor (y=0 side faces only) this creates coplanar
         // duplicates with the adjacent chunk's matching face, causing Z-fighting.
         // For X/Z side faces: dim=0 → u=Y → i is Y; dim=2 → v=Y → j is Y.
-        bool at_boundary = (b[dim] < 0 || b[dim] >= size_);
+        bool at_boundary = (slice + side < 0 || slice + side >= size_);
         bool is_xz_face  = (dim != 1);
 
         // Build 2D mask of exposed faces for this slice
