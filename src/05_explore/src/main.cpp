@@ -75,6 +75,11 @@
  * stretch: expand teleportation mechanics
  */
 
+// TODO: clean up
+/*
+* change back to main menu starting in app.h
+*/
+
 #include "raylib.h"
 #include "systems/runtime/app.h"
 

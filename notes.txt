@@ -1,3 +1,5 @@
+// TODO: deprecate this file?
+
 // TODO: game loop
 /*
  * "tower defense with light exploration"
@@ -23,11 +25,6 @@
  * player can shoot a sticky object which creates a blink target
  * teleportation depends on mana which is dropped by slain enemies
  */
-
- // TODO: clean up
- /*
-  * change back to main menu starting in app.h
-  */
 
 general game dev algorithm
 - 1 week of scoping and refinement; you need time to reflect on the concept and refine
