@@ -4,6 +4,7 @@
 #include "utils/graphics/renderer.h"
 
 #include <atomic>
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -40,6 +41,7 @@ private:
   std::thread loading_thread_;
   std::mutex chunks_mutex_;
   std::mutex load_queue_mutex_;
+  std::condition_variable load_cv_;
   std::queue<ChunkLoadRequest> load_queue_;
   std::atomic<bool> should_exit_;
 

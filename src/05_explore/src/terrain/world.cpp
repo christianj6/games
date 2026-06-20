@@ -79,11 +79,9 @@ void World::build_chunks() {
 World::~World() {
   // Signal the thread to exit
   should_exit_ = true;
-
-  // Wait for the thread to finish
-  if (loading_thread_.joinable()) {
+  load_cv_.notify_one();
+  if (loading_thread_.joinable())
     loading_thread_.join();
-  }
 }
 
 void World::set_renderer(Renderer *renderer) { renderer_ = renderer; }
@@ -200,25 +198,17 @@ void World::draw() {
 void World::chunk_loading_worker() {
   while (!should_exit_) {
     ChunkLoadRequest request;
-    bool has_work = false;
-
-    // Check if there's work to do
     {
-      std::lock_guard<std::mutex> lock(load_queue_mutex_);
-      if (!load_queue_.empty()) {
-        request = load_queue_.front();
-        load_queue_.pop();
-        has_work = true;
-      }
+      std::unique_lock<std::mutex> lock(load_queue_mutex_);
+      load_cv_.wait(lock, [this] {
+        return !load_queue_.empty() || should_exit_.load();
+      });
+      if (should_exit_)
+        break;
+      request = load_queue_.front();
+      load_queue_.pop();
     }
-
-    if (has_work) {
-      // Generate mesh (CPU-intensive, thread-safe)
-      request.chunk_ptr->generate_mesh();
-    } else {
-      // Sleep briefly to avoid busy-waiting
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    request.chunk_ptr->generate_mesh();
   }
 }
 
@@ -246,11 +236,11 @@ void World::update_chunk_loading(Vector3 player_position) {
 
     int dx = chunk_x - player_chunk_x;
     int dy = chunk_y - player_chunk_z;
-    float distance = std::sqrt(dx * dx + dy * dy);
+    int dist2 = dx * dx + dy * dy;
+    int rd2 = render_distance_ * render_distance_;
 
-    if (distance > render_distance_ && chunk->state == ChunkState::LOADED) {
+    if (dist2 > rd2 && chunk->state == ChunkState::LOADED)
       chunk->unload();
-    }
   }
 
   // Queue chunks for loading that are within range
@@ -260,15 +250,16 @@ void World::update_chunk_loading(Vector3 player_position) {
 
     int dx = chunk_x - player_chunk_x;
     int dy = chunk_y - player_chunk_z;
-    float distance = std::sqrt(dx * dx + dy * dy);
+    int dist2 = dx * dx + dy * dy;
+    int rd2 = render_distance_ * render_distance_;
 
-    if (distance <= render_distance_ && chunk->state == ChunkState::UNLOADED) {
-      // Mark as generating immediately to prevent duplicate queueing
+    if (dist2 <= rd2 && chunk->state == ChunkState::UNLOADED) {
       chunk->state = ChunkState::GENERATING;
-
-      // Add to loading queue for background processing
-      std::lock_guard<std::mutex> queue_lock(load_queue_mutex_);
-      load_queue_.push({chunk_x, chunk_y, chunk.get()});
+      {
+        std::lock_guard<std::mutex> queue_lock(load_queue_mutex_);
+        load_queue_.push({chunk_x, chunk_y, chunk.get()});
+      }
+      load_cv_.notify_one();
     }
   }
 }

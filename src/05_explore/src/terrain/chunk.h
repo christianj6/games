@@ -3,7 +3,6 @@
 #include "utils/graphics/renderer.h"
 #include <atomic>
 #include <mutex>
-#include <unordered_set>
 #include <vector>
 
 enum class ChunkState { UNLOADED, GENERATING, READY_TO_UPLOAD, LOADED };
@@ -32,15 +31,15 @@ public:
   Vector2 get_position() { return position_; }
 
   std::atomic<ChunkState> state{ChunkState::UNLOADED};
-  bool loaded = false; // For backwards compatibility
+  bool loaded = false;
 
 private:
   Vector2 position_;
   int size_;
-  std::unordered_set<uint32_t> voxels_;
+  std::vector<uint8_t> voxels_; // flat [x*size*size + y*size + z], 1=filled
   Mesh mesh_;
-  MeshData mesh_data_;         // Temporary storage for mesh data before upload
-  std::mutex mesh_data_mutex_; // Protects mesh_data_
+  MeshData mesh_data_;
+  std::mutex mesh_data_mutex_;
 
   Material material_;
   bool is_in_bounds(int, int, int) const;
