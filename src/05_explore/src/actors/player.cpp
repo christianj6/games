@@ -73,7 +73,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
     if (blink_state_ == BlinkState::PREVIEWING) {
       // Update target every frame so it tracks camera rotation
       Vector3 dir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-      blink_target_ = world->find_blink_target(current_position, dir, blink_max_range_);
+      blink_target_ = world->find_blink_target(current_position, dir, hold_blink_range_);
     }
   }
 
