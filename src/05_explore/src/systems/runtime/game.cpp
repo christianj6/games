@@ -3,8 +3,7 @@
 #include <memory>
 
 Game::Game() {
-  // TODO: make sure i am working with shared_ptr properly
-  // player.set_world(std::make_shared<World>(&world));
+  blackboard.world = &world;
 
   // TODO: remove sequential coupling
   world.set_renderer(&renderer);

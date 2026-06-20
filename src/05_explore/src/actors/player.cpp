@@ -47,44 +47,60 @@ Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
 }
 
 MovementUpdate Player::update(float dt, Blackboard &blackboard) {
-  // get inputs and other update information
+  World *world = blackboard.world;
   MovementUpdate update = Actor::get_update(dt, blackboard);
 
-  // handle jumping
-  const float ground_height = 3.0f;
+  const float eye_height = 2.0f;
+
+  // vertical: snap to voxel-aware floor, apply gravity/jump
+  float floor_y =
+      world->get_floor_height(current_position.x, current_position.z) +
+      eye_height;
   if (update.jump && jumps_remaining_ > 0) {
     vertical_velocity_ = jump_force_;
     jumps_remaining_--;
-  } else if (current_position.y <= ground_height) {
+  } else if (current_position.y <= floor_y && vertical_velocity_ <= 0.0f) {
     vertical_velocity_ = 0.0f;
-    current_position.y = ground_height;
+    current_position.y = floor_y;
     jumps_remaining_ = max_jumps_;
   } else {
     vertical_velocity_ += gravity_ * dt;
   }
-  update.position.y = vertical_velocity_ * dt;
-
-  // get candidate position
-  update.position = adjust_movement_relative_to_camera(dt, update.position);
-  Vector3 candidate_position = Vector3Add(current_position, update.position);
-
-  // TODO: ask the world if it is okay to move into this position
-  if (world->position_is_acceptable(candidate_position)) {
-    current_position = candidate_position;
+  Vector3 after_vertical = {current_position.x,
+                             current_position.y + vertical_velocity_ * dt,
+                             current_position.z};
+  if (world->position_is_acceptable(after_vertical)) {
+    current_position.y = after_vertical.y;
+  } else if (vertical_velocity_ > 0.0f) {
+    vertical_velocity_ = 0.0f; // hit ceiling
   }
 
-  // Calculate how much the camera position is moving
-  Vector3 old_camera_position = camera.position;
-  Vector3 new_camera_position = current_position;
-  Vector3 position_offset =
-      Vector3Subtract(new_camera_position, old_camera_position);
+  // horizontal: axis-separated for wall sliding
+  update.position = adjust_movement_relative_to_camera(dt, update.position);
+  float ox = current_position.x;
+  float oz = current_position.z;
 
-  // Move both camera position AND target by the same offset
-  // This maintains the look direction while moving (no orbiting effect)
-  camera.position = new_camera_position;
+  Vector3 full = {ox + update.position.x, current_position.y,
+                  oz + update.position.z};
+  if (world->position_is_acceptable(full)) {
+    current_position.x = full.x;
+    current_position.z = full.z;
+  } else {
+    Vector3 slide_x = {ox + update.position.x, current_position.y, oz};
+    if (world->position_is_acceptable(slide_x))
+      current_position.x = slide_x.x;
+    Vector3 slide_z = {current_position.x, current_position.y,
+                       oz + update.position.z};
+    if (world->position_is_acceptable(slide_z))
+      current_position.z = slide_z.z;
+  }
+
+  // sync camera position and target together to preserve look direction
+  Vector3 position_offset =
+      Vector3Subtract(current_position, camera.position);
+  camera.position = current_position;
   camera.target = Vector3Add(camera.target, position_offset);
 
-  // Now apply mouse rotation on top of the maintained look direction
   float camera_sensitivity = 0.095f;
   UpdateCameraPro(&camera, Vector3{0},
                   Vector3{update.camera.x * camera_sensitivity,

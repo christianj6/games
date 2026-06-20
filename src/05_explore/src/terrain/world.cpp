@@ -272,7 +272,43 @@ void World::update_chunk_loading(Vector3 player_position) {
   }
 }
 
-bool World::position_is_acceptable(Vector3 position) {
-  // TODO
+bool World::is_solid(Vector3 pos) const {
+  int vy = (int)std::floor(pos.y);
+  if (vy < 0)
+    return false;
+  int cx = (int)std::floor(pos.x / chunk_size_);
+  int cz = (int)std::floor(pos.z / chunk_size_);
+  int lx = (int)std::floor(pos.x) - cx * chunk_size_;
+  int lz = (int)std::floor(pos.z) - cz * chunk_size_;
+  for (auto &c : chunks_) {
+    if ((int)c->get_position().x == cx && (int)c->get_position().y == cz)
+      return c->is_filled(lx, vy, lz);
+  }
+  return false;
+}
+
+float World::get_floor_height(float x, float z) const {
+  for (int y = 63; y >= 0; --y) {
+    if (is_solid({x, (float)y, z}))
+      return (float)(y + 1);
+  }
+  return 0.0f;
+}
+
+bool World::position_is_acceptable(Vector3 camera_pos) const {
+  const float radius = 0.35f;
+  const float eye_height = 2.0f;
+  float feet_y = camera_pos.y - eye_height;
+
+  float ys[] = {feet_y + 0.05f, camera_pos.y - eye_height * 0.5f, camera_pos.y};
+  float xs[] = {camera_pos.x - radius, camera_pos.x + radius};
+  float zs[] = {camera_pos.z - radius, camera_pos.z + radius};
+
+  for (float y : ys)
+    for (float x : xs)
+      for (float z : zs)
+        if (is_solid({x, y, z}))
+          return false;
+
   return true;
 }

@@ -7,6 +7,7 @@
 
 struct Blackboard {
   Vector3 current_player_position;
+  World *world = nullptr;
 };
 
 class Actor {

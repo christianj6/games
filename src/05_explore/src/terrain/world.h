@@ -23,7 +23,8 @@ public:
   ~World();
   void update(float, Vector3);
   void draw();
-  bool position_is_acceptable(const Vector3);
+  bool position_is_acceptable(Vector3) const;
+  float get_floor_height(float, float) const;
   void set_renderer(Renderer *);
   void build_chunks();
 
@@ -48,4 +49,5 @@ private:
   void make_random_pillars(Chunk *);
 
   void add_pillar(Chunk *, int, int, int);
+  bool is_solid(Vector3) const;
 };
