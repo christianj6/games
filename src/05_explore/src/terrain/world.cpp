@@ -113,8 +113,8 @@ void World::make_random_pillars(Chunk *chunk) {
 
 World::World() : should_exit_(false) {
   chunk_size_ = 64;
-  world_size_chunks_ = 8;
-  render_distance_ = 3; // Load chunks within 3 chunks of player
+  world_size_chunks_ = 16;
+  render_distance_ = 6;
 
   // Start the chunk loading thread
   loading_thread_ = std::thread(&World::chunk_loading_worker, this);
