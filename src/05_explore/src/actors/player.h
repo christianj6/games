@@ -17,8 +17,8 @@ private:
 
   // horizontal movement
   const float max_speed_ = 6.5f;
-  const float accel_rate_ = 12.0f;
-  const float decel_rate_ = 16.0f;
+  const float accel_rate_ = 18.0f;
+  const float decel_rate_ = 20.0f;
   Vector3 horizontal_velocity_ = {0.0f, 0.0f, 0.0f};
 
   // jumping
@@ -30,7 +30,7 @@ private:
   const float apex_hang_reduction_ = 0.4f;
   const float jump_cut_gravity_ = -28.0f;
   float vertical_velocity_ = 0.0f;
-  const int max_jumps_ = 1;
+  const int max_jumps_ = 2;
   int jumps_remaining_ = max_jumps_;
   const int jump_buffer_frames_ = 6;
   int jump_buffer_ = 0;

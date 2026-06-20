@@ -51,7 +51,8 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   else if (coyote_frames_ > 0)
     coyote_frames_--;
 
-  if (jump_buffer_ > 0 && jumps_remaining_ > 0 && coyote_frames_ > 0) {
+  if (jump_buffer_ > 0 && jumps_remaining_ > 0 &&
+      (coyote_frames_ > 0 || jumps_remaining_ < max_jumps_)) {
     vertical_velocity_ = jump_force_;
     jumps_remaining_--;
     jump_buffer_ = 0;
