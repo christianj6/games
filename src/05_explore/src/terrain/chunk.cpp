@@ -82,9 +82,8 @@ void Chunk::generate_mesh() {
     for (int side = -1; side <= 1; side += 2) {
       for (int slice = 0; slice < size_; slice++) {
 
-        // The bottom of world-floor voxels (y=0 downward face) is never
-        // visible from above — skip it to avoid depth-precision artifacts
-        if (dim == 1 && side == -1 && slice == 0)
+        // Floor top and bottom faces are handled by the dedicated floor mesh.
+        if (dim == 1 && slice == 0)
           continue;
 
         // At a chunk boundary the neighbor is in an adjacent chunk. We
@@ -210,7 +209,7 @@ void Chunk::upload_mesh() {
   }
 
   UploadMesh(&mesh_, false);
-  state = ChunkState::LOADED;
+  state  = ChunkState::LOADED;
   loaded = true;
 }
 
@@ -219,10 +218,13 @@ void Chunk::unload() {
     UnloadMesh(mesh_);
     mesh_ = {0};
   }
-  state = ChunkState::UNLOADED;
+  state  = ChunkState::UNLOADED;
   loaded = false;
 }
 
 void Chunk::draw() {
+  float cx = (position_.x + 0.5f) * size_;
+  float cz = (position_.y + 0.5f) * size_;
+  DrawPlane({cx, 1.0f, cz}, {(float)size_, (float)size_}, {80, 72, 64, 255});
   DrawMesh(mesh_, material_, MatrixIdentity());
 }

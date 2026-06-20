@@ -19,8 +19,8 @@ public:
   Chunk(Vector2, int = 32, Renderer * = nullptr);
   ~Chunk();
 
-  void generate_mesh(); // CPU-intensive, can run on worker thread
-  void upload_mesh();   // Must run on main thread (OpenGL)
+  void generate_mesh();
+  void upload_mesh();
   void unload();
   void draw();
 
@@ -36,7 +36,7 @@ public:
 private:
   Vector2 position_;
   int size_;
-  std::vector<uint8_t> voxels_; // flat [x*size*size + y*size + z], 1=filled
+  std::vector<uint8_t> voxels_;
   Mesh mesh_;
   MeshData mesh_data_;
   std::mutex mesh_data_mutex_;
