@@ -20,11 +20,11 @@ static float hash2d(int x, int z) {
   return (float)(h & 0xFFFF) / 65535.0f;
 }
 
-// Bilinear interpolation over a 3x3 control grid spanning the 8-chunk world.
-// Adjacent chunks share smoothly varying values → coherent large-scale zones.
+// Bilinear interpolation over a 5x5 control grid — finer scale means zone
+// transitions happen within 1-2 chunks rather than 3-4.
 static float smooth_noise(int cx, int cz) {
-  float u = cx * 2.0f / 7.0f;
-  float v = cz * 2.0f / 7.0f;
+  float u = cx * 4.0f / 7.0f;
+  float v = cz * 4.0f / 7.0f;
   int ix = (int)u; float fx = u - ix;
   int iz = (int)v; float fz = v - iz;
   float c00 = hash2d(ix,     iz);
@@ -39,41 +39,48 @@ void World::make_random_pillars(Chunk *chunk) {
   int cx = (int)chunk->get_position().x;
   int cz = (int)chunk->get_position().y;
 
-  // noise → zone type; intensity → how extreme the zone becomes with distance
+  // noise → zone type; intensity → extremeness, ramps up quickly with distance
   float noise     = smooth_noise(cx, cz);
   float dist      = sqrtf((float)(cx * cx + cz * cz));
-  float intensity = std::min(dist / 8.0f, 1.0f);
+  float intensity = std::min(dist / 5.0f, 1.0f); // full intensity by ~5 chunks out
 
   int num_attempts, h_min, h_max, w_min, w_max, probability;
 
   if (noise < 0.33f) {
-    // Spire zone: tall, narrow, sparse — gets more dramatic farther out
+    // Spire zone: tall, narrow, sparse
     num_attempts = (int)(30.0f - 18.0f * intensity); // 30 → 12
-    h_min        = (int)( 5.0f +  8.0f * intensity); //  5 → 13
-    h_max        = (int)(14.0f + 10.0f * intensity); // 14 → 24
+    h_min        = (int)( 5.0f +  9.0f * intensity); //  5 → 14
+    h_max        = (int)(14.0f + 12.0f * intensity); // 14 → 26
     w_min        = 1;
-    w_max        = intensity > 0.5f ? 1 : 2;
+    w_max        = intensity > 0.4f ? 1 : 2;
     probability  = 70;
   } else if (noise < 0.66f) {
-    // Mixed zone: baseline feel, heights grow with distance
-    num_attempts = 40;
+    // Mixed zone: moderate all-around, heights grow with distance
+    num_attempts = (int)(45.0f + 10.0f * intensity); // 45 → 55
     h_min        = 2;
-    h_max        = (int)(8.0f + 8.0f * intensity);   //  8 → 16
+    h_max        = (int)(8.0f + 10.0f * intensity);  //  8 → 18
     w_min        = 2;
     w_max        = 4;
-    probability  = 70;
+    probability  = 72;
   } else {
-    // Rubble zone: short, wide, dense — gets more cluttered farther out
-    num_attempts = (int)(55.0f + 35.0f * intensity); // 55 → 90
+    // Rubble zone: short, wide, dense
+    num_attempts = (int)(60.0f + 35.0f * intensity); // 60 → 95
     h_min        = 1;
     h_max        = (int)( 5.0f -  2.0f * intensity); //  5 →  3
     w_min        = (int)( 3.0f +  1.0f * intensity); //  3 →  4
-    w_max        = (int)( 5.0f +  3.0f * intensity); //  5 →  8
+    w_max        = (int)( 5.0f +  4.0f * intensity); //  5 →  9
     probability  = 85;
   }
 
   h_max = std::max(h_max, h_min + 1);
   w_max = std::max(w_max, w_min);
+
+  // Guarantee visual density near the starting area regardless of zone type
+  if (dist < 2.0f) {
+    num_attempts = std::max(num_attempts, 50);
+    h_max        = std::max(h_max, 10);
+    h_min        = std::min(h_min, 3);
+  }
 
   RandomNumberGenerator<int> random_height(h_min, h_max);
   RandomNumberGenerator<int> random_size(w_min, w_max);
