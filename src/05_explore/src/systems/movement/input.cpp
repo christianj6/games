@@ -1,5 +1,6 @@
 #include "input.h"
 #include "raylib.h"
+#include <cmath>
 
 Vector3 KeyboardInputProvider::get_input_movement_vector() {
   Vector3 movement = {0};
