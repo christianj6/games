@@ -172,17 +172,28 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     }
   }
 
-  // sync camera position and target together to preserve look direction
-  Vector3 position_offset =
-      Vector3Subtract(current_position, camera.position);
+  // sync camera to logical position — use look-dir so any previous bob offset
+  // cancels out of the subtraction and doesn't accumulate into camera.target
+  Vector3 look_dir = Vector3Subtract(camera.target, camera.position);
   camera.position = current_position;
-  camera.target = Vector3Add(camera.target, position_offset);
+  camera.target = Vector3Add(camera.position, look_dir);
 
   float camera_sensitivity = 0.095f;
   UpdateCameraPro(&camera, Vector3{0},
                   Vector3{update.camera.x * camera_sensitivity,
                           update.camera.y * camera_sensitivity, 0.0f},
                   0.0f);
+
+  // head bob: distance-driven sinusoidal Y offset, camera-only
+  float h_speed = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
+                        horizontal_velocity_.z * horizontal_velocity_.z);
+  bob_timer_ += h_speed * bob_freq_ * dt;
+  float target_amp = h_speed > 0.5f ? 1.0f : 0.0f;
+  bob_amplitude_ += (target_amp - bob_amplitude_) * bob_fade_rate_ * dt;
+  float bob = sinf(bob_timer_) * bob_height_ * bob_amplitude_ *
+              (sprint_active_ ? bob_sprint_scale_ : 1.0f);
+  camera.position.y += bob;
+  camera.target.y += bob;
   return {
       current_position,
       {camera.position.x, camera.position.y},

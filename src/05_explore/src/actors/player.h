@@ -27,6 +27,14 @@ private:
   bool sprint_active_ = false;
   bool prev_sprint_ = false;
 
+  // head bob
+  const float bob_freq_ = 1.6f;
+  const float bob_height_ = 0.06f;
+  const float bob_sprint_scale_ = 1.5f;
+  const float bob_fade_rate_ = 8.0f;
+  float bob_timer_ = 0.0f;
+  float bob_amplitude_ = 0.0f;
+
   // jumping
   const float gravity_ = -20.0f;
   const float jump_force_ = 22.0f;
