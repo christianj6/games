@@ -18,9 +18,15 @@ private:
   // jumping
   const float gravity_ = -20.0f;
   const float jump_force_ = 14.0f;
+  const float fall_multiplier_ = 1.8f;
+  const float apex_hang_threshold_ = 3.0f;
+  const float apex_hang_reduction_ = 0.4f;
+  const float jump_cut_velocity_ = 2.0f;
   float vertical_velocity_ = 0.0f;
   const int max_jumps_ = 1;
   int jumps_remaining_ = max_jumps_;
   const int jump_buffer_frames_ = 6;
   int jump_buffer_ = 0;
+  const int coyote_time_frames_ = 8;
+  int coyote_frames_ = 0;
 };

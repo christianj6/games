@@ -8,6 +8,7 @@ public:
   virtual Vector3 get_input_movement_vector() = 0;
   virtual Vector2 get_input_look_vector() = 0;
   virtual bool get_input_jump() = 0;
+  virtual bool get_input_jump_held() = 0;
   virtual bool get_input_blink() = 0;
   // virtual bool get_input_attack() = 0;
   // virtual bool get_input_pause() = 0;
@@ -20,6 +21,7 @@ public:
   Vector3 get_input_movement_vector() override;
   Vector2 get_input_look_vector() override;
   bool get_input_jump() override;
+  bool get_input_jump_held() override;
   bool get_input_blink() override;
   // bool get_input_attack() override;
   // bool get_input_pause() override;
@@ -32,6 +34,7 @@ public:
   Vector3 get_input_movement_vector() override;
   Vector2 get_input_look_vector() override;
   bool get_input_jump() override;
+  bool get_input_jump_held() override;
   bool get_input_blink() override;
 
 private:

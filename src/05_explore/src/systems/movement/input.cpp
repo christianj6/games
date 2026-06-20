@@ -28,6 +28,8 @@ Vector2 KeyboardInputProvider::get_input_look_vector() {
 
 bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
+bool KeyboardInputProvider::get_input_jump_held() { return IsKeyDown(KEY_SPACE); }
+
 bool KeyboardInputProvider::get_input_blink() { return false; }
 
 float ControllerInputProvider::deadzone(float value, float threshold) {
@@ -49,6 +51,10 @@ Vector2 ControllerInputProvider::get_input_look_vector() {
 
 bool ControllerInputProvider::get_input_jump() {
   return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+}
+
+bool ControllerInputProvider::get_input_jump_held() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
 }
 
 bool ControllerInputProvider::get_input_blink() {

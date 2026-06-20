@@ -9,6 +9,7 @@ struct MovementUpdate {
   Vector2 camera;
   bool jump;
   bool blink;
+  bool jump_held;
 };
 
 class MovementController {

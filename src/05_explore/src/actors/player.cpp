@@ -31,7 +31,7 @@ Vector3 add_vectors_xz_only(Vector3 v1, Vector3 v2) {
 
 Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
   Vector3 forward = {camera.target.x - camera.position.x,
-                     camera.target.y - camera.position.y,
+                     0.0f,
                      camera.target.z - camera.position.z};
   forward = Vector3Normalize(forward);
   Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
@@ -61,17 +61,32 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   else if (jump_buffer_ > 0)
     jump_buffer_--;
 
-  if (jump_buffer_ > 0 && jumps_remaining_ > 0) {
+  bool on_ground = current_position.y <= floor_y && vertical_velocity_ <= 0.0f;
+  if (on_ground)
+    coyote_frames_ = coyote_time_frames_;
+  else if (coyote_frames_ > 0)
+    coyote_frames_--;
+
+  if (jump_buffer_ > 0 && jumps_remaining_ > 0 && coyote_frames_ > 0) {
     vertical_velocity_ = jump_force_;
     jumps_remaining_--;
     jump_buffer_ = 0;
-  } else if (current_position.y <= floor_y && vertical_velocity_ <= 0.0f) {
+    coyote_frames_ = 0;
+  } else if (on_ground) {
     vertical_velocity_ = 0.0f;
     current_position.y = floor_y;
     jumps_remaining_ = max_jumps_;
   } else {
-    vertical_velocity_ += gravity_ * dt;
+    float grav = vertical_velocity_ < 0.0f ? gravity_ * fall_multiplier_ : gravity_;
+    if (fabsf(vertical_velocity_) < apex_hang_threshold_)
+      grav *= apex_hang_reduction_;
+    vertical_velocity_ += grav * dt;
   }
+
+  // jump cut: releasing jump early caps ascent for a shorter hop
+  if (vertical_velocity_ > jump_cut_velocity_ && !update.jump_held)
+    vertical_velocity_ = jump_cut_velocity_;
+
   float new_y = current_position.y + vertical_velocity_ * dt;
   if (vertical_velocity_ > 0.0f) {
     if (!world->is_ceiling_blocked({current_position.x, new_y, current_position.z})) {
@@ -154,6 +169,7 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
       {camera.position.x, camera.position.y},
       update.jump,
       false,
+      update.jump_held,
   };
 }
 
