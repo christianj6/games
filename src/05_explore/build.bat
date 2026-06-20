@@ -8,9 +8,9 @@ SET PROJECT=05_explore
 REM Format code
 cd src\%PROJECT% || exit /b 1
 where clang-format >nul 2>&1
-if %ERRORLEVEL% EQU 0 (
-    for /R src %%f in (*.cpp *.h *.hpp) do clang-format -i "%%f"
-)
+REM if %ERRORLEVEL% EQU 0 (
+REM     for /R src %%f in (*.cpp *.h *.hpp) do clang-format -i "%%f"
+REM )
 
 REM Setup VS environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
