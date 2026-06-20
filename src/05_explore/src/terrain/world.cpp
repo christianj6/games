@@ -12,41 +12,94 @@
 #include <sstream>
 #include <thread>
 
+static float hash2d(int x, int z) {
+  uint32_t h = (uint32_t)(x * 1619 + z * 31337);
+  h ^= h >> 16;
+  h *= 0x45d9f3b;
+  h ^= h >> 16;
+  return (float)(h & 0xFFFF) / 65535.0f;
+}
+
+// Bilinear interpolation over a 3x3 control grid spanning the 8-chunk world.
+// Adjacent chunks share smoothly varying values → coherent large-scale zones.
+static float smooth_noise(int cx, int cz) {
+  float u = cx * 2.0f / 7.0f;
+  float v = cz * 2.0f / 7.0f;
+  int ix = (int)u; float fx = u - ix;
+  int iz = (int)v; float fz = v - iz;
+  float c00 = hash2d(ix,     iz);
+  float c10 = hash2d(ix + 1, iz);
+  float c01 = hash2d(ix,     iz + 1);
+  float c11 = hash2d(ix + 1, iz + 1);
+  return (c00 * (1 - fx) + c10 * fx) * (1 - fz) +
+         (c01 * (1 - fx) + c11 * fx) * fz;
+}
+
 void World::make_random_pillars(Chunk *chunk) {
-  RandomNumberGenerator<int> random_height(1, 20);
-  RandomNumberGenerator<int> random_size(2, 6); // pillar width/length
+  int cx = (int)chunk->get_position().x;
+  int cz = (int)chunk->get_position().y;
+
+  // noise → zone type; intensity → how extreme the zone becomes with distance
+  float noise     = smooth_noise(cx, cz);
+  float dist      = sqrtf((float)(cx * cx + cz * cz));
+  float intensity = std::min(dist / 8.0f, 1.0f);
+
+  int num_attempts, h_min, h_max, w_min, w_max, probability;
+
+  if (noise < 0.33f) {
+    // Spire zone: tall, narrow, sparse — gets more dramatic farther out
+    num_attempts = (int)(30.0f - 18.0f * intensity); // 30 → 12
+    h_min        = (int)( 5.0f +  8.0f * intensity); //  5 → 13
+    h_max        = (int)(14.0f + 10.0f * intensity); // 14 → 24
+    w_min        = 1;
+    w_max        = intensity > 0.5f ? 1 : 2;
+    probability  = 70;
+  } else if (noise < 0.66f) {
+    // Mixed zone: baseline feel, heights grow with distance
+    num_attempts = 40;
+    h_min        = 2;
+    h_max        = (int)(8.0f + 8.0f * intensity);   //  8 → 16
+    w_min        = 2;
+    w_max        = 4;
+    probability  = 70;
+  } else {
+    // Rubble zone: short, wide, dense — gets more cluttered farther out
+    num_attempts = (int)(55.0f + 35.0f * intensity); // 55 → 90
+    h_min        = 1;
+    h_max        = (int)( 5.0f -  2.0f * intensity); //  5 →  3
+    w_min        = (int)( 3.0f +  1.0f * intensity); //  3 →  4
+    w_max        = (int)( 5.0f +  3.0f * intensity); //  5 →  8
+    probability  = 85;
+  }
+
+  h_max = std::max(h_max, h_min + 1);
+  w_max = std::max(w_max, w_min);
+
+  RandomNumberGenerator<int> random_height(h_min, h_max);
+  RandomNumberGenerator<int> random_size(w_min, w_max);
   RandomNumberGenerator<int> random_pos(0, chunk_size_ - 1);
   RandomNumberGenerator<int> is_pillar(0, 100);
 
-  const int pillar_probability = 75; // % chance per attempt
-  const int NUM_ATTEMPTS = 50;       // number of pillar attempts per chunk
-
   // floor
-  for (int x = 0; x < chunk_size_; ++x) {
-    for (int y = 0; y < chunk_size_; ++y) {
-      add_pillar(chunk, x, y, 1);
-    }
-  }
+  for (int x = 0; x < chunk_size_; ++x)
+    for (int z = 0; z < chunk_size_; ++z)
+      add_pillar(chunk, x, z, 1);
 
-  // random pillars
-  for (int n = 0; n < NUM_ATTEMPTS; ++n) {
-    if (is_pillar() >= pillar_probability)
-      continue; // skip this attempt
+  // pillars
+  for (int n = 0; n < num_attempts; ++n) {
+    if (is_pillar() >= probability)
+      continue;
 
-    int x = random_pos();
-    int y = random_pos();
-    int width = random_size();
-    int height = random_height(); // add on top of floor
+    int x      = random_pos();
+    int z      = random_pos();
+    int width  = random_size();
+    int height = random_height();
+    int max_x  = std::min(x + width, chunk_size_);
+    int max_z  = std::min(z + width, chunk_size_);
 
-    // make sure pillar fits in the chunk
-    int max_x = std::min(x + width, chunk_size_);
-    int max_y = std::min(y + width, chunk_size_);
-
-    for (int dx = 0; dx < max_x - x; ++dx) {
-      for (int dy = 0; dy < max_y - y; ++dy) {
-        add_pillar(chunk, x + dx, y + dy, height);
-      }
-    }
+    for (int dx = 0; dx < max_x - x; ++dx)
+      for (int dz = 0; dz < max_z - z; ++dz)
+        add_pillar(chunk, x + dx, z + dz, height);
   }
 }
 
