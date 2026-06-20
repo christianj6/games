@@ -13,7 +13,13 @@ public:
 private:
   Camera3D camera;
   void setup_camera();
-  Vector3 adjust_movement_relative_to_camera(float, Vector3);
+  Vector3 camera_relative_direction(Vector3 input);
+
+  // horizontal movement
+  const float max_speed_ = 6.5f;
+  const float accel_rate_ = 12.0f;
+  const float decel_rate_ = 16.0f;
+  Vector3 horizontal_velocity_ = {0.0f, 0.0f, 0.0f};
 
   // jumping
   const float gravity_ = -20.0f;

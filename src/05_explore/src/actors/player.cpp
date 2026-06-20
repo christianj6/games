@@ -21,29 +21,13 @@ void Player::setup_camera() {
   camera.projection = CAMERA_PERSPECTIVE;
 }
 
-Vector3 add_vectors_xz_only(Vector3 v1, Vector3 v2) {
-  // TODO: allow y axis movement and replace with raymath functions
-  v1.x += v2.x;
-  v1.z += v2.z;
-
-  return v1;
-}
-
-Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
-  Vector3 forward = {camera.target.x - camera.position.x,
-                     0.0f,
+Vector3 Player::camera_relative_direction(Vector3 input) {
+  Vector3 forward = {camera.target.x - camera.position.x, 0.0f,
                      camera.target.z - camera.position.z};
   forward = Vector3Normalize(forward);
   Vector3 right = Vector3Normalize(Vector3CrossProduct(forward, camera.up));
-
-  const float speed = 6.5f;
-
-  Vector3 updated_movement = {
-      (right.x * movement.x + forward.x * movement.z) * speed * dt,
-      movement.y, // preserve vertical movement calculated elsewhere
-      (right.z * movement.x + forward.z * movement.z) * speed * dt};
-
-  return updated_movement;
+  return {right.x * input.x + forward.x * input.z, 0.0f,
+          right.z * input.x + forward.z * input.z};
 }
 
 MovementUpdate Player::update(float dt, Blackboard &blackboard) {
@@ -131,24 +115,38 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     }
   }
 
-  // horizontal: axis-separated for wall sliding
-  update.position = adjust_movement_relative_to_camera(dt, update.position);
+  // horizontal: accelerate velocity toward input target, axis-separated collision
+  Vector3 dir = camera_relative_direction(update.position);
+  float input_len = sqrtf(dir.x * dir.x + dir.z * dir.z);
+  if (input_len > 1.0f) { dir.x /= input_len; dir.z /= input_len; }
+
+  bool has_input = input_len > 0.01f;
+  Vector3 target_vel = {dir.x * max_speed_, 0.0f, dir.z * max_speed_};
+  float rate = has_input ? accel_rate_ : decel_rate_;
+  float t = rate * dt < 1.0f ? rate * dt : 1.0f;
+  horizontal_velocity_.x += (target_vel.x - horizontal_velocity_.x) * t;
+  horizontal_velocity_.z += (target_vel.z - horizontal_velocity_.z) * t;
+
   float ox = current_position.x;
   float oz = current_position.z;
+  float dx = horizontal_velocity_.x * dt;
+  float dz = horizontal_velocity_.z * dt;
 
-  Vector3 full = {ox + update.position.x, current_position.y,
-                  oz + update.position.z};
+  Vector3 full = {ox + dx, current_position.y, oz + dz};
   if (world->position_is_acceptable(full)) {
     current_position.x = full.x;
     current_position.z = full.z;
   } else {
-    Vector3 slide_x = {ox + update.position.x, current_position.y, oz};
+    Vector3 slide_x = {ox + dx, current_position.y, oz};
     if (world->position_is_acceptable(slide_x))
       current_position.x = slide_x.x;
-    Vector3 slide_z = {current_position.x, current_position.y,
-                       oz + update.position.z};
+    else
+      horizontal_velocity_.x = 0.0f;
+    Vector3 slide_z = {current_position.x, current_position.y, oz + dz};
     if (world->position_is_acceptable(slide_z))
       current_position.z = slide_z.z;
+    else
+      horizontal_velocity_.z = 0.0f;
   }
 
   // recovery: if stuck inside geometry push upward until free
