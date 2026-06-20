@@ -135,8 +135,13 @@ void Chunk::generate_mesh() {
             // Compute the 4 quad corners in local voxel space.
             // Positive face: sits at slice+1, CCW from outside (+side).
             // Negative face: sits at slice,   CCW from outside (-side).
+            // The floor top face (dim=1, side=+1, slice=0) is raised by a
+            // tiny epsilon so it wins the depth test against coplanar pillar
+            // base edges that share the exact y=1 boundary.
             float p[4][3];
-            int fp = slice + (side > 0 ? 1 : 0);
+            float fp = (float)(slice + (side > 0 ? 1 : 0));
+            if (dim == 1 && side > 0 && slice == 0)
+              fp += 0.001f;
             if (side > 0) {
               p[0][dim]=fp; p[0][u]=i;   p[0][v]=j;
               p[1][dim]=fp; p[1][u]=i+w; p[1][v]=j;
