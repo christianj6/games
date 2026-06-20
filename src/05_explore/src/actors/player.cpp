@@ -77,9 +77,18 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     current_position.y = floor_y;
     jumps_remaining_ = max_jumps_;
   } else {
-    float grav = vertical_velocity_ < 0.0f ? gravity_ * fall_multiplier_ : gravity_;
-    if (vertical_velocity_ > 0.0f && vertical_velocity_ < apex_hang_threshold_)
-      grav *= apex_hang_reduction_;
+    float grav;
+    if (vertical_velocity_ >= 0.0f) {
+      // rising: blend from apex-hang gravity (near top) to full gravity (fast rise)
+      float t = vertical_velocity_ / apex_hang_threshold_;
+      if (t > 1.0f) t = 1.0f;
+      grav = gravity_ * (apex_hang_reduction_ + (1.0f - apex_hang_reduction_) * t);
+    } else {
+      // falling: blend from normal gravity (just past apex) to fall multiplier (fast fall)
+      float t = -vertical_velocity_ / fall_blend_threshold_;
+      if (t > 1.0f) t = 1.0f;
+      grav = gravity_ * (1.0f + (fall_multiplier_ - 1.0f) * t);
+    }
     vertical_velocity_ += grav * dt;
   }
 
