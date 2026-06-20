@@ -37,10 +37,6 @@ GameInfo Game::update() {
 }
 
 void Game::draw() {
-  if (current_state == GameState::PAUSED) {
-    DrawText("PAUSED", 20, 20, 20, RED);
-  }
-
   BeginMode3D(player.get_camera());
 
   player.draw();
@@ -49,6 +45,10 @@ void Game::draw() {
     a->draw();
   }
   EndMode3D();
+
+  if (current_state == GameState::PAUSED) {
+    DrawText("PAUSED", 20, 20, 20, RED);
+  }
 
   hud.draw(blackboard);
 }
