@@ -62,9 +62,9 @@ private:
   const float fov_lerp_rate_ = 6.0f;
 
   // jumping
-  const float gravity_ = -20.0f;
+  const float gravity_ = -17.0f;
   const float jump_force_ = 22.0f;
-  const float fall_multiplier_ = 1.4f;
+  const float fall_multiplier_ = 1.15f;
   const float fall_blend_threshold_ = 6.0f;
   const float apex_hang_threshold_ = 5.0f;
   const float apex_hang_reduction_ = 0.4f;
