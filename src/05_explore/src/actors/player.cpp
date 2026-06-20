@@ -111,6 +111,8 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
       vertical_velocity_ = 0.0f;
       jumps_remaining_ = max_jumps_;
       jump_buffer_ = 0;
+      if (landing_y > floor_y)
+        coyote_frames_ = coyote_time_frames_; // corner still over platform
     } else {
       current_position.y = new_y;
     }
