@@ -56,9 +56,15 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   float floor_y =
       world->get_floor_height(current_position.x, current_position.z) +
       eye_height;
-  if (update.jump && jumps_remaining_ > 0) {
+  if (update.jump)
+    jump_buffer_ = jump_buffer_frames_;
+  else if (jump_buffer_ > 0)
+    jump_buffer_--;
+
+  if (jump_buffer_ > 0 && jumps_remaining_ > 0) {
     vertical_velocity_ = jump_force_;
     jumps_remaining_--;
+    jump_buffer_ = 0;
   } else if (current_position.y <= floor_y && vertical_velocity_ <= 0.0f) {
     vertical_velocity_ = 0.0f;
     current_position.y = floor_y;

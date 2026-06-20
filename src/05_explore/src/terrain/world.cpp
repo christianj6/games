@@ -231,10 +231,11 @@ void World::update_chunk_loading(Vector3 player_position) {
 
   std::lock_guard<std::mutex> lock(chunks_mutex_);
 
-  // Upload chunks that are ready (must be done on main thread)
+  // Upload one chunk per frame to avoid GPU stalls blocking input polling
   for (auto &chunk : chunks_) {
     if (chunk->state == ChunkState::READY_TO_UPLOAD) {
       chunk->upload_mesh();
+      break;
     }
   }
 

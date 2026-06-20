@@ -21,4 +21,6 @@ private:
   float vertical_velocity_ = 0.0f;
   const int max_jumps_ = 1;
   int jumps_remaining_ = max_jumps_;
+  const int jump_buffer_frames_ = 6;
+  int jump_buffer_ = 0;
 };

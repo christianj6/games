@@ -1,6 +1,7 @@
 // TODO: on tap
 /*
- * all collisions working
+ * touch up movement so it feels good
+ * * jumping feels too "stiff"
  * checkpoint: larger game world with chunking and pretty nice player movement
  */
 
