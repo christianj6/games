@@ -25,6 +25,7 @@ public:
 private:
   std::unique_ptr<InputProvider> input_provider =
       std::make_unique<KeyboardInputProvider>();
+  bool using_gamepad_ = false;
 };
 
 class AiMovementController : public MovementController {

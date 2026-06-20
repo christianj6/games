@@ -27,4 +27,13 @@ public:
   // bool get_input_cancel() override;
 };
 
-class ControllerInputProvider : public InputProvider {};
+class ControllerInputProvider : public InputProvider {
+public:
+  Vector3 get_input_movement_vector() override;
+  Vector2 get_input_look_vector() override;
+  bool get_input_jump() override;
+  bool get_input_blink() override;
+
+private:
+  static float deadzone(float value, float threshold = 0.15f);
+};
