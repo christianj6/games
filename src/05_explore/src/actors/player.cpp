@@ -85,7 +85,26 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     jumps_remaining_ = max_jumps_;
     jump_buffer_ = 0;
   } else {
-    current_position.y = new_y;
+    // check AABB footprint corners to prevent clipping through raised surfaces
+    float landing_y = floor_y;
+    const float r = 0.3f;
+    for (float dx : {-r, r}) {
+      for (float dz : {-r, r}) {
+        float h = world->get_floor_height(current_position.x + dx,
+                                          current_position.z + dz) +
+                  eye_height;
+        if (h > landing_y && current_position.y >= h)
+          landing_y = h;
+      }
+    }
+    if (new_y < landing_y) {
+      current_position.y = landing_y;
+      vertical_velocity_ = 0.0f;
+      jumps_remaining_ = max_jumps_;
+      jump_buffer_ = 0;
+    } else {
+      current_position.y = new_y;
+    }
   }
 
   // horizontal: axis-separated for wall sliding
@@ -106,6 +125,17 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
                        oz + update.position.z};
     if (world->position_is_acceptable(slide_z))
       current_position.z = slide_z.z;
+  }
+
+  // recovery: if stuck inside geometry push upward until free
+  if (!world->position_is_acceptable(current_position)) {
+    for (int i = 0; i < 20; ++i) {
+      current_position.y += 0.1f;
+      if (world->position_is_acceptable(current_position)) {
+        vertical_velocity_ = 0.0f;
+        break;
+      }
+    }
   }
 
   // sync camera position and target together to preserve look direction
