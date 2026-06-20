@@ -50,13 +50,19 @@ void Chunk::generate_mesh() {
   std::vector<unsigned short> indices;
   unsigned short base = 0;
 
+  // Bake world-space offset into vertices so adjacent chunks produce
+  // bit-identical positions at shared edges, eliminating seam Z-fighting.
+  float wx = position_.x * size_;
+  float wz = position_.y * size_;
+
   // Emit one quad; winding is CCW from the outside for each face direction
   auto emit_quad = [&](float ax, float ay, float az,
                        float bx, float by, float bz,
                        float cx, float cy, float cz,
                        float dx, float dy, float dz,
                        float nx, float ny, float nz) {
-    verts.insert(verts.end(), {ax,ay,az, bx,by,bz, cx,cy,cz, dx,dy,dz});
+    verts.insert(verts.end(), {ax+wx,ay,az+wz, bx+wx,by,bz+wz,
+                               cx+wx,cy,cz+wz, dx+wx,dy,dz+wz});
     norms.insert(norms.end(), {nx,ny,nz, nx,ny,nz, nx,ny,nz, nx,ny,nz});
     uvs.insert(uvs.end(),   {0,0, 1,0, 1,1, 0,1});
     indices.insert(indices.end(), {
@@ -213,6 +219,5 @@ void Chunk::unload() {
 }
 
 void Chunk::draw() {
-  DrawMesh(mesh_, material_,
-           MatrixTranslate(position_.x * size_, 0, position_.y * size_));
+  DrawMesh(mesh_, material_, MatrixIdentity());
 }
