@@ -288,6 +288,20 @@ bool World::is_solid(Vector3 pos) const {
   return false;
 }
 
+bool World::is_ceiling_blocked(Vector3 camera_pos) const {
+  // Narrow radius — wall clearance (0.35) keeps us away from wall faces,
+  // so this only fires for voxels genuinely above the player's head
+  const float radius = 0.15f;
+  float head_y = camera_pos.y;
+  float xs[] = {camera_pos.x - radius, camera_pos.x + radius};
+  float zs[] = {camera_pos.z - radius, camera_pos.z + radius};
+  for (float x : xs)
+    for (float z : zs)
+      if (is_solid({x, head_y, z}))
+        return true;
+  return false;
+}
+
 float World::get_floor_height(float x, float z) const {
   for (int y = 63; y >= 0; --y) {
     if (is_solid({x, (float)y, z}))

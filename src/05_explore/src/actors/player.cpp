@@ -72,13 +72,20 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   } else {
     vertical_velocity_ += gravity_ * dt;
   }
-  Vector3 after_vertical = {current_position.x,
-                             current_position.y + vertical_velocity_ * dt,
-                             current_position.z};
-  if (world->position_is_acceptable(after_vertical)) {
-    current_position.y = after_vertical.y;
-  } else if (vertical_velocity_ > 0.0f) {
-    vertical_velocity_ = 0.0f; // hit ceiling
+  float new_y = current_position.y + vertical_velocity_ * dt;
+  if (vertical_velocity_ > 0.0f) {
+    if (!world->is_ceiling_blocked({current_position.x, new_y, current_position.z})) {
+      current_position.y = new_y;
+    } else {
+      vertical_velocity_ = 0.0f;
+    }
+  } else if (new_y < floor_y) {
+    current_position.y = floor_y;
+    vertical_velocity_ = 0.0f;
+    jumps_remaining_ = max_jumps_;
+    jump_buffer_ = 0;
+  } else {
+    current_position.y = new_y;
   }
 
   // horizontal: axis-separated for wall sliding

@@ -24,6 +24,7 @@ public:
   void update(float, Vector3);
   void draw();
   bool position_is_acceptable(Vector3) const;
+  bool is_ceiling_blocked(Vector3) const;
   float get_floor_height(float, float) const;
   void set_renderer(Renderer *);
   void build_chunks();
