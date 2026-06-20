@@ -67,6 +67,13 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
     }
   }
 
+  // Cancel preview with B — no teleport, no push
+  if (blink_state_ == BlinkState::PREVIEWING &&
+      IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+    blink_state_       = BlinkState::IDLE;
+    blink_hold_frames_ = 0;
+  }
+
   if (just_released) {
     if (blink_state_ == BlinkState::HOLDING) {
       // Tap blink: travel in movement direction (or camera-forward if idle),
@@ -323,6 +330,13 @@ void Player::draw() {
   if (blink_state_ == BlinkState::PREVIEWING) {
     Color c = BLUE;
     c.a = 120;
-    DrawSphere(blink_target_, 0.5f, c);
+    // Cone when landing elevated (on top of a pillar); sphere on flat ground
+    if (blink_target_.y > current_position.y + 1.5f) {
+      // Downward cone: tip at landing spot, wide end above
+      DrawCylinder({blink_target_.x, blink_target_.y, blink_target_.z},
+                   0.0f, 0.5f, 1.2f, 8, c);
+    } else {
+      DrawSphere(blink_target_, 0.5f, c);
+    }
   }
 }
