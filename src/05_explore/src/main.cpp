@@ -1,10 +1,3 @@
-// TODO: on tap
-/*
- * touch up movement so it feels good
- * * jumping feels too "stiff"
- * checkpoint: larger game world with chunking and pretty nice player movement
- */
-
 // TODO: teleportation
 /*
  * pressing shift once teleports you forward in direction of camera
