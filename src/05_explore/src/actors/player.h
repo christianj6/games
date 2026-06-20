@@ -17,7 +17,7 @@ private:
 
   // jumping
   const float gravity_ = -20.0f;
-  const float jump_force_ = 18.0f;
+  const float jump_force_ = 22.0f;
   const float fall_multiplier_ = 1.4f;
   const float fall_blend_threshold_ = 6.0f;
   const float apex_hang_threshold_ = 5.0f;
