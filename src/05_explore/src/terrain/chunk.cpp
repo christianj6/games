@@ -76,6 +76,11 @@ void Chunk::generate_mesh() {
     for (int side = -1; side <= 1; side += 2) {
       for (int slice = 0; slice < size_; slice++) {
 
+        // The bottom of world-floor voxels (y=0 downward face) is never
+        // visible from above — skip it to avoid depth-precision artifacts
+        if (dim == 1 && side == -1 && slice == 0)
+          continue;
+
         // Build 2D mask of exposed faces for this slice
         for (int j = 0; j < size_; j++) {
           for (int i = 0; i < size_; i++) {

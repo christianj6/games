@@ -20,11 +20,11 @@ static float hash2d(int x, int z) {
   return (float)(h & 0xFFFF) / 65535.0f;
 }
 
-// Bilinear interpolation over a 5x5 control grid — finer scale means zone
-// transitions happen within 1-2 chunks rather than 3-4.
+// Bilinear interpolation over a fine control grid — zone transitions happen
+// within roughly 1 chunk of walking.
 static float smooth_noise(int cx, int cz) {
-  float u = cx * 4.0f / 7.0f;
-  float v = cz * 4.0f / 7.0f;
+  float u = cx * 5.0f / 7.0f;
+  float v = cz * 5.0f / 7.0f;
   int ix = (int)u; float fx = u - ix;
   int iz = (int)v; float fz = v - iz;
   float c00 = hash2d(ix,     iz);
@@ -47,29 +47,29 @@ void World::make_random_pillars(Chunk *chunk) {
   int num_attempts, h_min, h_max, w_min, w_max, probability;
 
   if (noise < 0.33f) {
-    // Spire zone: tall, narrow, sparse
-    num_attempts = (int)(30.0f - 18.0f * intensity); // 30 → 12
-    h_min        = (int)( 5.0f +  9.0f * intensity); //  5 → 14
-    h_max        = (int)(14.0f + 12.0f * intensity); // 14 → 26
+    // Spire zone: very tall, very narrow, sparse — cathedral-like far out
+    num_attempts = (int)(28.0f - 16.0f * intensity); // 28 →  12
+    h_min        = (int)( 6.0f + 12.0f * intensity); //  6 →  18
+    h_max        = (int)(16.0f + 16.0f * intensity); // 16 →  32
     w_min        = 1;
-    w_max        = intensity > 0.4f ? 1 : 2;
-    probability  = 70;
-  } else if (noise < 0.66f) {
-    // Mixed zone: moderate all-around, heights grow with distance
-    num_attempts = (int)(45.0f + 10.0f * intensity); // 45 → 55
-    h_min        = 2;
-    h_max        = (int)(8.0f + 10.0f * intensity);  //  8 → 18
-    w_min        = 2;
-    w_max        = 4;
+    w_max        = intensity > 0.3f ? 1 : 2;
     probability  = 72;
+  } else if (noise < 0.66f) {
+    // Mixed zone: solid variety, grows taller and denser with distance
+    num_attempts = (int)(50.0f + 20.0f * intensity); // 50 →  70
+    h_min        = 2;
+    h_max        = (int)(10.0f + 12.0f * intensity); // 10 →  22
+    w_min        = 2;
+    w_max        = (int)( 4.0f +  2.0f * intensity); //  4 →   6
+    probability  = 75;
   } else {
-    // Rubble zone: short, wide, dense
-    num_attempts = (int)(60.0f + 35.0f * intensity); // 60 → 95
+    // Rubble zone: short, wide, very dense — almost maze-like far out
+    num_attempts = (int)(65.0f + 45.0f * intensity); // 65 → 110
     h_min        = 1;
-    h_max        = (int)( 5.0f -  2.0f * intensity); //  5 →  3
-    w_min        = (int)( 3.0f +  1.0f * intensity); //  3 →  4
-    w_max        = (int)( 5.0f +  4.0f * intensity); //  5 →  9
-    probability  = 85;
+    h_max        = (int)( 5.0f -  2.0f * intensity); //  5 →   3
+    w_min        = (int)( 3.0f +  2.0f * intensity); //  3 →   5
+    w_max        = (int)( 6.0f +  5.0f * intensity); //  6 →  11
+    probability  = 88;
   }
 
   h_max = std::max(h_max, h_min + 1);
@@ -77,9 +77,10 @@ void World::make_random_pillars(Chunk *chunk) {
 
   // Guarantee visual density near the starting area regardless of zone type
   if (dist < 2.0f) {
-    num_attempts = std::max(num_attempts, 50);
-    h_max        = std::max(h_max, 10);
+    num_attempts = std::max(num_attempts, 60);
+    h_max        = std::max(h_max, 12);
     h_min        = std::min(h_min, 3);
+    w_max        = std::max(w_max, 4);
   }
 
   RandomNumberGenerator<int> random_height(h_min, h_max);
