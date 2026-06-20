@@ -332,9 +332,9 @@ void Player::draw() {
     c.a = 120;
     // Cone when landing elevated (on top of a pillar); sphere on flat ground
     if (blink_target_.y > current_position.y + 1.5f) {
-      // Downward cone: tip at landing spot, wide end above
+      // Upside-down cone: tip pointing down at landing spot, wide end above
       DrawCylinder({blink_target_.x, blink_target_.y, blink_target_.z},
-                   0.0f, 0.5f, 1.2f, 8, c);
+                   0.5f, 0.0f, 1.2f, 8, c);
     } else {
       DrawSphere(blink_target_, 0.5f, c);
     }
