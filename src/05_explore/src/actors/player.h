@@ -35,6 +35,17 @@ private:
   float bob_timer_ = 0.0f;
   float bob_amplitude_ = 0.0f;
 
+  // landing squash
+  const float squash_amount_ = 0.08f;
+  const float squash_spring_rate_ = 18.0f;
+  float squash_offset_ = 0.0f;
+  float prev_vertical_velocity_ = 0.0f;
+
+  // fov
+  const float base_fov_ = 60.0f;
+  const float sprint_fov_bonus_ = 6.0f;
+  const float fov_lerp_rate_ = 6.0f;
+
   // jumping
   const float gravity_ = -20.0f;
   const float jump_force_ = 22.0f;

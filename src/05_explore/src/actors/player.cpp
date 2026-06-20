@@ -116,6 +116,12 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     }
   }
 
+  // landing squash: detect landing by velocity sign flip, spring back each frame
+  if (prev_vertical_velocity_ < -2.0f && vertical_velocity_ >= 0.0f)
+    squash_offset_ = -squash_amount_;
+  prev_vertical_velocity_ = vertical_velocity_;
+  squash_offset_ += (0.0f - squash_offset_) * squash_spring_rate_ * dt;
+
   // horizontal: accelerate velocity toward input target, axis-separated collision
   Vector3 dir = camera_relative_direction(update.position);
   float input_len = sqrtf(dir.x * dir.x + dir.z * dir.z);
@@ -194,6 +200,13 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
               (sprint_active_ ? bob_sprint_scale_ : 1.0f);
   camera.position.y += bob;
   camera.target.y += bob;
+
+  // landing squash and FOV pulse — camera-only
+  camera.position.y += squash_offset_;
+  camera.target.y += squash_offset_;
+  float target_fov = sprint_active_ ? base_fov_ + sprint_fov_bonus_ : base_fov_;
+  camera.fovy += (target_fov - camera.fovy) * fov_lerp_rate_ * dt;
+
   return {
       current_position,
       {camera.position.x, camera.position.y},
