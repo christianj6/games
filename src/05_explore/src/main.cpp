@@ -5,6 +5,12 @@
  * double tapping takes you back in your "jump list"
  */
 
+// TODO: polish
+/*
+ * pillars should be lit from multiple sides when you turn around to look at them it looks janky
+ * generally the blink mechanics need thorough play-testing to identify pain points
+ */
+
 // TODO: friends and home
 /*
  * start working with meshes to make the home area look a bit more interesting
