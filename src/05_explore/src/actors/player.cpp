@@ -28,8 +28,8 @@ Vector3 Player::camera_relative_direction(Vector3 input) {
           right.z * input.x + forward.z * input.z};
 }
 
-void Player::do_blink(Vector3 target) {
-  jump_list_.push({current_position, target});
+void Player::do_blink(Vector3 target, bool record) {
+  if (record) jump_list_.push({current_position, target});
   Vector3 view_offset = Vector3Subtract(camera.target, camera.position);
   current_position = target;
   camera.position  = target;
@@ -41,7 +41,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
   // Recall: single LB tap — jump to most recent anchor
   if (update.recall && !jump_list_.empty()) {
     BlinkCommand cmd = jump_list_.pop();
-    do_blink(cmd.from);
+    do_blink(cmd.from, false); // recall doesn't push — prevents A↔B loop
   }
 
   bool held          = update.blink_held;
@@ -80,7 +80,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
         Vector3 fwd = Vector3Subtract(camera.target, camera.position);
         tap_dir = Vector3Normalize({fwd.x, 0.0f, fwd.z});
       }
-      do_blink(world->find_blink_target(current_position, tap_dir, tap_blink_range_));
+      do_blink(world->find_blink_target_through(current_position, tap_dir, tap_blink_range_));
     } else if (blink_state_ == BlinkState::PREVIEWING) {
       // Hold blink: teleport to previewed target
       do_blink(blink_target_);

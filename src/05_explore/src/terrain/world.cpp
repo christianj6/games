@@ -361,6 +361,25 @@ Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
   return last_valid;
 }
 
+// Tap blink variant: scans the full range without stopping at obstacles,
+// taking the furthest valid position. Lets the player zip through walls.
+Vector3 World::find_blink_target_through(Vector3 origin, Vector3 direction,
+                                          float max_dist) const {
+  const float step       = 0.1f;
+  const float eye_height = 2.0f;
+  Vector3 last_valid = origin;
+  for (float dist = step; dist <= max_dist; dist += step) {
+    Vector3 candidate = Vector3Add(origin, Vector3Scale(direction, dist));
+    float floor_cam_y = get_floor_height(candidate.x, candidate.z) + eye_height;
+    if (candidate.y < floor_cam_y)
+      candidate.y = floor_cam_y;
+    if (position_is_acceptable(candidate))
+      last_valid = candidate;
+    // no break — keep scanning through obstacles
+  }
+  return last_valid;
+}
+
 bool World::is_ceiling_blocked(Vector3 camera_pos) const {
   // Narrow radius — wall clearance (0.35) keeps us away from wall faces,
   // so this only fires for voxels genuinely above the player's head

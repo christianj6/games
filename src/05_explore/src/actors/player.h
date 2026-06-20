@@ -43,7 +43,7 @@ private:
   JumpList jump_list_;
 
   void handle_blink(const MovementUpdate &update, World *world);
-  void do_blink(Vector3 target);
+  void do_blink(Vector3 target, bool record = true);
 
   // strafe tilt
   const float tilt_max_angle_ = 2.0f;
