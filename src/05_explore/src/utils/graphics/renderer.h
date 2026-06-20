@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include "rlights.h"
 
-
 class Renderer {
 public:
   Renderer();

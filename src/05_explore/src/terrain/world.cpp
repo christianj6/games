@@ -1,59 +1,59 @@
 #include "world.h"
 #include "raylib.h"
-#include <memory>
+#include "raymath.h"
+#include "rlights.h"
+#include "utils/random.h"
+#include <cctype>
+#include <chrono>
+#include <cmath>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
-#include <cmath>
-#include <chrono>
 #include <thread>
-#include <cctype>
-#include "utils/random.h"
-#include "rlights.h"
-#include "raymath.h"
 
+void World::make_random_pillars(Chunk *chunk) {
+  RandomNumberGenerator<int> random_height(1, 20);
+  RandomNumberGenerator<int> random_size(2, 6); // pillar width/length
+  RandomNumberGenerator<int> random_pos(0, chunk_size_ - 1);
+  RandomNumberGenerator<int> is_pillar(0, 100);
 
-void World::make_random_pillars(Chunk* chunk) {
-    RandomNumberGenerator<int> random_height(1, 20);
-    RandomNumberGenerator<int> random_size(2, 6); // pillar width/length
-    RandomNumberGenerator<int> random_pos(0, chunk_size_ - 1);
-    RandomNumberGenerator<int> is_pillar(0, 100);
+  const int pillar_probability = 75; // % chance per attempt
+  const int NUM_ATTEMPTS = 50;       // number of pillar attempts per chunk
 
-    const int pillar_probability = 75; // % chance per attempt
-    const int NUM_ATTEMPTS = 50;      // number of pillar attempts per chunk
-
-    // floor
-    for (int x = 0; x < chunk_size_; ++x) {
-        for (int y = 0; y < chunk_size_; ++y) {
-            add_pillar(chunk, x, y, 1);
-        }
+  // floor
+  for (int x = 0; x < chunk_size_; ++x) {
+    for (int y = 0; y < chunk_size_; ++y) {
+      add_pillar(chunk, x, y, 1);
     }
+  }
 
-    // random pillars
-    for (int n = 0; n < NUM_ATTEMPTS; ++n) {
-        if (is_pillar() >= pillar_probability) continue; // skip this attempt
+  // random pillars
+  for (int n = 0; n < NUM_ATTEMPTS; ++n) {
+    if (is_pillar() >= pillar_probability)
+      continue; // skip this attempt
 
-        int x = random_pos();
-        int y = random_pos();
-        int width = random_size();
-        int height = random_height(); // add on top of floor
+    int x = random_pos();
+    int y = random_pos();
+    int width = random_size();
+    int height = random_height(); // add on top of floor
 
-        // make sure pillar fits in the chunk
-        int max_x = std::min(x + width, chunk_size_);
-        int max_y = std::min(y + width, chunk_size_);
+    // make sure pillar fits in the chunk
+    int max_x = std::min(x + width, chunk_size_);
+    int max_y = std::min(y + width, chunk_size_);
 
-        for (int dx = 0; dx < max_x - x; ++dx) {
-            for (int dy = 0; dy < max_y - y; ++dy) {
-                add_pillar(chunk, x + dx, y + dy, height);
-            }
-        }
+    for (int dx = 0; dx < max_x - x; ++dx) {
+      for (int dy = 0; dy < max_y - y; ++dy) {
+        add_pillar(chunk, x + dx, y + dy, height);
+      }
     }
+  }
 }
 
 World::World() : should_exit_(false) {
   chunk_size_ = 64;
   world_size_chunks_ = 8;
-  render_distance_ = 3;  // Load chunks within 3 chunks of player
+  render_distance_ = 3; // Load chunks within 3 chunks of player
 
   // Start the chunk loading thread
   loading_thread_ = std::thread(&World::chunk_loading_worker, this);
@@ -64,15 +64,16 @@ void World::build_chunks() {
   for (int i = 0; i < world_size_chunks_; ++i) {
     for (int j = 0; j < world_size_chunks_; ++j) {
       // we hard-coded chunk 0,0
-      if (i == 0 && j == 0) continue;
-      Chunk* current_chunk = get_or_create_chunk(i, j);
-      // fill the chunk with random pillars 
+      if (i == 0 && j == 0)
+        continue;
+      Chunk *current_chunk = get_or_create_chunk(i, j);
+      // fill the chunk with random pillars
       make_random_pillars(current_chunk);
     }
   }
   // TODO: better lighting
-  CreateLight(LIGHT_POINT, Vector3{50.0f, 10.0f, 0}, Vector3Zero(),
-              DARKPURPLE, renderer_->get_shader());
+  CreateLight(LIGHT_POINT, Vector3{50.0f, 10.0f, 0}, Vector3Zero(), DARKPURPLE,
+              renderer_->get_shader());
 }
 
 World::~World() {
@@ -85,102 +86,103 @@ World::~World() {
   }
 }
 
-void World::set_renderer(Renderer* renderer) {
-  renderer_ = renderer;
+void World::set_renderer(Renderer *renderer) { renderer_ = renderer; }
+
+Chunk *World::get_or_create_chunk(int cx, int cy) {
+  for (auto &c : chunks_) {
+    if (c->get_position().x == cx && c->get_position().y == cy)
+      return c.get();
+  }
+  // Not found → create new
+  auto chunk = std::make_unique<Chunk>(Vector2{float(cx), float(cy)},
+                                       chunk_size_, renderer_);
+  Chunk *ptr = chunk.get();
+  chunks_.push_back(std::move(chunk));
+  return ptr;
 }
 
-Chunk* World::get_or_create_chunk(int cx, int cy) {
-    for (auto& c : chunks_) {
-        if (c->get_position().x == cx && c->get_position().y == cy)
-            return c.get();
-    }
-    // Not found → create new
-    auto chunk = std::make_unique<Chunk>(Vector2{float(cx), float(cy)}, chunk_size_, renderer_);
-    Chunk* ptr = chunk.get();
-    chunks_.push_back(std::move(chunk));
-    return ptr;
-}
-
-void World::add_pillar(Chunk* chunk, int x, int z, int height) {
+void World::add_pillar(Chunk *chunk, int x, int z, int height) {
   for (int y = 0; y < height; ++y) {
     chunk->set_voxel(x, y, z);
   }
 }
 
-bool is_all_digits(const std::string& s) {
-    return !s.empty() &&
-        std::all_of(s.begin(), s.end(),
-            [](unsigned char c){ return std::isdigit(c); });
+bool is_all_digits(const std::string &s) {
+  return !s.empty() && std::all_of(s.begin(), s.end(), [](unsigned char c) {
+    return std::isdigit(c);
+  });
 }
 
-std::vector<std::string> split_whitespace(const std::string& s) {
-    std::istringstream iss(s);
-    std::vector<std::string> tokens;
-    std::string token;
+std::vector<std::string> split_whitespace(const std::string &s) {
+  std::istringstream iss(s);
+  std::vector<std::string> tokens;
+  std::string token;
 
-    while (iss >> token) {   // operator>> automatically skips whitespace
-        tokens.push_back(token);
-    }
+  while (iss >> token) { // operator>> automatically skips whitespace
+    tokens.push_back(token);
+  }
 
-    return tokens;
+  return tokens;
 }
 
-bool World::load_chunk_data(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << "\n";
-        return false;
+bool World::load_chunk_data(const std::string &filename) {
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    std::cerr << "Failed to open file: " << filename << "\n";
+    return false;
+  }
+
+  Chunk *current_chunk = nullptr;
+  int current_chunk_x = 0;
+  int current_chunk_y = 0;
+
+  int line_num = 0;
+  std::string line;
+
+  while (std::getline(file, line)) {
+    line_num++;
+
+    // Trim leading whitespace
+    size_t start = line.find_first_not_of(" \t");
+    if (start == std::string::npos)
+      continue; // Empty line
+    line = line.substr(start);
+
+    // Skip comments and empty lines
+    if (line.empty() || line[0] == '#')
+      continue;
+
+    std::istringstream ss(line);
+    std::string command;
+    ss >> command;
+
+    if (command == "chunk") {
+      int cx, cy;
+      if (!(ss >> cx >> cy)) {
+        std::cerr << "Line " << line_num << ": Invalid chunk command\n";
+        continue;
+      }
+      current_chunk = get_or_create_chunk(cx, cy);
+      current_chunk_x = 0;
+      current_chunk_y = 0;
+    } else if (is_all_digits(command)) {
+      std::vector<std::string> tokens = split_whitespace(line);
+      for (auto &token : tokens) {
+        int height = std::stoi(token);
+        // always add a "pillar" (if value is zero, add a single block as a
+        // floor)
+        add_pillar(current_chunk, current_chunk_x, current_chunk_y, height + 1);
+        current_chunk_x++;
+      }
+      current_chunk_x = 0;
+      current_chunk_y++;
+    } else {
+      std::cerr << "Line " << line_num << ": Unknown command '" << command
+                << "'\n";
     }
+  }
 
-    Chunk* current_chunk = nullptr;
-    int current_chunk_x = 0;
-    int current_chunk_y = 0;
-
-    int line_num = 0;
-    std::string line;
-
-    while (std::getline(file, line)) {
-        line_num++;
-
-        // Trim leading whitespace
-        size_t start = line.find_first_not_of(" \t");
-        if (start == std::string::npos) continue; // Empty line
-        line = line.substr(start);
-
-        // Skip comments and empty lines
-        if (line.empty() || line[0] == '#') continue;
-
-        std::istringstream ss(line);
-        std::string command;
-        ss >> command;
-
-        if (command == "chunk") {
-            int cx, cy;
-            if (!(ss >> cx >> cy)) {
-                std::cerr << "Line " << line_num << ": Invalid chunk command\n";
-                continue;
-            }
-            current_chunk = get_or_create_chunk(cx, cy);
-            current_chunk_x = 0;
-            current_chunk_y = 0;
-        }
-        else if (is_all_digits(command)) {
-          std::vector<std::string> tokens = split_whitespace(line);
-          for (auto& token : tokens) {
-            int height = std::stoi(token);
-            // always add a "pillar" (if value is zero, add a single block as a floor)
-            add_pillar(current_chunk, current_chunk_x, current_chunk_y, height+1);
-            current_chunk_x++;
-          }
-          current_chunk_x = 0;
-          current_chunk_y++;
-        }
-        else {
-            std::cerr << "Line " << line_num << ": Unknown command '" << command << "'\n";
-        }
-    }
-
-    return true;
+  return true;
 }
 
 void World::update(float dt, Vector3 current_player_position) {
@@ -222,20 +224,22 @@ void World::chunk_loading_worker() {
 
 void World::update_chunk_loading(Vector3 player_position) {
   // Convert player position to chunk coordinates
-  int player_chunk_x = static_cast<int>(std::floor(player_position.x / chunk_size_));
-  int player_chunk_z = static_cast<int>(std::floor(player_position.z / chunk_size_));
+  int player_chunk_x =
+      static_cast<int>(std::floor(player_position.x / chunk_size_));
+  int player_chunk_z =
+      static_cast<int>(std::floor(player_position.z / chunk_size_));
 
   std::lock_guard<std::mutex> lock(chunks_mutex_);
 
   // Upload chunks that are ready (must be done on main thread)
-  for (auto& chunk : chunks_) {
+  for (auto &chunk : chunks_) {
     if (chunk->state == ChunkState::READY_TO_UPLOAD) {
       chunk->upload_mesh();
     }
   }
 
   // Unload chunks that are too far away
-  for (auto& chunk : chunks_) {
+  for (auto &chunk : chunks_) {
     int chunk_x = static_cast<int>(chunk->get_position().x);
     int chunk_y = static_cast<int>(chunk->get_position().y);
 
@@ -249,7 +253,7 @@ void World::update_chunk_loading(Vector3 player_position) {
   }
 
   // Queue chunks for loading that are within range
-  for (auto& chunk : chunks_) {
+  for (auto &chunk : chunks_) {
     int chunk_x = static_cast<int>(chunk->get_position().x);
     int chunk_y = static_cast<int>(chunk->get_position().y);
 

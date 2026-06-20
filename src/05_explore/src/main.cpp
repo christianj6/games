@@ -1,12 +1,12 @@
 // TODO: on tap
 /*
- * all collisions working 
+ * all collisions working
  * checkpoint: larger game world with chunking and pretty nice player movement
  */
 
 // TODO: teleportation
 /*
- * pressing shift once teleports you forward in direction of camera 
+ * pressing shift once teleports you forward in direction of camera
  * holding does the same time-stop blink thing as before
  * double tapping takes you back in your "jump list"
  */
@@ -15,22 +15,22 @@
 /*
  * start working with meshes to make the home area look a bit more interesting
  * friend actors with limited animations and behavior trees
- * friends wander around the home chunk, not running into things, and e.g. randomly interact with some objects
- * use mixamo and blender for a simple animation workflow
- * friend ai can be puppeteered by director ai
- * player can talk to friends with a simple text-based system
- * checkpoint: friends roam around the nicer looking home area
+ * friends wander around the home chunk, not running into things, and e.g.
+ * randomly interact with some objects use mixamo and blender for a simple
+ * animation workflow friend ai can be puppeteered by director ai player can
+ * talk to friends with a simple text-based system checkpoint: friends roam
+ * around the nicer looking home area
  */
 
 // TODO: quests
 /*
  * director ai can trigger friends to request items
  * if friend needs something they get an exclamation mark above their head
- * if player interacts with friend while in this state, they will give the player a
- * quest requested item is placed in the world and shown in the hud player can
- * search the open world for the item, collect it, and bring it back checkpoint:
- * friends periodically request items, quests are managed, and player can
- * complete these quests by getting items in the world
+ * if player interacts with friend while in this state, they will give the
+ * player a quest requested item is placed in the world and shown in the hud
+ * player can search the open world for the item, collect it, and bring it back
+ * checkpoint: friends periodically request items, quests are managed, and
+ * player can complete these quests by getting items in the world
  */
 
 // TODO: enemies
@@ -84,7 +84,8 @@ int main() {
   // Initialize with a windowed mode first
   InitWindow(1920, 1080, "Explore");
 
-  // Then toggle to fullscreen - more reliable on macOS than FLAG_FULLSCREEN_MODE
+  // Then toggle to fullscreen - more reliable on macOS than
+  // FLAG_FULLSCREEN_MODE
   ToggleFullscreen();
   DisableCursor();
 

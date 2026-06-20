@@ -25,8 +25,6 @@ Vector2 KeyboardInputProvider::get_input_look_vector() {
   return GetMouseDelta();
 }
 
-bool KeyboardInputProvider::get_input_jump() { 
-  return IsKeyPressed(KEY_SPACE);
-}
+bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
 bool KeyboardInputProvider::get_input_blink() { return false; }

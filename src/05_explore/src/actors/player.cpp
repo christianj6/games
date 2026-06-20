@@ -39,8 +39,8 @@ Vector3 Player::adjust_movement_relative_to_camera(float dt, Vector3 movement) {
   const float speed = 4.5f;
 
   Vector3 updated_movement = {
-      (right.x * movement.x + forward.x * movement.z) * speed * dt, 
-      movement.y,  // preserve vertical movement calculated elsewhere
+      (right.x * movement.x + forward.x * movement.z) * speed * dt,
+      movement.y, // preserve vertical movement calculated elsewhere
       (right.z * movement.x + forward.z * movement.z) * speed * dt};
 
   return updated_movement;
@@ -76,7 +76,8 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   // Calculate how much the camera position is moving
   Vector3 old_camera_position = camera.position;
   Vector3 new_camera_position = current_position;
-  Vector3 position_offset = Vector3Subtract(new_camera_position, old_camera_position);
+  Vector3 position_offset =
+      Vector3Subtract(new_camera_position, old_camera_position);
 
   // Move both camera position AND target by the same offset
   // This maintains the look direction while moving (no orbiting effect)
