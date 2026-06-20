@@ -81,16 +81,31 @@ void Chunk::generate_mesh() {
         if (dim == 1 && side == -1 && slice == 0)
           continue;
 
+        // At a chunk boundary the neighbor is in an adjacent chunk. We
+        // treat it as empty (neighbor=false) so the face is generated — but
+        // for the world floor (y=0 side faces only) this creates coplanar
+        // duplicates with the adjacent chunk's matching face, causing Z-fighting.
+        // For X/Z side faces: dim=0 → u=Y → i is Y; dim=2 → v=Y → j is Y.
+        bool at_boundary = (b[dim] < 0 || b[dim] >= size_);
+        bool is_xz_face  = (dim != 1);
+
         // Build 2D mask of exposed faces for this slice
         for (int j = 0; j < size_; j++) {
           for (int i = 0; i < size_; i++) {
-            int a[3], b[3];
-            a[dim] = slice; a[u] = i; a[v] = j;
-            b[dim] = slice + side; b[u] = i; b[v] = j;
+            int a[3], b2[3];
+            a[dim] = slice;        a[u] = i;  a[v] = j;
+            b2[dim] = slice + side; b2[u] = i; b2[v] = j;
             bool current  = is_filled(a[0], a[1], a[2]);
-            bool neighbor = (b[dim] >= 0 && b[dim] < size_)
-                            ? is_filled(b[0], b[1], b[2]) : false;
-            mask[i + j * size_] = current && !neighbor;
+            bool neighbor = at_boundary ? false
+                                        : is_filled(b2[0], b2[1], b2[2]);
+
+            // Suppress side faces of floor voxels (y=0) at chunk boundaries:
+            // the adjacent chunk always has a floor there, so these faces are
+            // always hidden and only cause Z-fighting.
+            int voxel_y = (dim == 0) ? i : (dim == 2) ? j : slice;
+            bool floor_seam = at_boundary && is_xz_face && (voxel_y == 0);
+
+            mask[i + j * size_] = current && !neighbor && !floor_seam;
           }
         }
 
