@@ -354,10 +354,13 @@ Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
     float floor_cam_y = get_floor_height(candidate.x, candidate.z) + eye_height;
     if (candidate.y < floor_cam_y)
       candidate.y = floor_cam_y;
+    // Break only when the center point hits solid geometry (real wall).
+    // AABB-corner failures near pillar edges are skipped so the ray
+    // continues past the edge and finds valid ground on the other side.
+    if (is_solid(candidate))
+      break;
     if (position_is_acceptable(candidate))
       last_valid = candidate;
-    else
-      break;
   }
   return last_valid;
 }
