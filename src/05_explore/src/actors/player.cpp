@@ -508,7 +508,8 @@ void Player::draw() {
   }
 
   if (blink_state_ == BlinkState::RECALLING) {
-    rlDisableDepthTest(); // anchors always visible through walls
+    rlDrawRenderBatchActive(); // flush pending geometry before changing depth state
+    rlDisableDepthTest();
     for (int i = 0; i < anchor_list_.size(); i++) {
       Vector3 pos      = anchor_list_.get(i);
       bool    selected = (i == selected_anchor_);
@@ -519,6 +520,7 @@ void Player::draw() {
       Color stem = c; stem.a = 70;
       DrawCylinder({pos.x, pos.y - 1.5f, pos.z}, 0.04f, 0.04f, 1.5f, 6, stem);
     }
+    rlDrawRenderBatchActive(); // flush anchor geometry before re-enabling depth
     rlEnableDepthTest();
   }
 }
