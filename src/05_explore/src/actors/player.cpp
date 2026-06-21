@@ -97,25 +97,37 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
                    ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y) : 0.0f;
     float mag = sqrtf(sx * sx + sy * sy);
 
-    // Rising edge — radial wheel: pick anchor with smallest angular difference,
-    // no threshold so every flick always selects the nearest sector.
+    // Rising edge — radial wheel keyed to screen-space position so the flick
+    // direction matches exactly where the indicator (puck or edge dot) appears.
     if (mag > 0.5f && prev_stick_magnitude_ <= 0.5f) {
-      Vector3 look = Vector3Subtract(camera.target, camera.position);
-      Vector3 fwd   = Vector3Normalize({look.x, 0.0f, look.z});
-      Vector3 right = Vector3Normalize(Vector3CrossProduct(fwd, {0.0f, 1.0f, 0.0f}));
       float fx = sx / mag;
-      float fy = -sy / mag; // stick Y inverted: push up = forward = +fy
+      float fy = -sy / mag; // stick Y inverted: push up = screen up = +fy
       float flick_angle = atan2f(fx, fy);
+
+      Vector2 center = {GetScreenWidth() * 0.5f, GetScreenHeight() * 0.5f};
+      Vector3 cam_fwd_n = Vector3Normalize(
+          Vector3Subtract(camera.target, camera.position));
 
       int   best_i    = 0;
       float best_diff = 2.0f * PI;
       for (int i = 0; i < anchor_list_.size(); i++) {
-        Vector3 to = Vector3Subtract(anchor_list_.get(i), current_position);
-        float horiz = sqrtf(to.x * to.x + to.z * to.z);
-        if (horiz < 0.01f) continue;
-        float ax = (to.x * right.x + to.z * right.z) / horiz;
-        float ay = (to.x * fwd.x   + to.z * fwd.z)   / horiz;
-        float anchor_angle = atan2f(ax, ay);
+        Vector3 pos = anchor_list_.get(i);
+
+        // Project anchor to screen — same math used by the indicator
+        Vector2 sp = GetWorldToScreen(pos, camera);
+        bool in_front = Vector3DotProduct(
+            Vector3Subtract(pos, camera.position), cam_fwd_n) > 0.0f;
+
+        Vector2 dir = in_front ? Vector2{sp.x - center.x, sp.y - center.y}
+                                : Vector2{center.x - sp.x, center.y - sp.y};
+        float dlen = sqrtf(dir.x * dir.x + dir.y * dir.y);
+        if (dlen < 0.01f) continue;
+
+        // screen right = +x, screen up = -y → match stick convention
+        float adx = dir.x / dlen;
+        float ady = -dir.y / dlen; // invert Y: screen up maps to +fy
+        float anchor_angle = atan2f(adx, ady);
+
         float diff = fabsf(flick_angle - anchor_angle);
         if (diff > PI) diff = 2.0f * PI - diff;
         if (diff < best_diff) { best_diff = diff; best_i = i; }
