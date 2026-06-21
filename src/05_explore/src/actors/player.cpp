@@ -2,7 +2,6 @@
 #include "actors/actor.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "rlgl.h"
 #include "systems/movement/controller.h"
 #include <cmath>
 #include <fmt/base.h>
@@ -460,7 +459,13 @@ void Player::draw_hud(Camera3D camera) {
                      screen_pos.x >= 0 && screen_pos.x < sw &&
                      screen_pos.y >= 0 && screen_pos.y < sh;
 
-    if (on_screen) continue; // already visible in 3D pass
+    if (on_screen) {
+      // 2D puck at the anchor's screen position — visible through walls
+      bool sel = (i == selected_anchor_);
+      Color pc = sel ? WHITE : BLUE; pc.a = sel ? 220 : 160;
+      DrawCircle((int)screen_pos.x, (int)screen_pos.y, sel ? 9.0f : 6.0f, pc);
+      continue;
+    }
 
     // Compute screen-space direction toward the anchor
     Vector2 dir;
@@ -508,19 +513,14 @@ void Player::draw() {
   }
 
   if (blink_state_ == BlinkState::RECALLING) {
-    rlDrawRenderBatchActive(); // flush pending geometry before changing depth state
-    rlDisableDepthTest();
     for (int i = 0; i < anchor_list_.size(); i++) {
       Vector3 pos      = anchor_list_.get(i);
       bool    selected = (i == selected_anchor_);
       Color   c        = selected ? WHITE : BLUE;
       c.a              = selected ? 230 : 160;
-      float   radius   = selected ? 0.65f : 0.4f;
-      DrawSphere(pos, radius, c);
+      DrawSphere(pos, selected ? 0.65f : 0.4f, c);
       Color stem = c; stem.a = 70;
       DrawCylinder({pos.x, pos.y - 1.5f, pos.z}, 0.04f, 0.04f, 1.5f, 6, stem);
     }
-    rlDrawRenderBatchActive(); // flush anchor geometry before re-enabling depth
-    rlEnableDepthTest();
   }
 }
