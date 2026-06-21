@@ -359,16 +359,29 @@ Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
       candidate.y = floor_cam_y;
 
     if (is_solid(candidate)) {
-      // Hit solid geometry: try to pop the ball to the top of the surface.
-      // This lets the player land on a pillar by aiming at its side.
-      Vector3 surface_top = {candidate.x, floor_cam_y, candidate.z};
-      if (position_is_acceptable(surface_top))
-        last_valid = surface_top;
+      // Pop to surface top only if it's within a reasonable vertical range —
+      // prevents jarring jumps when a tall pillar is barely grazed by the ray.
+      if (floor_cam_y - candidate.y < 4.0f) {
+        Vector3 surface_top = {candidate.x, floor_cam_y, candidate.z};
+        if (position_is_acceptable(surface_top))
+          last_valid = surface_top;
+      }
       break;
     }
     if (position_is_acceptable(candidate))
       last_valid = candidate;
   }
+
+  // Magnetic snap: if last_valid lands within 1.5 units of an elevated surface
+  // top, lock to it — makes it easy to intentionally land on ledges.
+  float last_floor = get_floor_height(last_valid.x, last_valid.z) + eye_height;
+  if (last_floor > player_floor_y + 0.5f &&
+      fabsf(last_valid.y - last_floor) < 1.5f) {
+    Vector3 snapped = {last_valid.x, last_floor, last_valid.z};
+    if (position_is_acceptable(snapped))
+      last_valid = snapped;
+  }
+
   return last_valid;
 }
 

@@ -41,6 +41,7 @@ private:
   int  blink_hold_frames_         = 0;
   bool prev_blink_held_           = false;
   Vector3 blink_target_           = {0, 0, 0};
+  Vector3 blink_target_smooth_    = {0, 0, 0}; // lerped display position
   bool    blink_target_elevated_  = false;
   JumpList jump_list_;
 

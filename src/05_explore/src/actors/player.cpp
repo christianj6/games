@@ -102,9 +102,9 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
                    ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y) : 0.0f;
     float mag = sqrtf(sx * sx + sy * sy);
 
-    // Rising edge — radial wheel keyed to screen-space position so the flick
-    // direction matches exactly where the indicator (puck or edge dot) appears.
-    if (mag > 0.5f && prev_stick_magnitude_ <= 0.5f) {
+    // Continuous radial wheel — updates every frame the stick is past the
+    // deadzone, keyed to screen-space so indicator position = selection direction.
+    if (mag > 0.25f) {
       float fx = sx / mag;
       float fy = -sy / mag; // stick Y inverted: push up = screen up = +fy
       float flick_angle = atan2f(fx, fy);
@@ -394,6 +394,16 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   // Blink state machine (uses camera direction after mouse look)
   handle_blink(update, world);
 
+  // Smooth blink target: lerp display position so the ball never jumps
+  if (blink_state_ == BlinkState::PREVIEWING) {
+    float t = fminf(15.0f * dt, 1.0f);
+    blink_target_smooth_.x += (blink_target_.x - blink_target_smooth_.x) * t;
+    blink_target_smooth_.y += (blink_target_.y - blink_target_smooth_.y) * t;
+    blink_target_smooth_.z += (blink_target_.z - blink_target_smooth_.z) * t;
+  } else {
+    blink_target_smooth_ = blink_target_; // snap when not previewing
+  }
+
   // Decay anchor placement flash
   if (anchor_place_flash_ > 0.0f)
     anchor_place_flash_ = std::max(0.0f, anchor_place_flash_ - dt * 4.0f);
@@ -521,11 +531,12 @@ void Player::draw_hud(Camera3D camera) {
 void Player::draw() {
   if (blink_state_ == BlinkState::PREVIEWING) {
     Color c = BLUE; c.a = 120;
+    // Render smoothed position; elevation type from unsmoothed (stays crisp)
     if (blink_target_elevated_) {
-      DrawCylinder({blink_target_.x, blink_target_.y, blink_target_.z},
+      DrawCylinder({blink_target_smooth_.x, blink_target_smooth_.y, blink_target_smooth_.z},
                    0.5f, 0.0f, 1.2f, 8, c);
     } else {
-      DrawSphere(blink_target_, 0.5f, c);
+      DrawSphere(blink_target_smooth_, 0.5f, c);
     }
   }
 
