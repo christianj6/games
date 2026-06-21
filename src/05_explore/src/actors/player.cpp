@@ -30,6 +30,7 @@ Vector3 Player::camera_relative_direction(Vector3 input) {
 }
 
 void Player::do_blink(Vector3 target, bool record) {
+  blink_flash_ = 1.0f; // fire vignette on every blink including recalls
   if (record) jump_list_.push({current_position, target});
   Vector3 view_offset = Vector3Subtract(camera.target, camera.position);
   current_position = target;
@@ -404,9 +405,11 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
     blink_target_smooth_ = blink_target_; // snap when not previewing
   }
 
-  // Decay anchor placement flash
+  // Decay flashes
   if (anchor_place_flash_ > 0.0f)
     anchor_place_flash_ = std::max(0.0f, anchor_place_flash_ - dt * 4.0f);
+  if (blink_flash_ > 0.0f)
+    blink_flash_ = std::max(0.0f, blink_flash_ - dt * 14.0f); // ~70ms
 
   // Kill bob and breathe during recall — camera must be still for selection
   if (blink_state_ == BlinkState::RECALLING) {
@@ -454,6 +457,18 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
 }
 
 void Player::draw_hud(Camera3D camera) {
+  // ── Blink vignette — thin white screen edges, subtle ────────────────
+  if (blink_flash_ > 0.0f) {
+    unsigned char a = (unsigned char)(blink_flash_ * 160);
+    Color c = {255, 255, 255, a};
+    int w = GetScreenWidth(), h = GetScreenHeight();
+    const int t = 50; // edge thickness in pixels
+    DrawRectangle(0,     0,     w, t, c);
+    DrawRectangle(0,     h - t, w, t, c);
+    DrawRectangle(0,     0,     t, h, c);
+    DrawRectangle(w - t, 0,     t, h, c);
+  }
+
   // ── Blue flash on anchor placement ──────────────────────────────────
   if (anchor_place_flash_ > 0.0f) {
     Color flash = BLUE;
