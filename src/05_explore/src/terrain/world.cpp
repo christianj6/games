@@ -352,6 +352,17 @@ Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
     Vector3 candidate = Vector3Add(origin, Vector3Scale(direction, dist));
     float floor_cam_y = get_floor_height(candidate.x, candidate.z) + eye_height;
 
+    // Hard rule: if the raw ray (before any hugging) is passing through the
+    // vertical band of an elevated surface top, the player is looking directly
+    // at a pillar top — lock there immediately and show the cone.
+    if (floor_cam_y > player_floor_y + 0.5f &&
+        candidate.y >= floor_cam_y - 0.5f &&
+        candidate.y <= floor_cam_y + 1.0f) {
+      Vector3 top = {candidate.x, floor_cam_y, candidate.z};
+      if (position_is_acceptable(top))
+        return top;
+    }
+
     // Only hug elevated surfaces — when the target floor is HIGHER than the
     // player's start floor (aiming at a ledge/pillar top). Skip hugging when
     // looking down to lower or equal ground so the ball tracks the crosshair.
