@@ -47,6 +47,8 @@ void Game::draw() {
   }
   EndMode3D();
 
+  player.draw_hud(player.get_camera());
+
   if (current_state == GameState::PAUSED) {
     DrawText("PAUSED", 20, 20, 20, RED);
   }

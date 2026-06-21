@@ -50,9 +50,11 @@ private:
   int  recall_hold_frames_        = 0;
   bool prev_recall_held_          = false;
   float prev_stick_magnitude_     = 0.0f;
+  float anchor_place_flash_       = 0.0f; // blue flash on anchor placement
 
   void handle_blink(const MovementUpdate &update, World *world);
   void do_blink(Vector3 target, bool record = true);
+  void draw_hud(Camera3D camera); // 2D overlays — call after EndMode3D
 
   // strafe tilt
   const float tilt_max_angle_ = 2.0f;

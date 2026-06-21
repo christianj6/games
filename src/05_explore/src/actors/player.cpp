@@ -2,7 +2,9 @@
 #include "actors/actor.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "rlgl.h"
 #include "systems/movement/controller.h"
+#include <cmath>
 #include <fmt/base.h>
 
 Player::Player() {
@@ -41,6 +43,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
   // ── CHORD: LB+RB — place anchor, clear both button states ────────────
   if (update.place_anchor) {
     anchor_list_.place(current_position);
+    anchor_place_flash_ = 1.0f;  // trigger blue flash
     prev_blink_held_    = false;
     prev_recall_held_   = false;
     blink_hold_frames_  = 0;
@@ -87,25 +90,30 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
                    ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y) : 0.0f;
     float mag = sqrtf(sx * sx + sy * sy);
 
-    // Rising edge above flick threshold
+    // Rising edge — radial wheel: pick anchor with smallest angular difference,
+    // no threshold so every flick always selects the nearest sector.
     if (mag > 0.5f && prev_stick_magnitude_ <= 0.5f) {
       Vector3 look = Vector3Subtract(camera.target, camera.position);
       Vector3 fwd   = Vector3Normalize({look.x, 0.0f, look.z});
       Vector3 right = Vector3Normalize(Vector3CrossProduct(fwd, {0.0f, 1.0f, 0.0f}));
       float fx = sx / mag;
-      float fy = -sy / mag; // stick Y inverted: push up = forward = positive
+      float fy = -sy / mag; // stick Y inverted: push up = forward = +fy
+      float flick_angle = atan2f(fx, fy);
 
-      int best_i = -1; float best_score = 0.3f; // min threshold to select
+      int   best_i    = 0;
+      float best_diff = 2.0f * PI;
       for (int i = 0; i < anchor_list_.size(); i++) {
         Vector3 to = Vector3Subtract(anchor_list_.get(i), current_position);
         float horiz = sqrtf(to.x * to.x + to.z * to.z);
         if (horiz < 0.01f) continue;
         float ax = (to.x * right.x + to.z * right.z) / horiz;
         float ay = (to.x * fwd.x   + to.z * fwd.z)   / horiz;
-        float score = fx * ax + fy * ay;
-        if (score > best_score) { best_score = score; best_i = i; }
+        float anchor_angle = atan2f(ax, ay);
+        float diff = fabsf(flick_angle - anchor_angle);
+        if (diff > PI) diff = 2.0f * PI - diff;
+        if (diff < best_diff) { best_diff = diff; best_i = i; }
       }
-      if (best_i >= 0) selected_anchor_ = best_i;
+      selected_anchor_ = best_i;
     }
     prev_stick_magnitude_ = mag;
   }
@@ -362,6 +370,10 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   // Blink state machine (uses camera direction after mouse look)
   handle_blink(update, world);
 
+  // Decay anchor placement flash
+  if (anchor_place_flash_ > 0.0f)
+    anchor_place_flash_ = std::max(0.0f, anchor_place_flash_ - dt * 4.0f);
+
   // Kill bob and breathe during recall — camera must be still for selection
   if (blink_state_ == BlinkState::RECALLING) {
     bob_amplitude_    = 0.0f;
@@ -407,6 +419,75 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   };
 }
 
+void Player::draw_hud(Camera3D camera) {
+  // ── Blue flash on anchor placement ──────────────────────────────────
+  if (anchor_place_flash_ > 0.0f) {
+    Color flash = BLUE;
+    flash.a = (unsigned char)(anchor_place_flash_ * 100);
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), flash);
+  }
+
+  // ── Edge indicators for off-screen anchors during RECALLING ────────
+  if (blink_state_ != BlinkState::RECALLING) return;
+
+  float sw = (float)GetScreenWidth();
+  float sh = (float)GetScreenHeight();
+  Vector2 center = {sw * 0.5f, sh * 0.5f};
+  const float margin = 45.0f;
+  float hw = center.x - margin;
+  float hh = center.y - margin;
+
+  Vector3 cam_fwd = Vector3Normalize(
+      Vector3Subtract(camera.target, camera.position));
+
+  for (int i = 0; i < anchor_list_.size(); i++) {
+    Vector3 pos = anchor_list_.get(i);
+
+    // Is the anchor in front of the camera?
+    Vector3 to_anchor = Vector3Subtract(pos, camera.position);
+    bool in_front = Vector3DotProduct(to_anchor, cam_fwd) > 0.0f;
+
+    Vector2 screen_pos = GetWorldToScreen(pos, camera);
+    bool on_screen = in_front &&
+                     screen_pos.x >= 0 && screen_pos.x < sw &&
+                     screen_pos.y >= 0 && screen_pos.y < sh;
+
+    if (on_screen) continue; // already visible in 3D pass
+
+    // Compute screen-space direction toward the anchor
+    Vector2 dir;
+    if (in_front) {
+      dir = {screen_pos.x - center.x, screen_pos.y - center.y};
+    } else {
+      // Behind camera: flip so indicator points the right way
+      dir = {center.x - screen_pos.x, center.y - screen_pos.y};
+    }
+    float len = sqrtf(dir.x * dir.x + dir.y * dir.y);
+    if (len < 0.01f) continue;
+    dir.x /= len; dir.y /= len;
+
+    // Clamp to screen edge rectangle
+    float edge_x, edge_y;
+    if (fabsf(dir.x) * hh > fabsf(dir.y) * hw) {
+      float scale = hw / fabsf(dir.x);
+      edge_x = center.x + dir.x * scale;
+      edge_y = center.y + dir.y * scale;
+    } else {
+      float scale = hh / fabsf(dir.y);
+      edge_x = center.x + dir.x * scale;
+      edge_y = center.y + dir.y * scale;
+    }
+
+    bool selected = (i == selected_anchor_);
+    Color c = selected ? WHITE : BLUE;
+    c.a = selected ? 230 : 180;
+    DrawCircle((int)edge_x, (int)edge_y, selected ? 10.0f : 7.0f, c);
+    // Small arrow tip pointing inward
+    DrawCircle((int)(edge_x - dir.x * 14), (int)(edge_y - dir.y * 14),
+               selected ? 5.0f : 3.5f, c);
+  }
+}
+
 void Player::draw() {
   if (blink_state_ == BlinkState::PREVIEWING) {
     Color c = BLUE; c.a = 120;
@@ -419,16 +500,17 @@ void Player::draw() {
   }
 
   if (blink_state_ == BlinkState::RECALLING) {
+    rlDisableDepthTest(); // anchors always visible through walls
     for (int i = 0; i < anchor_list_.size(); i++) {
-      Vector3 pos       = anchor_list_.get(i);
-      bool    selected  = (i == selected_anchor_);
-      Color   c         = selected ? WHITE : BLUE;
-      c.a               = selected ? 230 : 160;
-      float   radius    = selected ? 0.65f : 0.4f;
+      Vector3 pos      = anchor_list_.get(i);
+      bool    selected = (i == selected_anchor_);
+      Color   c        = selected ? WHITE : BLUE;
+      c.a              = selected ? 230 : 160;
+      float   radius   = selected ? 0.65f : 0.4f;
       DrawSphere(pos, radius, c);
-      // Vertical stem — thin line from anchor down to give depth cue
-      Color stem = c; stem.a = 80;
+      Color stem = c; stem.a = 70;
       DrawCylinder({pos.x, pos.y - 1.5f, pos.z}, 0.04f, 0.04f, 1.5f, 6, stem);
     }
+    rlEnableDepthTest();
   }
 }
