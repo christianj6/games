@@ -44,17 +44,22 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
     anchor_list_.place(current_position);
     anchor_place_flash_ = 1.0f;
     chord_active_       = true;
+    blink_state_        = BlinkState::IDLE; // cancel any in-progress blink
+    blink_hold_frames_  = 0;
+    recall_hold_frames_ = 0;
     return;
   }
 
   // Suppress all LB/RB actions until both buttons are fully released
   if (chord_active_) {
-    prev_blink_held_   = update.blink_held;
-    prev_recall_held_  = update.recall_held;
-    blink_hold_frames_ = 0;
-    recall_hold_frames_= 0;
-    if (!update.blink_held && !update.recall_held)
+    prev_blink_held_    = update.blink_held;
+    prev_recall_held_   = update.recall_held;
+    blink_hold_frames_  = 0;
+    recall_hold_frames_ = 0;
+    if (!update.blink_held && !update.recall_held) {
       chord_active_ = false;
+      blink_state_  = BlinkState::IDLE; // ensure clean state on exit
+    }
     return;
   }
 
