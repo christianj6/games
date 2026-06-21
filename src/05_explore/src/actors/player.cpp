@@ -41,13 +41,21 @@ void Player::do_blink(Vector3 target, bool record) {
 
 void Player::handle_blink(const MovementUpdate &update, World *world) {
   // ── CHORD: LB+RB — place anchor, clear both button states ────────────
-  if (update.place_anchor) {
+  if (update.place_anchor && !chord_active_) {
     anchor_list_.place(current_position);
-    anchor_place_flash_ = 1.0f;  // trigger blue flash
-    prev_blink_held_    = false;
-    prev_recall_held_   = false;
-    blink_hold_frames_  = 0;
-    recall_hold_frames_ = 0;
+    anchor_place_flash_ = 1.0f;
+    chord_active_       = true;
+    return;
+  }
+
+  // Suppress all LB/RB actions until both buttons are fully released
+  if (chord_active_) {
+    prev_blink_held_   = update.blink_held;
+    prev_recall_held_  = update.recall_held;
+    blink_hold_frames_ = 0;
+    recall_hold_frames_= 0;
+    if (!update.blink_held && !update.recall_held)
+      chord_active_ = false;
     return;
   }
 
