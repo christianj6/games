@@ -38,11 +38,90 @@ void Player::do_blink(Vector3 target, bool record) {
 }
 
 void Player::handle_blink(const MovementUpdate &update, World *world) {
-  // Recall: single LB tap — jump to most recent anchor
-  if (update.recall && !jump_list_.empty()) {
-    BlinkCommand cmd = jump_list_.pop();
-    do_blink(cmd.from, false); // recall doesn't push — prevents A↔B loop
+  // ── CHORD: LB+RB — place anchor, clear both button states ────────────
+  if (update.place_anchor) {
+    anchor_list_.place(current_position);
+    prev_blink_held_    = false;
+    prev_recall_held_   = false;
+    blink_hold_frames_  = 0;
+    recall_hold_frames_ = 0;
+    return;
   }
+
+  // ── LB STATE MACHINE ─────────────────────────────────────────────────
+  bool lb             = update.recall_held;
+  bool lb_pressed     = lb  && !prev_recall_held_;
+  bool lb_released    = !lb && prev_recall_held_;
+  prev_recall_held_   = lb;
+
+  if (lb_pressed)
+    recall_hold_frames_ = 0;
+  if (lb) {
+    recall_hold_frames_++;
+    if (recall_hold_frames_ >= recall_threshold_ &&
+        blink_state_ == BlinkState::IDLE &&
+        !anchor_list_.empty()) {
+      blink_state_         = BlinkState::RECALLING;
+      selected_anchor_     = -1;
+      prev_stick_magnitude_ = 0.0f;
+    }
+  }
+  if (lb_released) {
+    if (blink_state_ == BlinkState::RECALLING) {
+      if (selected_anchor_ >= 0 && selected_anchor_ < anchor_list_.size())
+        do_blink(anchor_list_.get(selected_anchor_), false);
+      blink_state_ = BlinkState::IDLE;
+    } else if (recall_hold_frames_ < recall_threshold_) {
+      // Quick tap: recall most recent blink position
+      if (!jump_list_.empty())
+        do_blink(jump_list_.pop().from, false);
+    }
+    recall_hold_frames_ = 0;
+  }
+
+  // ── RECALLING: flick right stick to select anchor ─────────────────
+  if (blink_state_ == BlinkState::RECALLING) {
+    float sx = fabsf(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X)) > 0.15f
+                   ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X) : 0.0f;
+    float sy = fabsf(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y)) > 0.15f
+                   ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y) : 0.0f;
+    float mag = sqrtf(sx * sx + sy * sy);
+
+    // Rising edge above flick threshold
+    if (mag > 0.5f && prev_stick_magnitude_ <= 0.5f) {
+      Vector3 look = Vector3Subtract(camera.target, camera.position);
+      Vector3 fwd   = Vector3Normalize({look.x, 0.0f, look.z});
+      Vector3 right = Vector3Normalize(Vector3CrossProduct(fwd, {0.0f, 1.0f, 0.0f}));
+      float fx = sx / mag;
+      float fy = -sy / mag; // stick Y inverted: push up = forward = positive
+
+      int best_i = -1; float best_score = 0.3f; // min threshold to select
+      for (int i = 0; i < anchor_list_.size(); i++) {
+        Vector3 to = Vector3Subtract(anchor_list_.get(i), current_position);
+        float horiz = sqrtf(to.x * to.x + to.z * to.z);
+        if (horiz < 0.01f) continue;
+        float ax = (to.x * right.x + to.z * right.z) / horiz;
+        float ay = (to.x * fwd.x   + to.z * fwd.z)   / horiz;
+        float score = fx * ax + fy * ay;
+        if (score > best_score) { best_score = score; best_i = i; }
+      }
+      if (best_i >= 0) selected_anchor_ = best_i;
+    }
+    prev_stick_magnitude_ = mag;
+  }
+
+  // ── B: cancel PREVIEWING or RECALLING ────────────────────────────────
+  if ((blink_state_ == BlinkState::PREVIEWING ||
+       blink_state_ == BlinkState::RECALLING) &&
+      IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+    blink_state_        = BlinkState::IDLE;
+    blink_hold_frames_  = 0;
+    recall_hold_frames_ = 0;
+    selected_anchor_    = -1;
+  }
+
+  // ── RB STATE MACHINE — blocked during recall ──────────────────────────
+  if (blink_state_ == BlinkState::RECALLING) return;
 
   bool held          = update.blink_held;
   bool just_released = !held && prev_blink_held_;
@@ -61,29 +140,16 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
         blink_state_ = BlinkState::PREVIEWING;
     }
     if (blink_state_ == BlinkState::PREVIEWING) {
-      // Update target every frame so it tracks camera rotation
       Vector3 dir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
       blink_target_ = world->find_blink_target(current_position, dir, hold_blink_range_);
-
-      // Elevated: target floor is notably higher than player's current floor
-      const float eye_height = 2.0f;
       float origin_floor = world->get_floor_height(current_position.x, current_position.z);
       float target_floor = world->get_floor_height(blink_target_.x, blink_target_.z);
       blink_target_elevated_ = (target_floor > origin_floor + 0.5f);
     }
   }
 
-  // Cancel preview with B — no teleport, no push
-  if (blink_state_ == BlinkState::PREVIEWING &&
-      IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
-    blink_state_       = BlinkState::IDLE;
-    blink_hold_frames_ = 0;
-  }
-
   if (just_released) {
     if (blink_state_ == BlinkState::HOLDING) {
-      // Tap blink: travel in movement direction (or camera-forward if idle),
-      // always horizontal so the player slides across the ground.
       float h_spd = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
                           horizontal_velocity_.z * horizontal_velocity_.z);
       Vector3 tap_dir;
@@ -95,7 +161,6 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
       }
       do_blink(world->find_blink_target_through(current_position, tap_dir, tap_blink_range_));
     } else if (blink_state_ == BlinkState::PREVIEWING) {
-      // Hold blink: teleport to previewed target
       do_blink(blink_target_);
     }
     blink_state_       = BlinkState::IDLE;
@@ -117,8 +182,9 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
                   + eye_height;
   bool on_ground = current_position.y <= floor_y && vertical_velocity_ <= 0.0f;
 
-  if (blink_state_ == BlinkState::PREVIEWING) {
-    // Suspend the player in place during preview
+  if (blink_state_ == BlinkState::PREVIEWING ||
+      blink_state_ == BlinkState::RECALLING) {
+    // Suspend the player in place during preview and recall
     vertical_velocity_   = 0.0f;
     current_position.y   = std::max(current_position.y, floor_y);
     on_ground            = true;
@@ -202,8 +268,9 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   prev_vertical_velocity_ = vertical_velocity_;
   squash_offset_ += (0.0f - squash_offset_) * squash_spring_rate_ * dt;
 
-  // Horizontal (blocked during preview)
-  if (blink_state_ != BlinkState::PREVIEWING) {
+  // Horizontal (blocked during preview and recall)
+  if (blink_state_ != BlinkState::PREVIEWING &&
+      blink_state_ != BlinkState::RECALLING) {
     Vector3 dir = camera_relative_direction(update.position);
     float input_len = sqrtf(dir.x * dir.x + dir.z * dir.z);
     if (input_len > 1.0f) { dir.x /= input_len; dir.z /= input_len; }
@@ -285,13 +352,21 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   camera.up.z = cam_right.z * sinf(tilt_rad);
 
   float camera_sensitivity = 0.095f;
+  bool suppress_look = (blink_state_ == BlinkState::RECALLING);
   UpdateCameraPro(&camera, Vector3{0},
-                  Vector3{update.camera.x * camera_sensitivity,
-                          update.camera.y * camera_sensitivity, 0.0f},
+                  suppress_look ? Vector3{0, 0, 0}
+                                : Vector3{update.camera.x * camera_sensitivity,
+                                          update.camera.y * camera_sensitivity, 0.0f},
                   0.0f);
 
   // Blink state machine (uses camera direction after mouse look)
   handle_blink(update, world);
+
+  // Kill bob and breathe during recall — camera must be still for selection
+  if (blink_state_ == BlinkState::RECALLING) {
+    bob_amplitude_    = 0.0f;
+    breathe_amplitude_ = 0.0f;
+  }
 
   // Head bob
   float h_speed = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
@@ -334,15 +409,26 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
 
 void Player::draw() {
   if (blink_state_ == BlinkState::PREVIEWING) {
-    Color c = BLUE;
-    c.a = 120;
-    // Cone when landing elevated (on top of a pillar); sphere on flat ground
+    Color c = BLUE; c.a = 120;
     if (blink_target_elevated_) {
-      // Upside-down cone: wide end up, tip pointing down at the pillar surface
       DrawCylinder({blink_target_.x, blink_target_.y, blink_target_.z},
                    0.5f, 0.0f, 1.2f, 8, c);
     } else {
       DrawSphere(blink_target_, 0.5f, c);
+    }
+  }
+
+  if (blink_state_ == BlinkState::RECALLING) {
+    for (int i = 0; i < anchor_list_.size(); i++) {
+      Vector3 pos       = anchor_list_.get(i);
+      bool    selected  = (i == selected_anchor_);
+      Color   c         = selected ? WHITE : BLUE;
+      c.a               = selected ? 230 : 160;
+      float   radius    = selected ? 0.65f : 0.4f;
+      DrawSphere(pos, radius, c);
+      // Vertical stem — thin line from anchor down to give depth cue
+      Color stem = c; stem.a = 80;
+      DrawCylinder({pos.x, pos.y - 1.5f, pos.z}, 0.04f, 0.04f, 1.5f, 6, stem);
     }
   }
 }

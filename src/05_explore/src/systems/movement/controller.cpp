@@ -19,5 +19,7 @@ MovementUpdate UserMovementController::tick() {
       input_provider->get_input_sprint(),
       input_provider->get_input_blink_held(),
       input_provider->get_input_recall(),
+      input_provider->get_input_recall_held(),
+      input_provider->get_input_place_anchor(),
   };
 }

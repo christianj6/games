@@ -39,6 +39,8 @@ bool KeyboardInputProvider::get_input_blink() { return false; }
 bool KeyboardInputProvider::get_input_blink_held() { return false; }
 
 bool KeyboardInputProvider::get_input_recall() { return false; }
+bool KeyboardInputProvider::get_input_recall_held() { return false; }
+bool KeyboardInputProvider::get_input_place_anchor() { return false; }
 
 float ControllerInputProvider::deadzone(float value, float threshold) {
   return fabsf(value) > threshold ? value : 0.0f;
@@ -79,4 +81,17 @@ bool ControllerInputProvider::get_input_blink_held() {
 
 bool ControllerInputProvider::get_input_recall() {
   return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_recall_held() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_place_anchor() {
+  // Chord: either button pressed while the other is already held
+  bool lb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  bool rb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+  bool lb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  bool rb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+  return (lb_p && rb_h) || (lb_h && rb_p);
 }

@@ -35,13 +35,21 @@ private:
   const float hold_blink_range_    = 24.0f;
   const int   tap_threshold_       = 10;   // frames; under = tap, over = hold
 
-  enum class BlinkState { IDLE, HOLDING, PREVIEWING };
+  enum class BlinkState { IDLE, HOLDING, PREVIEWING, RECALLING };
   BlinkState blink_state_         = BlinkState::IDLE;
   int  blink_hold_frames_         = 0;
   bool prev_blink_held_           = false;
   Vector3 blink_target_           = {0, 0, 0};
   bool    blink_target_elevated_  = false;
   JumpList jump_list_;
+
+  // Recall mode (Phase 2)
+  const int recall_threshold_     = 10;   // frames; under = quick tap, over = recall mode
+  AnchorList anchor_list_;
+  int  selected_anchor_           = -1;   // -1 = nothing selected
+  int  recall_hold_frames_        = 0;
+  bool prev_recall_held_          = false;
+  float prev_stick_magnitude_     = 0.0f;
 
   void handle_blink(const MovementUpdate &update, World *world);
   void do_blink(Vector3 target, bool record = true);

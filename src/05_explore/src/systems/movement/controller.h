@@ -12,7 +12,9 @@ struct MovementUpdate {
   bool jump_held;
   bool sprint;
   bool blink_held; // true every frame the blink button is held down
-  bool recall;     // single tap of LB — jump to most recent anchor
+  bool recall;         // LB pressed (edge) — kept for compatibility
+  bool recall_held;    // LB held down (level)
+  bool place_anchor;   // LB+RB chord
 };
 
 class MovementController {
