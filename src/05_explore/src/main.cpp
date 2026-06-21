@@ -10,6 +10,7 @@
  * pillars should be lit from multiple sides when you turn around to look at them it looks janky
  * generally the blink mechanics need thorough play-testing to identify pain points
  * maybe increase the landing squash
+ * some blink scenarios can still be a bit tricky so a few more tweaks are welcome
  */
 
 // TODO: friends and home
