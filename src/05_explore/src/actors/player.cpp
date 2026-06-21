@@ -69,7 +69,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
       const float eye_height = 2.0f;
       float origin_floor = world->get_floor_height(current_position.x, current_position.z);
       float target_floor = world->get_floor_height(blink_target_.x, blink_target_.z);
-      blink_target_elevated_ = (target_floor > origin_floor + 1.0f);
+      blink_target_elevated_ = (target_floor > origin_floor + 0.5f);
     }
   }
 

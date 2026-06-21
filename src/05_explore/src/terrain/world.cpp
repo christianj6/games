@@ -342,23 +342,30 @@ bool World::is_solid(Vector3 pos) const {
 
 Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
                                   float max_dist) const {
-  const float step       = 0.1f;
-  const float start      = 0.8f; // skip well past player's own AABB zone
-  const float eye_height = 2.0f;
+  const float step          = 0.1f;
+  const float start         = 0.8f;
+  const float eye_height    = 2.0f;
+  float player_floor_y = get_floor_height(origin.x, origin.z) + eye_height;
   Vector3 last_valid = origin;
+
   for (float dist = start; dist <= max_dist; dist += step) {
     Vector3 candidate = Vector3Add(origin, Vector3Scale(direction, dist));
-    // Hug the ground: if the ray dips below the floor, slide along it
-    // instead of stopping. This makes looking slightly downward work
-    // the same as looking forward.
     float floor_cam_y = get_floor_height(candidate.x, candidate.z) + eye_height;
-    if (candidate.y < floor_cam_y)
+
+    // Only hug elevated surfaces — when the target floor is HIGHER than the
+    // player's start floor (aiming at a ledge/pillar top). Skip hugging when
+    // looking down to lower or equal ground so the ball tracks the crosshair.
+    if (candidate.y < floor_cam_y && floor_cam_y > player_floor_y)
       candidate.y = floor_cam_y;
-    // Break only when the center point hits solid geometry (real wall).
-    // AABB-corner failures near pillar edges are skipped so the ray
-    // continues past the edge and finds valid ground on the other side.
-    if (is_solid(candidate))
+
+    if (is_solid(candidate)) {
+      // Hit solid geometry: try to pop the ball to the top of the surface.
+      // This lets the player land on a pillar by aiming at its side.
+      Vector3 surface_top = {candidate.x, floor_cam_y, candidate.z};
+      if (position_is_acceptable(surface_top))
+        last_valid = surface_top;
       break;
+    }
     if (position_is_acceptable(candidate))
       last_valid = candidate;
   }
