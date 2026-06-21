@@ -1,11 +1,4 @@
-// TODO: teleportation
-/*
- * pressing shift once teleports you forward in direction of camera
- * holding does the same time-stop blink thing as before
- * double tapping takes you back in your "jump list"
- */
-
-// TODO: polish
+// TODO: polish check up
 /*
  * pillars should be lit from multiple sides when you turn around to look at them it looks janky
  * generally the blink mechanics need thorough play-testing to identify pain points
