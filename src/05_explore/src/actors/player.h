@@ -9,6 +9,7 @@ public:
   Player();
   MovementUpdate update(float, Blackboard &) override;
   void draw() override;
+  void draw_hud(Camera3D camera);
   Camera3D get_camera() { return camera; }
 
 private:
@@ -54,7 +55,6 @@ private:
 
   void handle_blink(const MovementUpdate &update, World *world);
   void do_blink(Vector3 target, bool record = true);
-  void draw_hud(Camera3D camera); // 2D overlays — call after EndMode3D
 
   // strafe tilt
   const float tilt_max_angle_ = 2.0f;
