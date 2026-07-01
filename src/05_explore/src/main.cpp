@@ -4,6 +4,8 @@
  * some blink scenarios can still be a bit tricky so a few more tweaks are welcome
  * pillars should be lit from multiple sides when you turn around to look at them it looks janky
  * maybe increase the landing squash
+ * probably need a clamber mechanic ie if you press a button when almost on a ledge you clamber up it
+ * then mayber also a dishonoed style blink+clamber is welcome idk
  */
 
 // TODO: friends and home
