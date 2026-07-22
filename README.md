@@ -1,7 +1,6 @@
-### Games
-Practicing C++ with Raylib.
+# Raylib Game Development
 
-***
+Learning C++ and game programming through a series of progressively more complex projects, each one adding new techniques on top of the last.
 
 #### Installing Dependencies
 Unix
@@ -17,100 +16,85 @@ winget install Ninja-build.Ninja
 
 ***
 
-#### Building Projects
-To build any of the projects in the src/ directory, run the ```build.sh``` script of that project from the project root dir; for example:
-```
-bash ./src/02_hide/build.sh
-```
-
-Later projects also support builds on Windows with a .bat file:
-```
-.\src\04_teleport\build.bat
-```
-
-Additional Points
-- Builds from 04_teleport and beyond require vcpkg located in the project superior directory. For more information on setting up vcpkg, check [this resource](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell).
-- Earlier projects also support builds on MacOS, as they are based on the [Raylib Quickstart](https://github.com/raylib-extras/raylib-quickstart).
-
-***
+## Projects
 
 #### 00_jump
-Simple sidescrolling jumper. First experiences with Raylib, C++ syntax, and working with classes.
+Simple side-scrolling jumper. First steps with Raylib, C++ syntax, and working with classes.
 
-Build System: Premake, Make
+Build system: Premake, Make
 
-![img](./img/00_jump.png)
+![00_jump](./img/00_jump.png)
 
-***
+---
 
 #### 01_collect
-Top-down coin collecting game with an enemy that chases the player. Getting more comfortable with C++ and Raylib.
+Top-down coin collector with a chasing enemy. Getting comfortable with C++ and Raylib fundamentals.
 
-Build System: Premake, Make
+Build system: Premake, Make
 
-![img](./img/01_collect.png)
+![01_collect](./img/01_collect.png)
 
-***
+---
 
 #### 02_hide
-Top-down game where player must hide from a searching enemy. Working with pointers and better game abstractions.
+Top-down stealth game — player must hide from a searching enemy. Working with pointers and better game abstractions.
 
-Build System: Premake, Make
+Build system: Premake, Make
 
-![img](./img/02_hide.png)
+![02_hide](./img/02_hide.png)
 
-***
+---
 
 #### 03_shoot
-First-person shooter with patrolling enemies. Continuing to refine experience with game abstractions. Change build system.
+First-person shooter with patrolling enemies. Refining game abstractions, switching to CMake.
 
-Build System: CMake, Ninja
+Build system: CMake, Ninja
 
-![img](./img/03_shoot.png)
+![03_shoot](./img/03_shoot.png)
 
-***
+---
 
 #### 04_teleport
-Larger game world with teleportation mechanic. Refining C++ capabilities, game programming, and project organization.
-Working with additional packages and development tools. First experiences with shaders, meshes, and lighting.
+Larger game world with a teleportation mechanic. Introduces vcpkg, shaders, meshes, and lighting.
 
-Build System: vcpkg, CMake, Ninja
+Build system: vcpkg, CMake, Ninja
 
-![img](./img/04_teleport.png)
+![04_teleport](./img/04_teleport.png)
 
-***
+---
 
-#### 05_explore
-Even larger game world with exploration mechanics and more elaborate game state management. Continuing to polish "professional" C++ abilities and application of best practices. 
-Itch.io publish and preparation for a first game jam.
+#### 05_explore *(in progress)*
+Open-world exploration game with a behaviour tree AI system and custom shaders.
 
-Build System: vcpkg, CMake, Ninja
+Build system: vcpkg, CMake, Ninja
 
-***
+---
 
-#### 06_jam
-Kenney Jam 2025.
+#### 06_converse *(in progress)*
+Prototype for an LLM-driven narrative engine integrated into a Raylib game loop. Runs llama.cpp inference on a background thread alongside the renderer so the game never blocks — tokens arrive frame by frame. Includes a layered architecture (runtime → worker → scheduler) and an in-engine developer workspace for iterating on generative content.
 
-Build System: vcpkg, CMake, Ninja
+Build system: vcpkg, CMake, Ninja
 
-***
+---
 
-#### To Do 
-- [x] Jump
-- [x] Collect
-- [x] Hide
-- [x] Shoot
-- [x] Teleport
-- [ ] Explore (in progress)
-- [ ] Jam
-- [ ] Checkpoint, tidy, publish.
-- [ ] Mingle
-- [ ] Defend
+## Building
 
-***
+Projects `00_jump` through `02_hide` use Premake and Make:
+```bash
+cd src/00_jump
+make
+```
 
-#### Rules 
-- Each new project must be better than the previous.
-- Game jams are allowed to be less polished.
+Projects `03_shoot` and `04_teleport` use CMake and Ninja. Each has its own `build.sh`:
+```bash
+bash src/03_shoot/build.sh
+# or from the repo root:
+./build.sh 03_shoot
+```
 
-***
+`04_teleport` and later projects require [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started) installed in the parent directory of this repo.
+
+Dependencies (Linux/WSL):
+```bash
+sudo apt install clang-format cmake ninja-build pkg-config zip
+```
