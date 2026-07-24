@@ -58,13 +58,6 @@ Build system: vcpkg, CMake, Ninja
 
 ---
 
-#### 06_converse *(in progress)*
-Prototype for an LLM-driven narrative engine integrated into a Raylib game loop. Runs llama.cpp inference on a background thread alongside the renderer so the game never blocks — tokens arrive frame by frame. Includes a layered architecture (runtime → worker → scheduler) and an in-engine developer workspace for iterating on generative content.
-
-Build system: vcpkg, CMake, Ninja
-
----
-
 ## Building
 
 Projects `00_jump` through `02_hide` use Premake and Make:
