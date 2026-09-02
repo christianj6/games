@@ -1,5 +1,6 @@
 #include "game.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "utils/random.h"
 #include <cmath>
 #include <memory>
@@ -51,6 +52,21 @@ GameInfo Game::update() {
   }
   update_quest();
 
+  // Remove executed guards
+  for (auto it = actors.begin(); it != actors.end();) {
+    if ((*it)->is_dead())
+      it = actors.erase(it);
+    else
+      ++it;
+  }
+
+  // Damage feedback decay and LOSE
+  if (blackboard.damage_flash > 0.0f)
+    blackboard.damage_flash = std::fmax(0.0f, blackboard.damage_flash - dt * 3.0f);
+  if (blackboard.player_health <= 0.0f) {
+    blackboard.player_health = 0.0f;
+    current_state = GameState::LOSE;
+  }
 
   return {};
 }
@@ -101,21 +117,53 @@ void Game::toggle_pause() {
 }
 
 void Game::spawn_quest_items() {
+  const Vector3 player_spawn = {20.0f, 0.0f, 20.0f};
+  const float world_min = 16.0f;
+  const float world_max = (float)(64 * 16) - 16.0f;
   RandomNumberGenerator<float> angle(0.0f, 6.2831853f);
-  RandomNumberGenerator<float> dist(120.0f, 300.0f);
-  const float world_min = 8.0f;
-  const float world_max = (float)(64 * 16) - 8.0f;
+  RandomNumberGenerator<float> dist(200.0f, 460.0f);
+  std::vector<Vector3> placed;
+
   for (int i = 0; i < blackboard.quest.required; ++i) {
-    float a = angle();
-    float d = dist();
-    float x = cosf(a) * d;
-    float z = sinf(a) * d;
-    if (x < world_min) x = world_min;
-    if (x > world_max) x = world_max;
-    if (z < world_min) z = world_min;
-    if (z > world_max) z = world_max;
-    float y = world.get_floor_height(x, z) + 0.35f;
-    items_.push_back(std::make_unique<Item>(Vector3{x, y, z}));
+    Vector3 pos{};
+    for (int attempt = 0; attempt < 60; ++attempt) {
+      float x = cosf(angle()) * dist();
+      float z = sinf(angle()) * dist();
+      if (x < world_min) x = world_min;
+      if (x > world_max) x = world_max;
+      if (z < world_min) z = world_min;
+      if (z > world_max) z = world_max;
+      pos = {x, 0.0f, z};
+
+      // Keep shards away from the player spawn and spread apart from each
+      // other so exploration covers the whole world, not one quadrant.
+      Vector3 to_spawn = Vector3Subtract(pos, player_spawn);
+      if (Vector3Length(to_spawn) < 180.0f)
+        continue;
+      bool clear = true;
+      for (const auto &p : placed) {
+        if (Vector3Length(Vector3Subtract(pos, p)) < 100.0f) {
+          clear = false;
+          break;
+        }
+      }
+      if (clear)
+        break;
+    }
+    placed.push_back(pos);
+
+    float y = world.get_floor_height(pos.x, pos.z) + 0.35f;
+    items_.push_back(std::make_unique<Item>(Vector3{pos.x, y, pos.z}));
+    // Multiple guards per shard, posted on opposite sides, patrolling it.
+    RandomNumberGenerator<float> guard_angle(0.0f, 6.2831853f);
+    float ga = guard_angle();
+    constexpr int kGuardsPerShard = 2;
+    for (int g = 0; g < kGuardsPerShard; ++g) {
+      float a = ga + g * 3.14159265f; // opposite posts
+      actors.push_back(std::make_unique<Enemy>(
+          &renderer,
+          Vector3{pos.x + cosf(a) * 5.0f, 0.0f, pos.z + sinf(a) * 5.0f}));
+    }
   }
 }
 

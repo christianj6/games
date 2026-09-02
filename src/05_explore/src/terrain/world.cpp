@@ -455,3 +455,19 @@ bool World::position_is_acceptable(Vector3 camera_pos) const {
 
   return true;
 }
+
+bool World::has_line_of_sight(Vector3 from, Vector3 to) const {
+  Vector3 delta = Vector3Subtract(to, from);
+  float dist = Vector3Length(delta);
+  if (dist < 0.01f)
+    return true;
+  const float step = 0.5f;
+  int steps = (int)(dist / step);
+  for (int i = 1; i < steps; ++i) {
+    float t = (float)i * step / dist;
+    Vector3 p = Vector3Add(from, Vector3Scale(delta, t));
+    if (is_solid(p))
+      return false;
+  }
+  return true;
+}

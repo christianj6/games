@@ -37,6 +37,18 @@ void Hud::draw(Blackboard blackboard) {
   if (frac > 1.0f) frac = 1.0f;
   DrawRectangle(hx + 2, hy + 2, (int)((hw - 4) * frac), hh - 4, RED);
 
+  // Damage vignette
+  if (blackboard.damage_flash > 0.0f) {
+    Color c = RED;
+    c.a = (unsigned char)(blackboard.damage_flash * 120);
+    int w = GetScreenWidth(), h = GetScreenHeight();
+    const int t = 60;
+    DrawRectangle(0, 0, w, t, c);
+    DrawRectangle(0, h - t, w, t, c);
+    DrawRectangle(0, 0, t, h, c);
+    DrawRectangle(w - t, 0, t, h, c);
+  }
+
   // Interaction prompt
   if (blackboard.friend_nearby && blackboard.quest.state == QuestState::TURN_IN) {
     const char *prompt = "[E] Talk to friend";

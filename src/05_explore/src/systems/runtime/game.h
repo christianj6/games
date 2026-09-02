@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "actors/actor.h"
+#include "actors/enemy.h"
 #include "actors/friend.h"
 #include "actors/item.h"
 #include "actors/player.h"

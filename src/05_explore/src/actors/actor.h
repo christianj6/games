@@ -20,6 +20,7 @@ struct Blackboard {
   float player_health = 100.0f; // Phase 2: enemy damage; HUD reads it today
   QuestInfo quest;
   bool friend_nearby = false; // set by Friend when player is in talk range
+  float damage_flash = 0.0f; // decays in Game::update; HUD draws a red vignette
 };
 
 class Actor {
@@ -29,6 +30,8 @@ public:
   virtual void get_nearest_available_position(Vector3); // public?
   virtual MovementUpdate update(float, Blackboard &) = 0;
   virtual void draw() = 0;
+  virtual bool is_dead() const { return false; }
+
 
   void set_world(std::shared_ptr<World>);
 
