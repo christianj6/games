@@ -19,6 +19,14 @@ MovementUpdate Item::update(float dt, Blackboard &blackboard) {
 }
 
 void Item::draw() {
+  // Beacon beam: tall translucent column visible across the world.
+  // Drawn from the shard, so it disappears the moment it is collected.
+  const float beam_height = 60.0f;
+  Vector3 beam_center = {current_position.x, base_y_ + beam_height * 0.5f,
+                         current_position.z};
+  DrawCylinder(beam_center, 0.9f, 0.9f, beam_height, 12, {255, 200, 60, 40});
+  DrawCylinder(beam_center, 0.35f, 0.35f, beam_height, 12, {255, 220, 90, 110});
+
   float bob = sinf(bob_timer_ * 2.5f) * 0.15f;
   Vector3 p = current_position;
   p.y = base_y_ + 0.6f + bob;

@@ -251,6 +251,22 @@ void Enemy::move_toward(World *world, Vector3 target, float speed, float dt) {
     has_target_ = false; // fully blocked: pick a new patrol waypoint
 }
 
+void Enemy::incapacitate() {
+  incapacitated_ = true;
+  alert_ = 0.0f;
+  revive_timer_ = 0.0f;
+  has_target_ = false;
+}
+
+void Enemy::revive() {
+  incapacitated_ = false;
+  alert_ = 0.0f;
+  revive_timer_ = 0.0f;
+  has_target_ = false;
+}
+
+void Enemy::set_revive_target(Enemy *ally) { revive_target_ = ally; }
+
 MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
   World *world = blackboard.world;
   if (world == nullptr)
@@ -258,14 +274,42 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
   if (!initialized_)
     lazy_init(world);
 
-  // Player melee execution: risky, only at very close range.
+  if (incapacitated_) {
+    // Downed: no vision, no AI, waiting for an ally.
+    return {};
+  }
+
+  // Contextual takedown: behind an unaware guard = incapacitate;
+  // otherwise (spotted / face-to-face) = kill.
   Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
                                       current_position);
   float dist = Vector3Length(to_player);
-  if (dist < kKillRange &&
-      (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
-       IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)))
-    dead_ = true;
+  if (dist < kKillRange) {
+    bool attack = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
+                  IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP);
+    if (attack) {
+      float yaw = heading_deg_ * DEG2RAD;
+      Vector3 facing = {sinf(yaw), 0.0f, cosf(yaw)};
+      Vector3 flat = Vector3Normalize({to_player.x, 0.0f, to_player.z});
+      bool behind = Vector3DotProduct(facing, flat) < 0.0f;
+      if (behind && alert_ < 1.0f) {
+        incapacitate();
+        return {};
+      }
+      dead_ = true;
+      return {};
+    }
+    bool behind = [&] {
+      float yaw = heading_deg_ * DEG2RAD;
+      Vector3 facing = {sinf(yaw), 0.0f, cosf(yaw)};
+      Vector3 flat = Vector3Normalize({to_player.x, 0.0f, to_player.z});
+      return Vector3DotProduct(facing, flat) < 0.0f;
+    }();
+    if (behind && alert_ < 1.0f)
+      blackboard.takedown_available = true;
+    else
+      blackboard.attack_available = true;
+  }
 
   // Detection: fills while visible (faster up close), drains otherwise.
   bool sees = can_see_player(blackboard);
@@ -285,7 +329,25 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
   ctx_.world = world;
   ctx_.dt = dt;
   ctx_.sees_player = sees;
-  tree_.tickOnce();
+
+  if (revive_target_ != nullptr) {
+    // Revive duty overrides everything: walk to the ally, stand, lift them.
+    Vector3 d = Vector3Subtract(revive_target_->get_position(),
+                                current_position);
+    float ally_dist = Vector3Length(d);
+    if (ally_dist > 2.0f) {
+      move_toward(world, revive_target_->get_position(), 3.0f, dt);
+    } else {
+      revive_timer_ += dt;
+      if (revive_timer_ >= 1.5f) {
+        revive_target_->revive();
+        revive_target_ = nullptr;
+        revive_timer_ = 0.0f;
+      }
+    }
+  } else {
+    tree_.tickOnce();
+  }
 
   if (tracer_timer_ > 0.0f)
     tracer_timer_ = std::fmax(0.0f, tracer_timer_ - dt);
@@ -294,8 +356,27 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
       world->get_floor_height(current_position.x, current_position.z) + 0.9f;
   return {};
 }
-
 void Enemy::draw() {
+  float yaw = heading_deg_ * DEG2RAD;
+  Vector3 fwd = {sinf(yaw), 0.0f, cosf(yaw)};
+
+  if (incapacitated_) {
+    // Lying on the ground, facing side up.
+    Vector3 right = {fwd.z, 0.0f, -fwd.x};
+    float gy = current_position.y - 0.9f + 0.35f;
+    Vector3 c = {current_position.x, gy, current_position.z};
+    if (model_loaded_) {
+      DrawModelEx(model_, {current_position.x, gy, current_position.z}, fwd,
+                  90.0f, {model_scale_, model_scale_, model_scale_}, GRAY);
+    } else {
+      DrawCylinderEx(Vector3Add(c, Vector3Scale(right, -0.6f)),
+                     Vector3Add(c, Vector3Scale(right, 0.6f)), 0.3f, 0.3f, 8,
+                     DARKGRAY);
+      DrawSphere(Vector3Add(c, Vector3Scale(right, 0.75f)), 0.26f, MAROON);
+    }
+    return;
+  }
+
   if (model_loaded_) {
     DrawModelEx(model_, current_position, {0.0f, 1.0f, 0.0f}, heading_deg_,
                 {model_scale_, model_scale_, model_scale_}, WHITE);

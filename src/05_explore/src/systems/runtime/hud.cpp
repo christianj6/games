@@ -49,7 +49,17 @@ void Hud::draw(Blackboard blackboard) {
     DrawRectangle(w - t, 0, t, h, c);
   }
 
-  // Interaction prompt
+
+  // Contextual takedown / strike prompt
+  if (blackboard.takedown_available || blackboard.attack_available) {
+    const char *action = blackboard.takedown_available ? "[LMB] Takedown"
+                                                       : "[LMB] Strike";
+    int aw = MeasureText(action, 22);
+    DrawText(action, GetScreenWidth() / 2 - aw / 2,
+             GetScreenHeight() / 2 + 44, 22,
+             blackboard.takedown_available ? SKYBLUE : MAROON);
+  }
+
   if (blackboard.friend_nearby && blackboard.quest.state == QuestState::TURN_IN) {
     const char *prompt = "[E] Talk to friend";
     int w = MeasureText(prompt, 24);

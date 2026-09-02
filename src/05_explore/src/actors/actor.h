@@ -21,6 +21,8 @@ struct Blackboard {
   QuestInfo quest;
   bool friend_nearby = false; // set by Friend when player is in talk range
   float damage_flash = 0.0f; // decays in Game::update; HUD draws a red vignette
+  bool takedown_available = false; // behind an unaware guard
+  bool attack_available = false;   // in range, not from behind
 };
 
 class Actor {

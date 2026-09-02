@@ -8,6 +8,11 @@ public:
   ~Enemy() override;
 
   bool is_dead() const override { return dead_; }
+  bool is_incapacitated() const { return incapacitated_; }
+  Vector3 get_position() const { return current_position; }
+  void incapacitate();
+  void revive();
+  void set_revive_target(Enemy *ally);
   MovementUpdate update(float dt, Blackboard &blackboard) override;
   void draw() override;
 
@@ -44,6 +49,9 @@ private:
   float tracer_timer_ = 0.0f;
   Vector3 tracer_from_ = {0, 0, 0};
   Vector3 tracer_to_ = {0, 0, 0};
+  bool incapacitated_ = false;
+  float revive_timer_ = 0.0f;
+  Enemy *revive_target_ = nullptr;
   float heading_deg_ = 0.0f;
   Model model_{};
   bool model_loaded_ = false;

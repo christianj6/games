@@ -43,8 +43,38 @@ GameInfo Game::update() {
   renderer.update(player.get_camera());
 
   blackboard.friend_nearby = false;
+  blackboard.takedown_available = false;
+  blackboard.attack_available = false;
   for (auto &a : actors) {
     a->update(scaled_dt, blackboard);
+  }
+
+  // Guard revival: nearest standing guard walks to a downed ally and lifts
+  // them after a moment. Takes that guard off patrol — a stealth reward.
+  for (auto &a : actors) {
+    auto *e = dynamic_cast<Enemy *>(a.get());
+    if (e != nullptr && !e->is_incapacitated())
+      e->set_revive_target(nullptr);
+  }
+  for (auto &a : actors) {
+    auto *down = dynamic_cast<Enemy *>(a.get());
+    if (down == nullptr || !down->is_incapacitated())
+      continue;
+    Enemy *best = nullptr;
+    float best_d = 50.0f;
+    for (auto &b : actors) {
+      auto *e = dynamic_cast<Enemy *>(b.get());
+      if (e == nullptr || e == down || e->is_incapacitated())
+        continue;
+      float d = Vector3Length(Vector3Subtract(e->get_position(),
+                                              down->get_position()));
+      if (d < best_d) {
+        best_d = d;
+        best = e;
+      }
+    }
+    if (best != nullptr)
+      best->set_revive_target(down);
   }
   friend_->update(scaled_dt, blackboard);
   for (auto &item : items_) {
@@ -154,15 +184,32 @@ void Game::spawn_quest_items() {
 
     float y = world.get_floor_height(pos.x, pos.z) + 0.35f;
     items_.push_back(std::make_unique<Item>(Vector3{pos.x, y, pos.z}));
-    // Multiple guards per shard, posted on opposite sides, patrolling it.
+    // Multiple guards per shard, posted on opposite sides. Posts must be on
+    // walkable ground — never on top of a pillar.
     RandomNumberGenerator<float> guard_angle(0.0f, 6.2831853f);
     float ga = guard_angle();
     constexpr int kGuardsPerShard = 2;
     for (int g = 0; g < kGuardsPerShard; ++g) {
-      float a = ga + g * 3.14159265f; // opposite posts
-      actors.push_back(std::make_unique<Enemy>(
-          &renderer,
-          Vector3{pos.x + cosf(a) * 5.0f, 0.0f, pos.z + sinf(a) * 5.0f}));
+      float base_a = ga + g * 3.14159265f; // opposite posts
+      Vector3 post = pos;
+      bool found = false;
+      for (int attempt = 0; attempt < 24 && !found; ++attempt) {
+        float a = base_a + attempt * 0.9f;
+        float off = 4.0f + (attempt % 5) * 2.0f;
+        float gx = pos.x + cosf(a) * off;
+        float gz = pos.z + sinf(a) * off;
+        if (gx < 8.0f) gx = 8.0f;
+        if (gx > 1016.0f) gx = 1016.0f;
+        if (gz < 8.0f) gz = 8.0f;
+        if (gz > 1016.0f) gz = 1016.0f;
+        float h = world.get_floor_height(gx, gz);
+        // Prefer plain ground; rubble pillar tops (<= 5) as last resort.
+        if ((attempt < 12 && h <= 2.5f) || (attempt >= 12 && h <= 5.0f)) {
+          post = Vector3{gx, 0.0f, gz};
+          found = true;
+        }
+      }
+      actors.push_back(std::make_unique<Enemy>(&renderer, post));
     }
   }
 }
