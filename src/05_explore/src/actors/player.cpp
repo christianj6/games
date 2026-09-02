@@ -101,6 +101,14 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
 
   // ── RECALLING: flick right stick to select anchor ─────────────────
   if (blink_state_ == BlinkState::RECALLING) {
+    // Keyboard: number keys pick an anchor directly.
+    const int anchor_keys[5] = {KEY_ONE, KEY_TWO, KEY_THREE, KEY_FOUR,
+                                KEY_FIVE};
+    for (int i = 0; i < anchor_list_.size() && i < 5; ++i) {
+      if (IsKeyPressed(anchor_keys[i]))
+        selected_anchor_ = i;
+    }
+
     float sx = fabsf(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X)) > 0.15f
                    ? GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X) : 0.0f;
     float sy = fabsf(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y)) > 0.15f
@@ -517,6 +525,8 @@ void Player::draw_hud(Camera3D camera) {
       bool sel = (i == selected_anchor_);
       Color pc = sel ? WHITE : BLUE; pc.a = sel ? 220 : 160;
       DrawCircle((int)screen_pos.x, (int)screen_pos.y, sel ? 9.0f : 6.0f, pc);
+      DrawText(TextFormat("%d", i + 1), (int)screen_pos.x - 5,
+               (int)screen_pos.y - 30, 16, WHITE);
       continue;
     }
 

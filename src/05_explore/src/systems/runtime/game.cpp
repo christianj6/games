@@ -105,6 +105,17 @@ GameInfo Game::update() {
   // Damage feedback decay and LOSE
   if (blackboard.damage_flash > 0.0f)
     blackboard.damage_flash = std::fmax(0.0f, blackboard.damage_flash - dt * 3.0f);
+
+  // Slow health regeneration after 5s without taking damage.
+  if (blackboard.player_health < last_health_)
+    time_since_damage_ = 0.0f;
+  else
+    time_since_damage_ += dt;
+  last_health_ = blackboard.player_health;
+  if (time_since_damage_ > 5.0f && blackboard.player_health > 0.0f)
+    blackboard.player_health =
+        std::fmin(100.0f, blackboard.player_health + 3.0f * dt);
+
   if (blackboard.player_health <= 0.0f) {
     blackboard.player_health = 0.0f;
     Audio::get().play(Sfx::Lose, 0.8f);
@@ -182,6 +193,10 @@ void Game::spawn_quest_items() {
       // other so exploration covers the whole world, not one quadrant.
       Vector3 to_spawn = Vector3Subtract(pos, player_spawn);
       if (Vector3Length(to_spawn) < 180.0f)
+        continue;
+      // Reachability: shards on spire tops (>= ~25 u) are beyond double-jump
+      // + blink range — never place them there.
+      if (world.get_floor_height(pos.x, pos.z) > 12.0f)
         continue;
       bool clear = true;
       for (const auto &p : placed) {

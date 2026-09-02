@@ -455,13 +455,18 @@ void Enemy::draw() {
   }
   draw_vision_cone();
 
-  // Detection meter: colored marker above the head (Dishonored-style).
+  // Detection indicator above the head. Fully alerted guards get a pulsing
+  // exclamation mark; otherwise a simple meter dot.
   Color c = alert_ >= 1.0f ? RED : (alert_ >= 0.35f ? ORANGE : LIME);
   Vector3 m = {current_position.x, current_position.y + 2.1f,
                current_position.z};
-  DrawSphere(m, 0.09f + 0.08f * alert_, c);
-  if (alert_ >= 1.0f)
-    DrawCylinder({m.x, m.y + 0.25f, m.z}, 0.04f, 0.04f, 0.25f, 6, RED);
+  if (alert_ >= 1.0f) {
+    float pulse = 1.0f + 0.15f * sinf((float)GetTime() * 10.0f);
+    DrawCylinder(m, 0.07f * pulse, 0.07f * pulse, 0.45f, 8, RED);
+    DrawSphere({m.x, m.y - 0.38f, m.z}, 0.09f * pulse, RED);
+  } else {
+    DrawSphere(m, 0.09f + 0.08f * alert_, c);
+  }
 
   // Shot tracer
   if (tracer_timer_ > 0.0f) {
