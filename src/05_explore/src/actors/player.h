@@ -43,6 +43,11 @@ private:
   Vector3 blink_target_           = {0, 0, 0};
   Vector3 blink_target_smooth_    = {0, 0, 0}; // lerped display position
   bool    blink_target_elevated_  = false;
+  // Ledge clamber
+  bool clambering_ = false;
+  float clamber_t_ = 0.0f;
+  Vector3 clamber_start_ = {0, 0, 0};
+  Vector3 clamber_end_ = {0, 0, 0};
   JumpList jump_list_;
 
   // Recall mode (Phase 2)
@@ -75,7 +80,7 @@ private:
   float bob_amplitude_ = 0.0f;
 
   // landing squash / takeoff kick
-  const float squash_amount_ = 0.22f;
+  const float squash_amount_ = 0.34f;
   const float takeoff_kick_ = 0.05f;
   const float squash_spring_rate_ = 10.0f;
   float squash_offset_ = 0.0f;

@@ -228,6 +228,34 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
                   + eye_height;
   bool on_ground = current_position.y <= floor_y && vertical_velocity_ <= 0.0f;
 
+  // ── Ledge clamber: airborne + jump + ledge within reach ahead ────────
+  if (clambering_) {
+    // Advance the mantle arc (smoothstepped), then camera-only frame.
+    clamber_t_ += dt;
+    float u = fminf(clamber_t_ / 0.3f, 1.0f);
+    float s = u * u * (3.0f - 2.0f * u);
+    current_position.x = clamber_start_.x + (clamber_end_.x - clamber_start_.x) * s;
+    current_position.y = clamber_start_.y + (clamber_end_.y - clamber_start_.y) * s;
+    current_position.z = clamber_start_.z + (clamber_end_.z - clamber_start_.z) * s;
+    if (u >= 1.0f) {
+      clambering_ = false;
+      vertical_velocity_ = 0.0f;
+      jumps_remaining_ = max_jumps_;
+    }
+    // Suppress stale blink edges across the mantle.
+    prev_blink_held_ = update.blink_held;
+    prev_recall_held_ = update.recall_held;
+    Vector3 look_dir = Vector3Subtract(camera.target, camera.position);
+    camera.position = current_position;
+    camera.target = Vector3Add(camera.position, look_dir);
+    UpdateCameraPro(&camera, Vector3{0},
+                    Vector3{update.camera.x * 0.095f, update.camera.y * 0.095f,
+                            0.0f},
+                    0.0f);
+    return {current_position, {camera.position.x, camera.position.y},
+            update.jump, false, update.jump_held};
+  }
+
   if (blink_state_ == BlinkState::PREVIEWING ||
       blink_state_ == BlinkState::RECALLING) {
     // Suspend the player in place during preview and recall
@@ -350,16 +378,50 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
       current_position.x = full.x;
       current_position.z = full.z;
     } else {
-      Vector3 slide_x = {ox + ddx, current_position.y, oz};
-      if (world->position_is_acceptable(slide_x))
-        current_position.x = slide_x.x;
-      else
-        horizontal_velocity_.x = 0.0f;
-      Vector3 slide_z = {current_position.x, current_position.y, oz + ddz};
-      if (world->position_is_acceptable(slide_z))
-        current_position.z = slide_z.z;
-      else
-        horizontal_velocity_.z = 0.0f;
+      // Blocked: try stepping/vaulting the ledge ahead before sliding.
+      Vector3 pdir = dir;
+      float plen = sqrtf(pdir.x * pdir.x + pdir.z * pdir.z);
+      bool handled = false;
+      if (plen > 0.01f) {
+        pdir.x /= plen;
+        pdir.z /= plen;
+        Vector3 probe = {current_position.x + pdir.x * 0.7f,
+                         current_position.y,
+                         current_position.z + pdir.z * 0.7f};
+        float ledge_floor = world->get_floor_height(probe.x, probe.z);
+        float rise = ledge_floor - (floor_y - eye_height);
+        Vector3 top = {probe.x, ledge_floor + eye_height, probe.z};
+        if (rise > 0.0f && world->position_is_acceptable(top)) {
+          if (rise <= 1.1f && on_ground) {
+            // Step up small ledges while grounded.
+            current_position.x = probe.x;
+            current_position.z = probe.z;
+            current_position.y = top.y;
+            vertical_velocity_ = 0.0f;
+            handled = true;
+          } else if (rise <= (on_ground ? 1.9f : 2.6f)) {
+            // Auto clamber: vault onto the ledge, no jump needed.
+            // Extra reach while airborne — grab ledges as you fall past.
+            clambering_ = true;
+            clamber_t_ = 0.0f;
+            clamber_start_ = current_position;
+            clamber_end_ = top;
+            handled = true;
+          }
+        }
+      }
+      if (!handled) {
+        Vector3 slide_x = {ox + ddx, current_position.y, oz};
+        if (world->position_is_acceptable(slide_x))
+          current_position.x = slide_x.x;
+        else
+          horizontal_velocity_.x = 0.0f;
+        Vector3 slide_z = {current_position.x, current_position.y, oz + ddz};
+        if (world->position_is_acceptable(slide_z))
+          current_position.z = slide_z.z;
+        else
+          horizontal_velocity_.z = 0.0f;
+      }
     }
   } else {
     // Bleed off horizontal velocity while previewing
