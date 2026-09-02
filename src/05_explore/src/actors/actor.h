@@ -14,6 +14,7 @@ struct Blackboard {
 class Actor {
 public:
   Actor() = default;
+  virtual ~Actor() = default;
   virtual void get_nearest_available_position(Vector3); // public?
   virtual MovementUpdate update(float, Blackboard &) = 0;
   virtual void draw() = 0;

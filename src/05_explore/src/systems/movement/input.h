@@ -4,7 +4,7 @@
 class InputProvider {
 public:
   InputProvider() = default;
-  ~InputProvider() = default;
+  virtual ~InputProvider() = default;
   virtual Vector3 get_input_movement_vector() = 0;
   virtual Vector2 get_input_look_vector() = 0;
   virtual bool get_input_jump() = 0;
