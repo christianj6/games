@@ -12,6 +12,7 @@ static Material configure_material(Renderer *renderer) {
 Chunk::Chunk(Vector2 position, int size, Renderer *renderer)
     : position_(position), size_(size) {
   voxels_.assign(size_ * size_ * size_, 0);
+  heights_.assign(size_ * size_, 0);
   mesh_ = {0};
   if (renderer == nullptr) {
     static Material default_material = LoadMaterialDefault();
@@ -28,13 +29,28 @@ bool Chunk::is_in_bounds(int x, int y, int z) const {
 }
 
 void Chunk::set_voxel(int x, int y, int z) {
-  if (is_in_bounds(x, y, z))
+  if (is_in_bounds(x, y, z)) {
     voxels_[x * size_ * size_ + y * size_ + z] = 1;
+    uint8_t &h = heights_[x * size_ + z];
+    if (y + 1 > h)
+      h = (uint8_t)(y + 1);
+  }
 }
 
 void Chunk::clear_voxel(int x, int y, int z) {
-  if (is_in_bounds(x, y, z))
+  if (is_in_bounds(x, y, z)) {
     voxels_[x * size_ * size_ + y * size_ + z] = 0;
+    uint8_t &h = heights_[x * size_ + z];
+    if ((uint8_t)(y + 1) == h) {
+      h = 0;
+      for (int yy = size_ - 1; yy >= 0; --yy) {
+        if (voxels_[x * size_ * size_ + yy * size_ + z] != 0) {
+          h = (uint8_t)(yy + 1);
+          break;
+        }
+      }
+    }
+  }
 }
 
 bool Chunk::is_filled(int x, int y, int z) const {

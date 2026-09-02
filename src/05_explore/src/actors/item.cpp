@@ -1,5 +1,6 @@
 #include "item.h"
 #include "raylib.h"
+#include "systems/runtime/audio.h"
 #include "raymath.h"
 
 Item::Item(Vector3 position) { current_position = position; base_y_ = position.y; }
@@ -12,8 +13,12 @@ MovementUpdate Item::update(float dt, Blackboard &blackboard) {
   // ground-level grabs through the pillar).
   Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
                                       current_position);
-  if (Vector3Length(to_player) < 1.8f)
+  if (Vector3Length(to_player) < 1.8f && !collected_) {
     collected_ = true;
+    Audio::get().play_at(Sfx::Pickup, blackboard.current_player_position,
+                         current_position, blackboard.listener_right, 50.0f,
+                         0.9f);
+  }
 
   return {};
 }

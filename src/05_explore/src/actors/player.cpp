@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "systems/movement/controller.h"
+#include "systems/runtime/audio.h"
 #include <cmath>
 #include <fmt/base.h>
 
@@ -43,6 +44,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
   // ── CHORD: LB+RB — place anchor, clear both button states ────────────
   if (update.place_anchor && !chord_active_) {
     anchor_list_.place(current_position);
+    Audio::get().play(Sfx::Anchor, 0.6f);
     anchor_place_flash_ = 1.0f;
     chord_active_       = true;
     blink_state_        = BlinkState::IDLE; // cancel any in-progress blink
@@ -89,8 +91,10 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
       blink_state_ = BlinkState::IDLE;
     } else if (recall_hold_frames_ < recall_threshold_) {
       // Quick tap: recall most recent blink position
-      if (!jump_list_.empty())
+      if (!jump_list_.empty()) {
+        Audio::get().play(Sfx::Recall, 0.6f);
         do_blink(jump_list_.pop().from, false);
+      }
     }
     recall_hold_frames_ = 0;
   }
@@ -182,6 +186,7 @@ void Player::handle_blink(const MovementUpdate &update, World *world) {
   }
 
   if (just_released) {
+    Audio::get().play(Sfx::Blink, 0.45f);
     if (blink_state_ == BlinkState::HOLDING) {
       float h_spd = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
                           horizontal_velocity_.z * horizontal_velocity_.z);
@@ -421,6 +426,12 @@ MovementUpdate Player::update(float dt, Blackboard &blackboard) {
   float h_speed = sqrtf(horizontal_velocity_.x * horizontal_velocity_.x +
                         horizontal_velocity_.z * horizontal_velocity_.z);
   bob_timer_ += h_speed * bob_freq_ * dt;
+  int step_phase = (int)(bob_timer_ / 3.14159f);
+  if (step_phase != prev_step_phase_) {
+    prev_step_phase_ = step_phase;
+    if (on_ground && h_speed > 1.0f && blink_state_ != BlinkState::PREVIEWING)
+      Audio::get().play(Sfx::Step, 0.4f);
+  }
   float target_amp = h_speed > 0.5f ? 1.0f : 0.0f;
   bob_amplitude_ += (target_amp - bob_amplitude_) * bob_fade_rate_ * dt;
   float bob_scale = bob_amplitude_ * (sprint_active_ ? bob_sprint_scale_ : 1.0f);

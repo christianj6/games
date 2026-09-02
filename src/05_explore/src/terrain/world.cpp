@@ -428,9 +428,14 @@ bool World::is_ceiling_blocked(Vector3 camera_pos) const {
 }
 
 float World::get_floor_height(float x, float z) const {
-  for (int y = 63; y >= 0; --y) {
-    if (is_solid({x, (float)y, z}))
-      return (float)(y + 1);
+  // O(1) via the per-chunk column-height cache (was a 64-step voxel scan).
+  int cx = (int)std::floor(x / chunk_size_);
+  int cz = (int)std::floor(z / chunk_size_);
+  int lx = (int)std::floor(x) - cx * chunk_size_;
+  int lz = (int)std::floor(z) - cz * chunk_size_;
+  for (auto &c : chunks_) {
+    if ((int)c->get_position().x == cx && (int)c->get_position().y == cz)
+      return (float)c->column_height(lx, lz);
   }
   return 0.0f;
 }

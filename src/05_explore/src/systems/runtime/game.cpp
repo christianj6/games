@@ -1,12 +1,15 @@
 #include "game.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "systems/runtime/audio.h"
 #include "utils/random.h"
 #include <cmath>
 #include <memory>
 
 
 Game::Game() {
+  Audio::get().init(); // device must be ready before enemies load their hum
+
   blackboard.world = &world;
 
   // TODO: remove sequential coupling
@@ -17,6 +20,8 @@ Game::Game() {
   blackboard.quest.required = 5;
   spawn_quest_items();
 }
+
+Game::~Game() { Audio::get().stop_ambient(); }
 
 
 GameInfo Game::tick(bool debug) {
@@ -41,6 +46,13 @@ GameInfo Game::update() {
   float scaled_dt = dt * blackboard.time_scale;
   world.update(scaled_dt, blackboard.current_player_position);
   renderer.update(player.get_camera());
+  Audio::get().update(); // ambient wind stream
+
+  // Listener orientation for pseudo-spatial audio panning.
+  Camera3D cam = player.get_camera();
+  Vector3 cam_fwd = Vector3Normalize(Vector3Subtract(cam.target, cam.position));
+  blackboard.listener_right =
+      Vector3Normalize(Vector3CrossProduct(cam_fwd, {0.0f, 1.0f, 0.0f}));
 
   blackboard.friend_nearby = false;
   blackboard.takedown_available = false;
@@ -95,6 +107,7 @@ GameInfo Game::update() {
     blackboard.damage_flash = std::fmax(0.0f, blackboard.damage_flash - dt * 3.0f);
   if (blackboard.player_health <= 0.0f) {
     blackboard.player_health = 0.0f;
+    Audio::get().play(Sfx::Lose, 0.8f);
     current_state = GameState::LOSE;
   }
 
@@ -225,14 +238,17 @@ void Game::update_quest() {
     }
   }
   if (blackboard.quest.state == QuestState::COLLECTING &&
-      blackboard.quest.collected >= blackboard.quest.required)
+      blackboard.quest.collected >= blackboard.quest.required) {
     blackboard.quest.state = QuestState::TURN_IN;
+    Audio::get().play(Sfx::TurnIn, 0.7f);
+  }
 
   if (blackboard.quest.state == QuestState::TURN_IN &&
       blackboard.friend_nearby &&
       (IsKeyPressed(KEY_E) ||
        IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT))) {
     blackboard.quest.state = QuestState::COMPLETE;
+    Audio::get().play(Sfx::Win, 0.8f);
     current_state = GameState::WIN;
   }
 }

@@ -52,8 +52,15 @@ private:
   bool incapacitated_ = false;
   float revive_timer_ = 0.0f;
   Enemy *revive_target_ = nullptr;
+  bool alert_announced_ = false;
+  Vector3 last_position_ = {0, 0, 0};
+  float stuck_timer_ = 0.0f;
+  float unstuck_timer_ = 0.0f;
+  Vector3 unstuck_dir_ = {0, 0, 0};
   float heading_deg_ = 0.0f;
   Model model_{};
+  Sound buzz_{};
+  bool buzz_ready_ = false;
   bool model_loaded_ = false;
   float model_scale_ = 1.0f;
 };

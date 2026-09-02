@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "raylib.h"
 #include "raymath.h"
+#include "systems/runtime/audio.h"
 #include "utils/graphics/renderer.h"
 #include "utils/random.h"
 #include <cmath>
@@ -25,9 +26,16 @@ Enemy::Enemy(Renderer *renderer, Vector3 guard_post)
     model_scale_ = height > 0.01f ? 1.8f / height : 1.0f;
   }
   build_tree();
+  // Per-enemy hum: each guard owns its buffer so volume/pan can differ.
+  buzz_ = LoadSound("audio/buzz.wav");
+  buzz_ready_ = IsSoundValid(buzz_);
 }
 
 Enemy::~Enemy() {
+  if (buzz_ready_) {
+    StopSound(buzz_);
+    UnloadSound(buzz_);
+  }
   if (model_loaded_)
     UnloadModel(model_);
 }
@@ -71,6 +79,10 @@ void Enemy::build_tree() {
       tracer_timer_ = 0.12f;
       ctx_.blackboard->player_health -= 10.0f;
       ctx_.blackboard->damage_flash = 1.0f;
+      Audio::get().play_at(Sfx::Shot, ctx_.blackboard->current_player_position,
+                           current_position, ctx_.blackboard->listener_right,
+                           60.0f, 0.8f);
+      Audio::get().play(Sfx::Hit, 0.7f);
     }
     // SyncActionNode must return SUCCESS/FAILURE; the tree re-ticks every
     // frame from the root, so one frame of chase per tick is the unit of work.
@@ -222,33 +234,31 @@ void Enemy::move_toward(World *world, Vector3 target, float speed, float dt) {
     return;
   delta.x /= len;
   delta.z /= len;
-  heading_deg_ = atan2f(delta.x, delta.z) * RAD2DEG;
 
   float step = speed * dt;
-  Vector3 full = {current_position.x + delta.x * step, current_position.y,
-                  current_position.z + delta.z * step};
-  Vector3 probe = {full.x, world->get_floor_height(full.x, full.z) + 2.0f,
-                   full.z};
-  if (world->position_is_acceptable(probe)) {
-    current_position.x = full.x;
-    current_position.z = full.z;
-    return;
+
+  // Try the desired direction, then progressively wider detours — guards
+  // skirt around pillars instead of grinding into their faces.
+  static const float detours[] = {0.0f,  0.6f,  -0.6f, 1.2f,  -1.2f,
+                                  1.8f,  -1.8f, 2.4f,  -2.4f, 2.9f,
+                                  -2.9f};
+  for (float a : detours) {
+    float c = cosf(a);
+    float s = sinf(a);
+    Vector3 dir = {delta.x * c - delta.z * s, 0.0f, delta.x * s + delta.z * c};
+    Vector3 full = {current_position.x + dir.x * step, current_position.y,
+                    current_position.z + dir.z * step};
+    Vector3 probe = {full.x, world->get_floor_height(full.x, full.z) + 2.0f,
+                     full.z};
+    if (world->position_is_acceptable(probe)) {
+      current_position.x = full.x;
+      current_position.z = full.z;
+      // Face where we actually walked, so the vision cone follows.
+      heading_deg_ = atan2f(dir.x, dir.z) * RAD2DEG;
+      return;
+    }
   }
-  // Slide along each axis separately when blocked.
-  Vector3 sx = {current_position.x + delta.x * step, current_position.y,
-                current_position.z};
-  Vector3 probe_x = {sx.x, world->get_floor_height(sx.x, sx.z) + 2.0f, sx.z};
-  if (world->position_is_acceptable(probe_x)) {
-    current_position.x = sx.x;
-    return;
-  }
-  Vector3 sz = {current_position.x, current_position.y,
-                current_position.z + delta.z * step};
-  Vector3 probe_z = {sz.x, world->get_floor_height(sz.x, sz.z) + 2.0f, sz.z};
-  if (world->position_is_acceptable(probe_z))
-    current_position.z = sz.z;
-  else
-    has_target_ = false; // fully blocked: pick a new patrol waypoint
+  has_target_ = false; // fully boxed in: patrol picks a new waypoint
 }
 
 void Enemy::incapacitate() {
@@ -275,7 +285,9 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
     lazy_init(world);
 
   if (incapacitated_) {
-    // Downed: no vision, no AI, waiting for an ally.
+    // Downed: no vision, no AI, silent until revived.
+    if (buzz_ready_ && IsSoundPlaying(buzz_))
+      StopSound(buzz_);
     return {};
   }
 
@@ -293,9 +305,15 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
       Vector3 flat = Vector3Normalize({to_player.x, 0.0f, to_player.z});
       bool behind = Vector3DotProduct(facing, flat) < 0.0f;
       if (behind && alert_ < 1.0f) {
+        Audio::get().play_at(Sfx::Takedown, blackboard.current_player_position,
+                             current_position, blackboard.listener_right,
+                             40.0f, 0.9f);
         incapacitate();
         return {};
       }
+      Audio::get().play_at(Sfx::Kill, blackboard.current_player_position,
+                           current_position, blackboard.listener_right, 50.0f,
+                           0.8f);
       dead_ = true;
       return {};
     }
@@ -324,13 +342,45 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
     if (alert_ < 0.0f)
       alert_ = 0.0f;
   }
+  if (alert_ >= 1.0f && !alert_announced_) {
+    alert_announced_ = true;
+    Audio::get().play_at(Sfx::Alert, blackboard.current_player_position,
+                         current_position, blackboard.listener_right, 45.0f,
+                         0.7f);
+  } else if (alert_ < 0.9f) {
+    alert_announced_ = false;
+  }
 
   ctx_.blackboard = &blackboard;
   ctx_.world = world;
   ctx_.dt = dt;
   ctx_.sees_player = sees;
 
-  if (revive_target_ != nullptr) {
+  // Stuck detection: active behaviors that stop making progress trigger a
+  // short perpendicular escape maneuver (works even when wedged in geometry).
+  float moved = Vector3Length(Vector3Subtract(current_position, last_position_));
+  bool wants_move = revive_target_ != nullptr || has_target_ || alert_ >= 0.35f;
+  if (wants_move && moved < 0.015f)
+    stuck_timer_ += dt;
+  else
+    stuck_timer_ = 0.0f;
+  last_position_ = current_position;
+
+  if (unstuck_timer_ > 0.0f) {
+    unstuck_timer_ -= dt;
+    Vector3 escape = {current_position.x + unstuck_dir_.x * 4.0f,
+                      current_position.y,
+                      current_position.z + unstuck_dir_.z * 4.0f};
+    move_toward(world, escape, 2.8f, dt);
+  } else if (stuck_timer_ > 0.6f) {
+    RandomNumberGenerator<int> coin(0, 1);
+    float yaw = heading_deg_ * DEG2RAD;
+    Vector3 fwd = {sinf(yaw), 0.0f, cosf(yaw)};
+    float side = coin() == 0 ? 1.0f : -1.0f;
+    unstuck_dir_ = {fwd.z * side, 0.0f, -fwd.x * side};
+    unstuck_timer_ = 0.6f;
+    stuck_timer_ = 0.0f;
+  } else if (revive_target_ != nullptr) {
     // Revive duty overrides everything: walk to the ally, stand, lift them.
     Vector3 d = Vector3Subtract(revive_target_->get_position(),
                                 current_position);
@@ -340,8 +390,10 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
     } else {
       revive_timer_ += dt;
       if (revive_timer_ >= 1.5f) {
+        Audio::get().play_at(Sfx::Revive, blackboard.current_player_position,
+                             revive_target_->get_position(),
+                             blackboard.listener_right, 50.0f, 0.8f);
         revive_target_->revive();
-        revive_target_ = nullptr;
         revive_timer_ = 0.0f;
       }
     }
@@ -354,6 +406,22 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
 
   current_position.y =
       world->get_floor_height(current_position.x, current_position.z) + 0.9f;
+
+  // Robotic hum: audible from ~70 units, panned with the listener.
+  if (buzz_ready_) {
+    float d = dist;
+    float att = 1.0f - powf(d / 70.0f, 1.5f);
+    if (att > 0.0f) {
+      Vector3 dir = d > 0.001f ? Vector3Scale(to_player, 1.0f / d)
+                               : Vector3{0.0f, 0.0f, 1.0f};
+      SetSoundVolume(buzz_, 0.5f * att);
+      SetSoundPan(buzz_, Vector3DotProduct(dir, blackboard.listener_right));
+      if (!IsSoundPlaying(buzz_))
+        PlaySound(buzz_);
+    } else if (IsSoundPlaying(buzz_)) {
+      StopSound(buzz_);
+    }
+  }
   return {};
 }
 void Enemy::draw() {

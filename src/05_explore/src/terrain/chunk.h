@@ -27,6 +27,8 @@ public:
   void set_voxel(int, int, int);
   void clear_voxel(int, int, int);
   bool is_filled(int, int, int) const;
+  // Topmost solid voxel + 1 for a column (0 = empty). O(1) via cache.
+  int column_height(int lx, int lz) const { return heights_[lx * size_ + lz]; }
 
   Vector2 get_position() { return position_; }
 
@@ -37,6 +39,7 @@ private:
   Vector2 position_;
   int size_;
   std::vector<uint8_t> voxels_;
+  std::vector<uint8_t> heights_; // per-column top surface, kept by set/clear
   Mesh mesh_;
   MeshData mesh_data_;
   std::mutex mesh_data_mutex_;

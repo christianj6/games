@@ -18,7 +18,7 @@ struct GameInfo {};
 class Game {
 public:
   Game();
-  ~Game() = default;
+  ~Game();
   GameInfo tick(bool);
   GameState get_current_state() { return current_state; }
 

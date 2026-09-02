@@ -23,6 +23,7 @@ struct Blackboard {
   float damage_flash = 0.0f; // decays in Game::update; HUD draws a red vignette
   bool takedown_available = false; // behind an unaware guard
   bool attack_available = false;   // in range, not from behind
+  Vector3 listener_right = {1.0f, 0.0f, 0.0f}; // for audio panning; set by Game
 };
 
 class Actor {

@@ -71,6 +71,7 @@ private:
   const float bob_sprint_scale_ = 1.5f;
   const float bob_fade_rate_ = 8.0f;
   float bob_timer_ = 0.0f;
+  int prev_step_phase_ = 0;
   float bob_amplitude_ = 0.0f;
 
   // landing squash / takeoff kick
