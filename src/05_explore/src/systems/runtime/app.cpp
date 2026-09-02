@@ -16,16 +16,25 @@ bool App::run(bool debug) {
     }
     main_menu();
     break;
-  case ApplicationState::GAME:
-    // TODO: consider using GameInfo return to streamline this condition
-    if (game.get_current_state() == GameState::PAUSED &&
+  case ApplicationState::GAME: {
+    if (!game_)
+      game_ = std::make_unique<Game>();
+    if (game_->get_current_state() == GameState::PAUSED &&
         (IsKeyPressed(KEY_Q) ||
          IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE_LEFT))) {
       current_state = ApplicationState::QUIT;
     } else {
-      game.tick(debug);
+      game_->tick(debug);
+      GameState s = game_->get_current_state();
+      if ((s == GameState::WIN || s == GameState::LOSE) &&
+          IsKeyPressed(KEY_ENTER)) {
+        game_.reset();
+        current_state = ApplicationState::MAIN_MENU;
+      }
     }
     break;
+  }
+
   case ApplicationState::QUIT:
     run = false;
   }
@@ -35,5 +44,12 @@ bool App::run(bool debug) {
 }
 
 void App::main_menu() {
-  DrawText("MAIN MENU", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, BLACK);
+  int cx = GetScreenWidth() / 2;
+  int cy = GetScreenHeight() / 2;
+  const char *title = "EXPLORE";
+  int tw = MeasureText(title, 60);
+  DrawText(title, cx - tw / 2, cy - 80, 60, BLACK);
+  const char *prompt = "Press ENTER to start  -  ESC to quit";
+  int pw = MeasureText(prompt, 24);
+  DrawText(prompt, cx - pw / 2, cy + 20, 24, GRAY);
 }

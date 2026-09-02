@@ -5,10 +5,21 @@
 
 #include <memory>
 
+enum class QuestState { COLLECTING, TURN_IN, COMPLETE };
+
+struct QuestInfo {
+  QuestState state = QuestState::COLLECTING;
+  int required = 0;
+  int collected = 0;
+};
+
 struct Blackboard {
   Vector3 current_player_position;
   World *world = nullptr;
   float time_scale = 1.0f; // set by player during hold-blink; applied to world/actor dt
+  float player_health = 100.0f; // Phase 2: enemy damage; HUD reads it today
+  QuestInfo quest;
+  bool friend_nearby = false; // set by Friend when player is in talk range
 };
 
 class Actor {

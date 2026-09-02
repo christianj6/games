@@ -34,13 +34,19 @@ bool KeyboardInputProvider::get_input_sprint() {
   return IsKeyDown(KEY_LEFT_SHIFT);
 }
 
-bool KeyboardInputProvider::get_input_blink() { return false; }
+bool KeyboardInputProvider::get_input_blink() {
+  return IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+}
 
-bool KeyboardInputProvider::get_input_blink_held() { return false; }
+bool KeyboardInputProvider::get_input_blink_held() {
+  return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+}
 
-bool KeyboardInputProvider::get_input_recall() { return false; }
-bool KeyboardInputProvider::get_input_recall_held() { return false; }
-bool KeyboardInputProvider::get_input_place_anchor() { return false; }
+bool KeyboardInputProvider::get_input_recall() { return IsKeyPressed(KEY_Q); }
+bool KeyboardInputProvider::get_input_recall_held() { return IsKeyDown(KEY_Q); }
+bool KeyboardInputProvider::get_input_place_anchor() {
+  return IsKeyPressed(KEY_F);
+}
 
 float ControllerInputProvider::deadzone(float value, float threshold) {
   return fabsf(value) > threshold ? value : 0.0f;

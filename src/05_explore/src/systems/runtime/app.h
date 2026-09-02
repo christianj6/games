@@ -8,7 +8,7 @@ public:
   bool run(bool);
 
 private:
-  ApplicationState current_state = ApplicationState::GAME; // TODO: change back to MAIN_MENU
-  Game game;
+  ApplicationState current_state = ApplicationState::MAIN_MENU;
+  std::unique_ptr<Game> game_; // built lazily on first ENTER
   void main_menu();
 };

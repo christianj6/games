@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "actors/actor.h"
+#include "actors/friend.h"
+#include "actors/item.h"
 #include "actors/player.h"
 #include "hud.h"
 #include "terrain/world.h"
@@ -24,12 +26,16 @@ private:
   GameInfo update();
   void draw();
   void toggle_pause();
+  void spawn_quest_items();
+  void update_quest();
   GameState previous_state;
 
   Hud hud;
   World world;
   Player player;
   Renderer renderer;
+  std::unique_ptr<Friend> friend_;
+  std::vector<std::unique_ptr<Item>> items_;
   std::vector<std::unique_ptr<Actor>> actors;
   Blackboard blackboard;
 };
