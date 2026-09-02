@@ -1,7 +1,6 @@
 #include "world.h"
 #include "raylib.h"
 #include "raymath.h"
-#include "rlights.h"
 #include "utils/random.h"
 #include <cctype>
 #include <chrono>
@@ -131,10 +130,8 @@ void World::build_chunks() {
       // fill the chunk with random pillars
       make_random_pillars(current_chunk);
     }
+  // Lighting rig (sun + fill + purple accent) lives in Renderer.
   }
-  // TODO: better lighting
-  CreateLight(LIGHT_POINT, Vector3{50.0f, 10.0f, 0}, Vector3Zero(), DARKPURPLE,
-              renderer_->get_shader());
 }
 
 World::~World() {
