@@ -25,18 +25,31 @@ Game::~Game() { Audio::get().stop_ambient(); }
 
 
 GameInfo Game::tick(bool debug) {
-  if (current_state == GameState::RUNNING) {
+  GameInfo info{};
+  if (current_state == GameState::RUNNING)
     update();
-  }
+
   if (current_state == GameState::RUNNING &&
       (IsKeyPressed(KEY_ESCAPE) ||
        IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE_RIGHT))) {
     toggle_pause();
+  } else if (current_state == GameState::PAUSED) {
+    // Pause menu
+    if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER) ||
+        IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
+      toggle_pause(); // resume
+    } else if (IsKeyPressed(KEY_R) ||
+               IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
+      info.restart = true;
+    } else if (IsKeyPressed(KEY_Q) ||
+               IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
+      info.quit_to_menu = true;
+    }
   }
 
   draw();
 
-  return {};
+  return info;
 }
 
 GameInfo Game::update() {
@@ -143,7 +156,18 @@ void Game::draw() {
   player.draw_hud(player.get_camera());
 
   if (current_state == GameState::PAUSED) {
-    DrawText("PAUSED", 20, 20, 20, RED);
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 170});
+    const char *title = "PAUSED";
+    int tw = MeasureText(title, 50);
+    DrawText(title, GetScreenWidth() / 2 - tw / 2, GetScreenHeight() / 2 - 120,
+             50, WHITE);
+    const char *options[] = {"ESC / A  -  Resume", "R / Y  -  Restart",
+                             "Q / X  -  Quit to Menu"};
+    for (int i = 0; i < 3; ++i) {
+      int w = MeasureText(options[i], 24);
+      DrawText(options[i], GetScreenWidth() / 2 - w / 2,
+               GetScreenHeight() / 2 - 40 + i * 38, 24, LIGHTGRAY);
+    }
   }
   if (current_state == GameState::WIN || current_state == GameState::LOSE) {
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 160});

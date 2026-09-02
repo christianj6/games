@@ -19,18 +19,17 @@ bool App::run(bool debug) {
   case ApplicationState::GAME: {
     if (!game_)
       game_ = std::make_unique<Game>();
-    if (game_->get_current_state() == GameState::PAUSED &&
-        (IsKeyPressed(KEY_Q) ||
-         IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE_LEFT))) {
-      current_state = ApplicationState::QUIT;
-    } else {
-      game_->tick(debug);
-      GameState s = game_->get_current_state();
-      if ((s == GameState::WIN || s == GameState::LOSE) &&
-          IsKeyPressed(KEY_ENTER)) {
-        game_.reset();
-        current_state = ApplicationState::MAIN_MENU;
-      }
+    GameInfo info = game_->tick(debug);
+    GameState s = game_->get_current_state();
+    if (info.restart) {
+      game_ = std::make_unique<Game>(); // fresh world
+    } else if (info.quit_to_menu) {
+      game_.reset();
+      current_state = ApplicationState::MAIN_MENU;
+    } else if ((s == GameState::WIN || s == GameState::LOSE) &&
+               IsKeyPressed(KEY_ENTER)) {
+      game_.reset();
+      current_state = ApplicationState::MAIN_MENU;
     }
     break;
   }

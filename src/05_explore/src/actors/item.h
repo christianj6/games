@@ -12,7 +12,6 @@ public:
 
 private:
   bool collected_ = false;
-  float spin_ = 0.0f;
   float base_y_ = 0.0f;
   float bob_timer_ = 0.0f;
 };

@@ -13,7 +13,10 @@
 
 enum class GameState { RUNNING, PAUSED, WIN, LOSE };
 
-struct GameInfo {};
+struct GameInfo {
+  bool restart = false;      // pause menu: rebuild the world
+  bool quit_to_menu = false; // pause menu: back to the main menu
+};
 
 class Game {
 public:

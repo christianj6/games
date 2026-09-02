@@ -1,7 +1,6 @@
 #pragma once
 #include "input.h"
 #include "raylib.h"
-#include "systems/ai/behavior.h"
 #include <memory>
 
 struct MovementUpdate {
@@ -34,10 +33,3 @@ private:
   bool using_gamepad_ = false;
 };
 
-class AiMovementController : public MovementController {
-public:
-  MovementUpdate tick() override;
-
-private:
-  BehaviorTree behavior_tree;
-};

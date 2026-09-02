@@ -6,7 +6,6 @@
 Item::Item(Vector3 position) { current_position = position; base_y_ = position.y; }
 
 MovementUpdate Item::update(float dt, Blackboard &blackboard) {
-  spin_ += dt * 2.0f;
   bob_timer_ += dt;
 
   // Pickup: 3D distance to the player (keeps shards on pillar tops safe from
