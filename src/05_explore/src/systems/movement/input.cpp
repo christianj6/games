@@ -124,7 +124,7 @@ void InitWebLookAccumulator() {
         'mousemove', function(e) {
           // Sum only while the canvas holds the pointer lock; unlocked menus
           // use raylib's CSS-mapped cursor position instead.
-          if (document.pointerLockElement == = Module.canvas) {
+          if (document.pointerLockElement === Module.canvas) {
             Module._lookDX += e.movementX;
             Module._lookDY += e.movementY;
           }

@@ -7,6 +7,10 @@ class App {
 public:
   App(bool = false);
   bool run();
+  AppState state() const { return current_state; }
+  // Web only: pointer lock lost mid-gameplay (browser exited via ESC) acts
+  // as the pause key, since the browser swallows that keydown.
+  void pause() { current_state = AppState::PAUSE; }
 
 private:
   void handle_input();

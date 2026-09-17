@@ -42,7 +42,7 @@ int main() {
     const float dt = GetFrameTime();
     bool running = app.is_game_running();
     const bool locked = EM_ASM_INT(
-        { return document.pointerLockElement == = Module.canvas ? 1 : 0; });
+        { return document.pointerLockElement === Module.canvas ? 1 : 0; });
     if (pointer_locked && !locked && !releasing_lock && running) {
       app.toggle_pause(); // browser exited the lock (ESC / focus loss)
       running = app.is_game_running();

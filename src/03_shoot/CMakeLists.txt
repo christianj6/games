@@ -5,6 +5,13 @@ if (WIN32)
 endif()
 
 project(Game)
+if(EMSCRIPTEN)
+    # Web build: web compile flags MUST be set before any FetchContent target
+    # is created — mixed flag compilation breaks heap growth (OOM).
+    add_definitions(-DPLATFORM_WEB)
+    add_compile_options(-fexceptions)
+    add_link_options(-fexceptions)
+endif()
 
 # Force compile commands generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -32,10 +39,15 @@ include(FetchContent)
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG master
+    GIT_TAG 6f5f7acd
 )
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(raylib)
+if(EMSCRIPTEN)
+    set(PLATFORM Web CACHE STRING "" FORCE)
+    # WebGL2 (GLSL ES 3.00) — raylib's ES3/WebGL2 backend path.
+    set(GRAPHICS GRAPHICS_API_OPENGL_ES3 CACHE STRING "" FORCE)
+endif()
 
 # Platform specific settings
 if(APPLE)
@@ -51,14 +63,16 @@ elseif(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
     # Disable CRT secure warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-elseif(UNIX)
+elseif(UNIX AND NOT EMSCRIPTEN)
     add_definitions(-D_GLFW_X11)
     add_definitions(-D_GNU_SOURCE)
     add_definitions(-DPLATFORM_DESKTOP)
 endif()
 
-# OpenGL settings (matching premake configuration)
-add_definitions(-DGRAPHICS_API_OPENGL_33)
+# OpenGL settings: desktop uses GL 3.3; web uses raylib's ES3/WebGL2 path.
+if(NOT EMSCRIPTEN)
+    add_definitions(-DGRAPHICS_API_OPENGL_33)
+endif()
 
 # Collect source files
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
@@ -73,6 +87,13 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}"
 )
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    target_link_options(${PROJECT_NAME} PRIVATE
+        -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sASYNCIFY
+        -sFORCE_FILESYSTEM=1
+        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html)
+endif()
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -97,7 +118,7 @@ if(APPLE)
         "-framework CoreVideo"
         "-framework AudioToolbox"
     )
-elseif(UNIX)
+elseif(UNIX AND NOT EMSCRIPTEN)
     target_link_libraries(${PROJECT_NAME} PRIVATE
         pthread
         m

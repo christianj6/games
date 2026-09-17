@@ -6,8 +6,12 @@
 #include <memory>
 
 int main() {
+#ifndef PLATFORM_WEB
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI | FLAG_FULLSCREEN_MODE);
-  InitWindow(0, 0, "Hide");
+  InitWindow(0, 0, "Hide"); // 0x0 + fullscreen flag: native desktop resolution
+#else
+  InitWindow(1280, 800, "Hide"); // web: canvas needs a real backing buffer
+#endif
   SetTargetFPS(60);
 
   // use a world object to manage update and rendering for all game objects
@@ -24,7 +28,7 @@ int main() {
       std::make_unique<Enemy>(enemy_pos, 5); // Create with 5 patrol points
   world.add_object(std::move(enemy));
 
-  bool gameover;
+  bool gameover = false;
   while (!WindowShouldClose()) {
     float dt = GetFrameTime();
 

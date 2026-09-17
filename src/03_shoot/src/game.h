@@ -8,6 +8,8 @@ public:
   Game();
   void update();
   void draw();
+  // live gameplay (not won, not caught) — drives web pointer-lock requests
+  bool is_running() const { return !game_over && !game_won; }
 
 private:
   World world;

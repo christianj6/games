@@ -95,14 +95,14 @@ for the macOS and WSL variants).
 Dependencies (Linux/WSL):
 ```bash
 sudo apt install clang-format cmake ninja-build pkg-config zip
-```
 
-#### Web build
+#### Web builds
 
-`05_explore` additionally builds for the browser with
+Every game builds for the browser with
 [Emscripten](https://emscripten.org/) (`brew install emscripten`):
 ```bash
-bash src/05_explore/build-web.sh
+bash src/00_jump/build-web.sh   # same pattern for every src/<game>
 ```
 This compiles the game to WebAssembly and publishes the bundle into
-`docs/games/05_explore/`, which is what the GitHub Pages site serves.
+`docs/games/<game>/`, which is what the [GitHub Pages site](https://christianj6.github.io/games/)
+serves.

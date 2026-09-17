@@ -6,9 +6,51 @@ endif()
 
 project(Game)
 
-find_package(fmt REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(behaviortree_cpp REQUIRED)
+if(EMSCRIPTEN)
+    # Web build: fmt + behaviortree.cpp + eigen fetched directly (vcpkg's BT
+    # pulls ZeroMQ, which cannot run in a browser). NOTE: web compile flags
+    # MUST be set before every FetchContent target is created — mixed flag
+    # compilation breaks heap growth (OOM).
+    add_definitions(-DPLATFORM_WEB)
+    add_compile_options(-fexceptions)
+    add_link_options(-fexceptions)
+    # fmt 11.2.0's detail::allocator calls malloc/free expecting them to be
+    # declared transitively; emscripten's libc++ headers do not declare them.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -include cstdlib")
+    include(FetchContent)
+    FetchContent_Declare(fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_TAG 11.2.0)
+    FetchContent_Declare(behaviortree_cpp
+        GIT_REPOSITORY https://github.com/BehaviorTree/BehaviorTree.CPP
+        GIT_TAG 4.7.3
+        # The vendored minicoro picks its emscripten fiber backend even in
+        # C++ TUs, where em_asm.h (C++-only) breaks inside extern "C".
+        # Gate it off so minicoro falls through to the ASYNCIFY backend.
+        PATCH_COMMAND bash
+            ${CMAKE_CURRENT_SOURCE_DIR}/web/patch_minicoro.sh
+            3rdparty/minicoro/minicoro.h
+        )
+    FetchContent_Declare(eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0)
+    set(BTCPP_GROOT_INTERFACE OFF CACHE BOOL "" FORCE)
+    set(BTCPP_SQLITE_LOGGING OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(BTCPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+    set(BTCPP_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BTCPP_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BTCPP_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+    set(BTCPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(FMT_OS OFF CACHE BOOL "" FORCE)
+    set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
+    set(EIGEN_BUILD_PKGCONFIG OFF CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(fmt behaviortree_cpp eigen)
+else()
+    find_package(fmt REQUIRED)
+    find_package(Eigen3 REQUIRED)
+    find_package(behaviortree_cpp REQUIRED)
+endif()
 
 # Force compile commands generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -36,8 +78,13 @@ include(FetchContent)
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG master
+    GIT_TAG 6f5f7acd
 )
+if(EMSCRIPTEN)
+    set(PLATFORM Web CACHE STRING "" FORCE)
+    # WebGL2 (GLSL ES 3.00) — matches resources/shaders/glsl300 variants.
+    set(GRAPHICS GRAPHICS_API_OPENGL_ES3 CACHE STRING "" FORCE)
+endif()
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(raylib)
 
@@ -55,14 +102,16 @@ elseif(WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
     # Disable CRT secure warnings
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-elseif(UNIX)
+elseif(UNIX AND NOT EMSCRIPTEN)
     add_definitions(-D_GLFW_X11)
     add_definitions(-D_GNU_SOURCE)
     add_definitions(-DPLATFORM_DESKTOP)
 endif()
 
-# OpenGL settings (matching premake configuration)
-add_definitions(-DGRAPHICS_API_OPENGL_33)
+# OpenGL settings: desktop uses GL 3.3; web uses raylib's ES3/WebGL2 path.
+if(NOT EMSCRIPTEN)
+    add_definitions(-DGRAPHICS_API_OPENGL_33)
+endif()
 
 # Collect source files
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
@@ -92,8 +141,18 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
 # Link other packages
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
-target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 target_link_libraries(${PROJECT_NAME} PRIVATE BT::behaviortree_cpp)
+# Eigen is used by game code (pathfinder, mesh, player) on every platform.
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+# Web (Emscripten) output: .html + .js + .wasm with resources preloaded.
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    target_link_options(${PROJECT_NAME} PRIVATE
+        -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sASYNCIFY
+        -sFORCE_FILESYSTEM=1
+        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/resources@resources
+        --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html)
+endif()
 
 # Platform specific linking
 if(APPLE)
@@ -106,7 +165,7 @@ if(APPLE)
         "-framework CoreVideo"
         "-framework AudioToolbox"
     )
-elseif(UNIX)
+elseif(UNIX AND NOT EMSCRIPTEN)
     target_link_libraries(${PROJECT_NAME} PRIVATE
         pthread
         m

@@ -1,9 +1,17 @@
 #include "input.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten.h>
+#endif
 #include "raylib.h"
 #include <cmath>
 
 Vector2 KeyboardInputProvider::get_input_look_vector() {
+#ifdef PLATFORM_WEB
+  return ReadWebLookDelta();
+#else
   return GetMouseDelta();
+#endif
 }
 
 bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
@@ -92,3 +100,40 @@ Vector3 ControllerInputProvider::get_input_movement_vector() {
 
   return inputDir;
 }
+
+#ifdef PLATFORM_WEB
+void InitWebLookAccumulator() {
+  EM_ASM({
+    if (Module._lookInit)
+      return;
+    Module._lookInit = true;
+    Module._lookDX = 0;
+    Module._lookDY = 0;
+    document.addEventListener(
+        'mousemove', function(e) {
+          // Sum only while the canvas holds the pointer lock; unlocked menus
+          // use raylib's CSS-mapped cursor position instead.
+          if (document.pointerLockElement === Module.canvas) {
+            Module._lookDX += e.movementX;
+            Module._lookDY += e.movementY;
+          }
+        });
+  });
+}
+
+Vector2 ReadWebLookDelta() {
+  Vector2 delta;
+  delta.x = (float)EM_ASM_DOUBLE({ return Module._lookDX || 0; });
+  delta.y = (float)EM_ASM_DOUBLE({ return Module._lookDY || 0; });
+  return delta;
+}
+
+void ResetWebLookDelta() {
+  EM_ASM({
+    if (Module._lookInit) {
+      Module._lookDX = 0;
+      Module._lookDY = 0;
+    }
+  });
+}
+#endif
