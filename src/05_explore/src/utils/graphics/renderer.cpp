@@ -1,7 +1,11 @@
 #include "renderer.h"
 #include "utils/resources.h"
 
+#ifdef PLATFORM_WEB
+#define GLSL_VERSION 300
+#else
 #define GLSL_VERSION 330
+#endif
 
 namespace {
 // Upload a light straight into the lighting shader's lights[] array.

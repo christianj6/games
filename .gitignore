@@ -24,3 +24,4 @@ src/05_explore/build
 
 .devcontainer/
 .opencode/
+build-web/

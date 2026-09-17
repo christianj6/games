@@ -114,9 +114,11 @@ World::World() : should_exit_(false) {
   chunk_size_ = 64;
   world_size_chunks_ = 16;
   render_distance_ = 6;
-
-  // Start the chunk loading thread
+#ifndef PLATFORM_WEB
+  // Background chunk loader (desktop only — pthreads need COOP/COEP headers
+  // that static hosting like GitHub Pages cannot send).
   loading_thread_ = std::thread(&World::chunk_loading_worker, this);
+#endif
 }
 
 void World::build_chunks() {
@@ -301,7 +303,10 @@ void World::update_chunk_loading(Vector3 player_position) {
       chunk->unload();
   }
 
-  // Queue chunks for loading that are within range
+  // Queue chunks for loading that are within range. On web there is no
+  // background thread, so meshes generate inline — cap it per frame to keep
+  // the main thread responsive.
+  int generated_this_frame = 0;
   for (auto &chunk : chunks_) {
     int chunk_x = static_cast<int>(chunk->get_position().x);
     int chunk_y = static_cast<int>(chunk->get_position().y);
@@ -313,11 +318,17 @@ void World::update_chunk_loading(Vector3 player_position) {
 
     if (dist2 <= rd2 && chunk->state == ChunkState::UNLOADED) {
       chunk->state = ChunkState::GENERATING;
+#ifndef PLATFORM_WEB
       {
         std::lock_guard<std::mutex> queue_lock(load_queue_mutex_);
         load_queue_.push({chunk_x, chunk_y, chunk.get()});
       }
       load_cv_.notify_one();
+#else
+      chunk->generate_mesh();
+      if (++generated_this_frame >= 2)
+        break; // spread the work; the rest load over the next frames
+#endif
     }
   }
 }

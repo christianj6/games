@@ -80,21 +80,46 @@
 #include "raylib.h"
 #include "systems/runtime/app.h"
 
+#if defined(PLATFORM_WEB)
+#include <emscripten.h>
+
+static App *g_app = nullptr;
+
+// The browser owns the main loop on web — this runs once per animation frame.
+static void web_frame(void) {
+  if (!g_app->run(false)) {
+    delete g_app; // App::run returned false (quit from the main menu)
+    CloseWindow();
+    emscripten_cancel_main_loop();
+  }
+}
+#endif
+
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
   // Initialize with a windowed mode first
   InitWindow(1920, 1080, "Explore");
-
+#ifndef PLATFORM_WEB
   // Then toggle to fullscreen - more reliable on macOS than
   // FLAG_FULLSCREEN_MODE
   ToggleFullscreen();
-  DisableCursor();
+#endif
+  // Web: pointer lock is intentionally NOT used — it swallows keyboard
+  // input in some browsers. The system cursor stays visible.
 
+#if defined(PLATFORM_WEB)
+  // A blocking while-loop would freeze the browser tab; hand control to
+  // emscripten's main loop instead.
+  g_app = new App();
+  emscripten_set_main_loop(web_frame, 0, 1);
+  return 0;
+#else
   App app;
   while (app.run(false))
     ;
   CloseWindow();
 
   return 0;
+#endif
 }

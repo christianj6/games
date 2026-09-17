@@ -45,10 +45,7 @@ bool App::run(bool debug) {
 void App::main_menu() {
   int cx = GetScreenWidth() / 2;
   int cy = GetScreenHeight() / 2;
-  const char *title = "EXPLORE";
-  int tw = MeasureText(title, 60);
-  DrawText(title, cx - tw / 2, cy - 80, 60, BLACK);
+  DrawText("EXPLORE", cx - MeasureText("EXPLORE", 60) / 2, cy - 80, 60, BLACK);
   const char *prompt = "Press ENTER to start  -  ESC to quit";
-  int pw = MeasureText(prompt, 24);
-  DrawText(prompt, cx - pw / 2, cy + 20, 24, GRAY);
+  DrawText(prompt, cx - MeasureText(prompt, 24) / 2, cy + 20, 24, GRAY);
 }
