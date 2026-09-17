@@ -35,7 +35,7 @@ private:
   GameState previous_state;
 
   Hud hud;
-  float last_health_ = 100.0f;      // for regen damage detection
+  float last_health_ = 100.0f; // for regen damage detection
   float time_since_damage_ = 999.0f;
   World world;
   Player player;

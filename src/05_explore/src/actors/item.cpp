@@ -1,17 +1,20 @@
 #include "item.h"
 #include "raylib.h"
-#include "systems/runtime/audio.h"
 #include "raymath.h"
+#include "systems/runtime/audio.h"
 
-Item::Item(Vector3 position) { current_position = position; base_y_ = position.y; }
+Item::Item(Vector3 position) {
+  current_position = position;
+  base_y_ = position.y;
+}
 
 MovementUpdate Item::update(float dt, Blackboard &blackboard) {
   bob_timer_ += dt;
 
   // Pickup: 3D distance to the player (keeps shards on pillar tops safe from
   // ground-level grabs through the pillar).
-  Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
-                                      current_position);
+  Vector3 to_player =
+      Vector3Subtract(blackboard.current_player_position, current_position);
   if (Vector3Length(to_player) < 1.8f && !collected_) {
     collected_ = true;
     Audio::get().play_at(Sfx::Pickup, blackboard.current_player_position,

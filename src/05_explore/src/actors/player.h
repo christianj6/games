@@ -31,18 +31,18 @@ private:
   bool prev_sprint_ = false;
 
   // blink — 0.0 = full stop, e.g. 0.15 = slow motion during hold preview
-  const float blink_time_scale_    = 0.0f;
-  const float tap_blink_range_     = 18.0f;
-  const float hold_blink_range_    = 24.0f;
-  const int   tap_threshold_       = 10;   // frames; under = tap, over = hold
+  const float blink_time_scale_ = 0.0f;
+  const float tap_blink_range_ = 18.0f;
+  const float hold_blink_range_ = 24.0f;
+  const int tap_threshold_ = 10; // frames; under = tap, over = hold
 
   enum class BlinkState { IDLE, HOLDING, PREVIEWING, RECALLING };
-  BlinkState blink_state_         = BlinkState::IDLE;
-  int  blink_hold_frames_         = 0;
-  bool prev_blink_held_           = false;
-  Vector3 blink_target_           = {0, 0, 0};
-  Vector3 blink_target_smooth_    = {0, 0, 0}; // lerped display position
-  bool    blink_target_elevated_  = false;
+  BlinkState blink_state_ = BlinkState::IDLE;
+  int blink_hold_frames_ = 0;
+  bool prev_blink_held_ = false;
+  Vector3 blink_target_ = {0, 0, 0};
+  Vector3 blink_target_smooth_ = {0, 0, 0}; // lerped display position
+  bool blink_target_elevated_ = false;
   // Ledge clamber
   bool clambering_ = false;
   float clamber_t_ = 0.0f;
@@ -51,15 +51,16 @@ private:
   JumpList jump_list_;
 
   // Recall mode (Phase 2)
-  const int recall_threshold_     = 10;   // frames; under = quick tap, over = recall mode
+  const int recall_threshold_ =
+      10; // frames; under = quick tap, over = recall mode
   AnchorList anchor_list_;
-  int  selected_anchor_           = -1;   // -1 = nothing selected
-  int  recall_hold_frames_        = 0;
-  bool prev_recall_held_          = false;
-  float prev_stick_magnitude_     = 0.0f;
-  float anchor_place_flash_       = 0.0f;
-  float blink_flash_              = 0.0f; // screen-edge vignette on any blink/recall
-  bool  chord_active_             = false; // true until both LB+RB released after chord
+  int selected_anchor_ = -1; // -1 = nothing selected
+  int recall_hold_frames_ = 0;
+  bool prev_recall_held_ = false;
+  float prev_stick_magnitude_ = 0.0f;
+  float anchor_place_flash_ = 0.0f;
+  float blink_flash_ = 0.0f;  // screen-edge vignette on any blink/recall
+  bool chord_active_ = false; // true until both LB+RB released after chord
 
   void handle_blink(const MovementUpdate &update, World *world);
   void do_blink(Vector3 target, bool record = true);

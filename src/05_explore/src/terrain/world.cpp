@@ -24,11 +24,13 @@ static float hash2d(int x, int z) {
 static float smooth_noise(int cx, int cz) {
   float u = cx * 5.0f / 7.0f;
   float v = cz * 5.0f / 7.0f;
-  int ix = (int)u; float fx = u - ix;
-  int iz = (int)v; float fz = v - iz;
-  float c00 = hash2d(ix,     iz);
+  int ix = (int)u;
+  float fx = u - ix;
+  int iz = (int)v;
+  float fz = v - iz;
+  float c00 = hash2d(ix, iz);
   float c10 = hash2d(ix + 1, iz);
-  float c01 = hash2d(ix,     iz + 1);
+  float c01 = hash2d(ix, iz + 1);
   float c11 = hash2d(ix + 1, iz + 1);
   return (c00 * (1 - fx) + c10 * fx) * (1 - fz) +
          (c01 * (1 - fx) + c11 * fx) * fz;
@@ -39,36 +41,37 @@ void World::make_random_pillars(Chunk *chunk) {
   int cz = (int)chunk->get_position().y;
 
   // noise → zone type; intensity → extremeness, ramps up quickly with distance
-  float noise     = smooth_noise(cx, cz);
-  float dist      = sqrtf((float)(cx * cx + cz * cz));
-  float intensity = std::min(dist / 5.0f, 1.0f); // full intensity by ~5 chunks out
+  float noise = smooth_noise(cx, cz);
+  float dist = sqrtf((float)(cx * cx + cz * cz));
+  float intensity =
+      std::min(dist / 5.0f, 1.0f); // full intensity by ~5 chunks out
 
   int num_attempts, h_min, h_max, w_min, w_max, probability;
 
   if (noise < 0.33f) {
     // Spire zone: very tall, very narrow, sparse — cathedral-like far out
     num_attempts = (int)(28.0f - 16.0f * intensity); // 28 →  12
-    h_min        = (int)( 6.0f + 12.0f * intensity); //  6 →  18
-    h_max        = (int)(16.0f + 16.0f * intensity); // 16 →  32
-    w_min        = 1;
-    w_max        = intensity > 0.3f ? 1 : 2;
-    probability  = 72;
+    h_min = (int)(6.0f + 12.0f * intensity);         //  6 →  18
+    h_max = (int)(16.0f + 16.0f * intensity);        // 16 →  32
+    w_min = 1;
+    w_max = intensity > 0.3f ? 1 : 2;
+    probability = 72;
   } else if (noise < 0.66f) {
     // Mixed zone: solid variety, grows taller and denser with distance
     num_attempts = (int)(50.0f + 20.0f * intensity); // 50 →  70
-    h_min        = 2;
-    h_max        = (int)(10.0f + 12.0f * intensity); // 10 →  22
-    w_min        = 2;
-    w_max        = (int)( 4.0f +  2.0f * intensity); //  4 →   6
-    probability  = 75;
+    h_min = 2;
+    h_max = (int)(10.0f + 12.0f * intensity); // 10 →  22
+    w_min = 2;
+    w_max = (int)(4.0f + 2.0f * intensity); //  4 →   6
+    probability = 75;
   } else {
     // Rubble zone: short, wide, very dense — almost maze-like far out
     num_attempts = (int)(65.0f + 45.0f * intensity); // 65 → 110
-    h_min        = 1;
-    h_max        = (int)( 5.0f -  2.0f * intensity); //  5 →   3
-    w_min        = (int)( 3.0f +  2.0f * intensity); //  3 →   5
-    w_max        = (int)( 6.0f +  5.0f * intensity); //  6 →  11
-    probability  = 88;
+    h_min = 1;
+    h_max = (int)(5.0f - 2.0f * intensity); //  5 →   3
+    w_min = (int)(3.0f + 2.0f * intensity); //  3 →   5
+    w_max = (int)(6.0f + 5.0f * intensity); //  6 →  11
+    probability = 88;
   }
 
   h_max = std::max(h_max, h_min + 1);
@@ -77,9 +80,9 @@ void World::make_random_pillars(Chunk *chunk) {
   // Guarantee visual density near the starting area regardless of zone type
   if (dist < 2.0f) {
     num_attempts = std::max(num_attempts, 60);
-    h_max        = std::max(h_max, 12);
-    h_min        = std::min(h_min, 3);
-    w_max        = std::max(w_max, 4);
+    h_max = std::max(h_max, 12);
+    h_min = std::min(h_min, 3);
+    w_max = std::max(w_max, 4);
   }
 
   RandomNumberGenerator<int> random_height(h_min, h_max);
@@ -97,12 +100,12 @@ void World::make_random_pillars(Chunk *chunk) {
     if (is_pillar() >= probability)
       continue;
 
-    int x      = random_pos();
-    int z      = random_pos();
-    int width  = random_size();
+    int x = random_pos();
+    int z = random_pos();
+    int width = random_size();
     int height = random_height();
-    int max_x  = std::min(x + width, chunk_size_);
-    int max_z  = std::min(z + width, chunk_size_);
+    int max_x = std::min(x + width, chunk_size_);
+    int max_z = std::min(z + width, chunk_size_);
 
     for (int dx = 0; dx < max_x - x; ++dx)
       for (int dz = 0; dz < max_z - z; ++dz)
@@ -132,7 +135,7 @@ void World::build_chunks() {
       // fill the chunk with random pillars
       make_random_pillars(current_chunk);
     }
-  // Lighting rig (sun + fill + purple accent) lives in Renderer.
+    // Lighting rig (sun + fill + purple accent) lives in Renderer.
   }
 }
 
@@ -260,9 +263,8 @@ void World::chunk_loading_worker() {
     ChunkLoadRequest request;
     {
       std::unique_lock<std::mutex> lock(load_queue_mutex_);
-      load_cv_.wait(lock, [this] {
-        return !load_queue_.empty() || should_exit_.load();
-      });
+      load_cv_.wait(
+          lock, [this] { return !load_queue_.empty() || should_exit_.load(); });
       if (should_exit_)
         break;
       request = load_queue_.front();
@@ -349,10 +351,10 @@ bool World::is_solid(Vector3 pos) const {
 }
 
 Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
-                                  float max_dist) const {
-  const float step          = 0.1f;
-  const float start         = 0.8f;
-  const float eye_height    = 2.0f;
+                                 float max_dist) const {
+  const float step = 0.1f;
+  const float start = 0.8f;
+  const float eye_height = 2.0f;
   float player_floor_y = get_floor_height(origin.x, origin.z) + eye_height;
   Vector3 last_valid = origin;
 
@@ -407,9 +409,9 @@ Vector3 World::find_blink_target(Vector3 origin, Vector3 direction,
 // Tap blink variant: scans the full range without stopping at obstacles,
 // taking the furthest valid position. Lets the player zip through walls.
 Vector3 World::find_blink_target_through(Vector3 origin, Vector3 direction,
-                                          float max_dist) const {
-  const float step       = 0.1f;
-  const float start      = 0.8f;
+                                         float max_dist) const {
+  const float step = 0.1f;
+  const float start = 0.8f;
   const float eye_height = 2.0f;
   Vector3 last_valid = origin;
   for (float dist = start; dist <= max_dist; dist += step) {

@@ -3,8 +3,21 @@
 #include <array>
 
 enum class Sfx {
-  Blink, Anchor, Recall, Pickup, TurnIn, Win, Lose, Shot, Hit, Kill,
-  Takedown, Revive, Alert, Step, Count
+  Blink,
+  Anchor,
+  Recall,
+  Pickup,
+  TurnIn,
+  Win,
+  Lose,
+  Shot,
+  Hit,
+  Kill,
+  Takedown,
+  Revive,
+  Alert,
+  Step,
+  Count
 };
 
 // Process-wide audio: device, loaded sounds, ambient wind loop.

@@ -6,7 +6,6 @@
 #include <cmath>
 #include <memory>
 
-
 Game::Game() {
   Audio::get().init(); // device must be ready before enemies load their hum
 
@@ -22,7 +21,6 @@ Game::Game() {
 }
 
 Game::~Game() { Audio::get().stop_ambient(); }
-
 
 GameInfo Game::tick(bool debug) {
   GameInfo info{};
@@ -94,8 +92,8 @@ GameInfo Game::update() {
       auto *e = dynamic_cast<Enemy *>(b.get());
       if (e == nullptr || e == down || e->is_incapacitated())
         continue;
-      float d = Vector3Length(Vector3Subtract(e->get_position(),
-                                              down->get_position()));
+      float d = Vector3Length(
+          Vector3Subtract(e->get_position(), down->get_position()));
       if (d < best_d) {
         best_d = d;
         best = e;
@@ -120,7 +118,8 @@ GameInfo Game::update() {
 
   // Damage feedback decay and LOSE
   if (blackboard.damage_flash > 0.0f)
-    blackboard.damage_flash = std::fmax(0.0f, blackboard.damage_flash - dt * 3.0f);
+    blackboard.damage_flash =
+        std::fmax(0.0f, blackboard.damage_flash - dt * 3.0f);
 
   // Slow health regeneration after 5s without taking damage.
   if (blackboard.player_health < last_health_)
@@ -180,10 +179,9 @@ void Game::draw() {
              current_state == GameState::WIN ? GOLD : RED);
     const char *hint = "Press ENTER for menu";
     int hw = MeasureText(hint, 24);
-    DrawText(hint, GetScreenWidth() / 2 - hw / 2, GetScreenHeight() / 2 + 20, 24,
-             WHITE);
+    DrawText(hint, GetScreenWidth() / 2 - hw / 2, GetScreenHeight() / 2 + 20,
+             24, WHITE);
   }
-
 
   hud.draw(blackboard);
 }
@@ -210,10 +208,14 @@ void Game::spawn_quest_items() {
     for (int attempt = 0; attempt < 60; ++attempt) {
       float x = cosf(angle()) * dist();
       float z = sinf(angle()) * dist();
-      if (x < world_min) x = world_min;
-      if (x > world_max) x = world_max;
-      if (z < world_min) z = world_min;
-      if (z > world_max) z = world_max;
+      if (x < world_min)
+        x = world_min;
+      if (x > world_max)
+        x = world_max;
+      if (z < world_min)
+        z = world_min;
+      if (z > world_max)
+        z = world_max;
       pos = {x, 0.0f, z};
 
       // Keep shards away from the player spawn and spread apart from each
@@ -253,10 +255,14 @@ void Game::spawn_quest_items() {
         float off = 4.0f + (attempt % 5) * 2.0f;
         float gx = pos.x + cosf(a) * off;
         float gz = pos.z + sinf(a) * off;
-        if (gx < 8.0f) gx = 8.0f;
-        if (gx > 1016.0f) gx = 1016.0f;
-        if (gz < 8.0f) gz = 8.0f;
-        if (gz > 1016.0f) gz = 1016.0f;
+        if (gx < 8.0f)
+          gx = 8.0f;
+        if (gx > 1016.0f)
+          gx = 1016.0f;
+        if (gz < 8.0f)
+          gz = 8.0f;
+        if (gz > 1016.0f)
+          gz = 1016.0f;
         float h = world.get_floor_height(gx, gz);
         // Prefer plain ground; rubble pillar tops (<= 5) as last resort.
         if ((attempt < 12 && h <= 2.5f) || (attempt >= 12 && h <= 5.0f)) {

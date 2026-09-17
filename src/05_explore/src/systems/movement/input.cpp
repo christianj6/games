@@ -36,7 +36,9 @@ Vector2 KeyboardInputProvider::get_input_look_vector() {
 
 bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
 
-bool KeyboardInputProvider::get_input_jump_held() { return IsKeyDown(KEY_SPACE); }
+bool KeyboardInputProvider::get_input_jump_held() {
+  return IsKeyDown(KEY_SPACE);
+}
 
 bool KeyboardInputProvider::get_input_sprint() {
   return IsKeyDown(KEY_LEFT_SHIFT);
@@ -113,18 +115,20 @@ bool ControllerInputProvider::get_input_place_anchor() {
 #ifdef PLATFORM_WEB
 void InitWebLookAccumulator() {
   EM_ASM({
-    if (Module._lookInit) return;
+    if (Module._lookInit)
+      return;
     Module._lookInit = true;
     Module._lookDX = 0;
     Module._lookDY = 0;
-    document.addEventListener('mousemove', function(e) {
-      // Sum only while the canvas holds the pointer lock; unlocked menus use
-      // raylib's CSS-mapped cursor position instead.
-      if (document.pointerLockElement === Module.canvas) {
-        Module._lookDX += e.movementX;
-        Module._lookDY += e.movementY;
-      }
-    });
+    document.addEventListener(
+        'mousemove', function(e) {
+          // Sum only while the canvas holds the pointer lock; unlocked menus
+          // use raylib's CSS-mapped cursor position instead.
+          if (document.pointerLockElement == = Module.canvas) {
+            Module._lookDX += e.movementX;
+            Module._lookDY += e.movementY;
+          }
+        });
   });
 }
 

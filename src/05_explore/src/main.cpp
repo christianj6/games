@@ -1,11 +1,11 @@
 // TODO: polish check up
 /*
- * generally the blink mechanics need thorough play-testing to identify pain points
- * some blink scenarios can still be a bit tricky so a few more tweaks are welcome
- * pillars should be lit from multiple sides when you turn around to look at them it looks janky
- * maybe increase the landing squash
- * probably need a clamber mechanic ie if you press a button when almost on a ledge you clamber up it
- * then mayber also a dishonoed style blink+clamber is welcome idk
+ * generally the blink mechanics need thorough play-testing to identify pain
+ * points some blink scenarios can still be a bit tricky so a few more tweaks
+ * are welcome pillars should be lit from multiple sides when you turn around to
+ * look at them it looks janky maybe increase the landing squash probably need a
+ * clamber mechanic ie if you press a button when almost on a ledge you clamber
+ * up it then mayber also a dishonoed style blink+clamber is welcome idk
  */
 
 // TODO: friends and home
@@ -74,14 +74,14 @@
 
 // TODO: clean up
 /*
-* change back to main menu starting in app.h
-*/
+ * change back to main menu starting in app.h
+ */
 
 #include "raylib.h"
 #include "systems/runtime/app.h"
 #if defined(PLATFORM_WEB)
-#include <emscripten.h>
 #include "systems/movement/input.h"
+#include <emscripten.h>
 #endif
 
 // Official raylib web pattern (see examples/core/core_window_web.c):
@@ -114,15 +114,14 @@ int main() {
   //    unexpected lock loss during live gameplay is treated as ESC:
   //    auto-pause. Releases we requested ourselves are flagged to not
   //    trigger it.
-  bool pointer_locked = false;  // lock state observed last frame
-  bool releasing_lock = false;  // we asked for the release ourselves
-  float lock_cooldown = 0.0f;   // paces re-requests after an ESC exit
+  bool pointer_locked = false; // lock state observed last frame
+  bool releasing_lock = false; // we asked for the release ourselves
+  float lock_cooldown = 0.0f;  // paces re-requests after an ESC exit
   while (app.run(false)) {
     const float dt = GetFrameTime();
     bool running = app.is_game_running();
-    const bool locked = EM_ASM_INT({
-      return document.pointerLockElement === Module.canvas ? 1 : 0;
-    });
+    const bool locked = EM_ASM_INT(
+        { return document.pointerLockElement == = Module.canvas ? 1 : 0; });
     if (pointer_locked && !locked && !releasing_lock && running) {
       app.toggle_pause(); // browser exited the lock (ESC / focus loss)
       running = app.is_game_running();
@@ -138,7 +137,8 @@ int main() {
       EnableCursor(); // exits the lock; the cursor becomes visible
       releasing_lock = true;
     }
-    if (lock_cooldown > 0.0f) lock_cooldown -= dt;
+    if (lock_cooldown > 0.0f)
+      lock_cooldown -= dt;
     ResetWebLookDelta(); // frame's look motion was consumed by app.run()
     WindowShouldClose(); // yields to the browser each iteration via Asyncify
   }

@@ -15,9 +15,9 @@ void Hud::draw(Blackboard blackboard) {
   std::string quest_str;
   switch (blackboard.quest.state) {
   case QuestState::COLLECTING:
-    quest_str = fmt::format("Collect shards: {} / {}",
-                            blackboard.quest.collected,
-                            blackboard.quest.required);
+    quest_str =
+        fmt::format("Collect shards: {} / {}", blackboard.quest.collected,
+                    blackboard.quest.required);
     break;
   case QuestState::TURN_IN:
     quest_str = "Return to your friend!";
@@ -33,8 +33,10 @@ void Hud::draw(Blackboard blackboard) {
   int hw = 200, hh = 18, hx = 20, hy = GetScreenHeight() - 38;
   DrawRectangle(hx, hy, hw, hh, {40, 40, 40, 200});
   float frac = blackboard.player_health / 100.0f;
-  if (frac < 0.0f) frac = 0.0f;
-  if (frac > 1.0f) frac = 1.0f;
+  if (frac < 0.0f)
+    frac = 0.0f;
+  if (frac > 1.0f)
+    frac = 1.0f;
   DrawRectangle(hx + 2, hy + 2, (int)((hw - 4) * frac), hh - 4, RED);
 
   // Damage vignette
@@ -49,18 +51,17 @@ void Hud::draw(Blackboard blackboard) {
     DrawRectangle(w - t, 0, t, h, c);
   }
 
-
   // Contextual takedown / strike prompt
   if (blackboard.takedown_available || blackboard.attack_available) {
-    const char *action = blackboard.takedown_available ? "[LMB] Takedown"
-                                                       : "[LMB] Strike";
+    const char *action =
+        blackboard.takedown_available ? "[LMB] Takedown" : "[LMB] Strike";
     int aw = MeasureText(action, 22);
-    DrawText(action, GetScreenWidth() / 2 - aw / 2,
-             GetScreenHeight() / 2 + 44, 22,
-             blackboard.takedown_available ? SKYBLUE : MAROON);
+    DrawText(action, GetScreenWidth() / 2 - aw / 2, GetScreenHeight() / 2 + 44,
+             22, blackboard.takedown_available ? SKYBLUE : MAROON);
   }
 
-  if (blackboard.friend_nearby && blackboard.quest.state == QuestState::TURN_IN) {
+  if (blackboard.friend_nearby &&
+      blackboard.quest.state == QuestState::TURN_IN) {
     const char *prompt = "[E] Talk to friend";
     int w = MeasureText(prompt, 24);
     DrawText(prompt, GetScreenWidth() / 2 - w / 2,

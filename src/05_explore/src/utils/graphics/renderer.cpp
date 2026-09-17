@@ -14,25 +14,27 @@ namespace {
 void set_light(Shader shader, int index, int type, Vector3 position,
                Vector3 target, Color color) {
   int enabled = 1;
-  SetShaderValue(shader,
-                 GetShaderLocation(shader, TextFormat("lights[%i].enabled", index)),
-                 &enabled, SHADER_UNIFORM_INT);
-  SetShaderValue(shader,
-                 GetShaderLocation(shader, TextFormat("lights[%i].type", index)),
-                 &type, SHADER_UNIFORM_INT);
+  SetShaderValue(
+      shader,
+      GetShaderLocation(shader, TextFormat("lights[%i].enabled", index)),
+      &enabled, SHADER_UNIFORM_INT);
+  SetShaderValue(
+      shader, GetShaderLocation(shader, TextFormat("lights[%i].type", index)),
+      &type, SHADER_UNIFORM_INT);
   float pos[3] = {position.x, position.y, position.z};
-  SetShaderValue(shader,
-                 GetShaderLocation(shader, TextFormat("lights[%i].position", index)),
-                 pos, SHADER_UNIFORM_VEC3);
+  SetShaderValue(
+      shader,
+      GetShaderLocation(shader, TextFormat("lights[%i].position", index)), pos,
+      SHADER_UNIFORM_VEC3);
   float tgt[3] = {target.x, target.y, target.z};
-  SetShaderValue(shader,
-                 GetShaderLocation(shader, TextFormat("lights[%i].target", index)),
-                 tgt, SHADER_UNIFORM_VEC3);
+  SetShaderValue(
+      shader, GetShaderLocation(shader, TextFormat("lights[%i].target", index)),
+      tgt, SHADER_UNIFORM_VEC3);
   float col[4] = {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
                   color.a / 255.0f};
-  SetShaderValue(shader,
-                 GetShaderLocation(shader, TextFormat("lights[%i].color", index)),
-                 col, SHADER_UNIFORM_VEC4);
+  SetShaderValue(
+      shader, GetShaderLocation(shader, TextFormat("lights[%i].color", index)),
+      col, SHADER_UNIFORM_VEC4);
 }
 } // namespace
 

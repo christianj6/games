@@ -13,10 +13,9 @@ void Audio::init() {
   if (!IsAudioDeviceReady())
     return;
 
-  static const char *names[] = {"blink",   "anchor", "recall", "pickup",
-                                "turnin",  "win",    "lose",   "shot",
-                                "hit",     "kill",   "takedown", "revive",
-                                "alert",   "step"};
+  static const char *names[] = {
+      "blink", "anchor", "recall", "pickup",   "turnin", "win",   "lose",
+      "shot",  "hit",    "kill",   "takedown", "revive", "alert", "step"};
   for (int i = 0; i < (int)Sfx::Count; ++i)
     sounds_[i] = LoadSound(TextFormat("audio/%s.wav", names[i]));
 
@@ -46,8 +45,8 @@ void Audio::play_at(Sfx id, Vector3 listener, Vector3 source, Vector3 right,
   float att = 1.0f - d / max_dist;
   if (att <= 0.0f)
     return;
-  Vector3 dir = d > 0.001f ? Vector3Scale(offset, 1.0f / d)
-                           : Vector3{0.0f, 0.0f, 1.0f};
+  Vector3 dir =
+      d > 0.001f ? Vector3Scale(offset, 1.0f / d) : Vector3{0.0f, 0.0f, 1.0f};
   // raylib pan: -1.0 left, 0.0 center, 1.0 right
   float pan = Vector3DotProduct(dir, right);
   Sound &s = sounds_[(int)id];

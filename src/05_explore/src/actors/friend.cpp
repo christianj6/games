@@ -28,7 +28,8 @@ Friend::~Friend() {
 
 void Friend::lazy_init(World *world) {
   initialized_ = true;
-  current_position = {32.0f, world->get_floor_height(32.0f, 32.0f) + 0.9f, 32.0f};
+  current_position = {32.0f, world->get_floor_height(32.0f, 32.0f) + 0.9f,
+                      32.0f};
 }
 
 void Friend::pick_new_target(World *world) {
@@ -90,12 +91,12 @@ MovementUpdate Friend::update(float dt, Blackboard &blackboard) {
   }
 
   // Snap to ground (climbs the 1-block floor naturally).
-  current_position.y = world->get_floor_height(current_position.x,
-                                               current_position.z) + 0.9f;
+  current_position.y =
+      world->get_floor_height(current_position.x, current_position.z) + 0.9f;
 
   // Talk-range flag for the quest turn-in prompt.
-  Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
-                                      current_position);
+  Vector3 to_player =
+      Vector3Subtract(blackboard.current_player_position, current_position);
   if (Vector3Length(to_player) < 3.0f)
     blackboard.friend_nearby = true;
 
@@ -110,8 +111,9 @@ void Friend::draw() {
                 {model_scale_, model_scale_, model_scale_}, WHITE);
   } else {
     DrawCylinder(current_position, 0.35f, 0.35f, 1.1f, 10, SKYBLUE);
-    DrawSphere({current_position.x, current_position.y + 0.85f,
-                current_position.z}, 0.3f, BEIGE);
+    DrawSphere(
+        {current_position.x, current_position.y + 0.85f, current_position.z},
+        0.3f, BEIGE);
   }
 
   // Quest marker: request pending, exclamation above head.

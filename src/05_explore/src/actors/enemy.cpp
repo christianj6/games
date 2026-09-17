@@ -8,14 +8,14 @@
 
 namespace {
 constexpr float kVisionRange = 25.0f;
-constexpr float kVisionFovH = 1.5707964f; // 90 deg horizontal, as in 04_teleport
+constexpr float kVisionFovH =
+    1.5707964f; // 90 deg horizontal, as in 04_teleport
 constexpr float kVisionFovV = 1.0471976f; // 60 deg vertical
 constexpr float kShootRange = 10.0f;
 constexpr float kKillRange = 2.5f;
 } // namespace
 
-Enemy::Enemy(Renderer *renderer, Vector3 guard_post)
-    : guard_post_(guard_post) {
+Enemy::Enemy(Renderer *renderer, Vector3 guard_post) : guard_post_(guard_post) {
   model_ = LoadModel("models/enemy.obj");
   if (model_.meshCount > 0) {
     model_loaded_ = true;
@@ -43,13 +43,11 @@ Enemy::~Enemy() {
 void Enemy::build_tree() {
   using namespace BT;
 
-  factory_.registerSimpleCondition(
-      "IsFarFromPost", [this](TreeNode &) {
-        Vector3 d = Vector3Subtract(current_position, guard_post_);
-        return sqrtf(d.x * d.x + d.z * d.z) > leash_radius_
-                   ? NodeStatus::SUCCESS
-                   : NodeStatus::FAILURE;
-      });
+  factory_.registerSimpleCondition("IsFarFromPost", [this](TreeNode &) {
+    Vector3 d = Vector3Subtract(current_position, guard_post_);
+    return sqrtf(d.x * d.x + d.z * d.z) > leash_radius_ ? NodeStatus::SUCCESS
+                                                        : NodeStatus::FAILURE;
+  });
   factory_.registerSimpleAction(
       "ReturnToPost", [this](TreeNode &) -> NodeStatus {
         // Hard leash: disengage and walk home so guards stay distributed.
@@ -57,45 +55,46 @@ void Enemy::build_tree() {
         move_toward(ctx_.world, guard_post_, 3.0f, ctx_.dt);
         return NodeStatus::SUCCESS;
       });
-  factory_.registerSimpleCondition(
-      "IsAlerted", [this](TreeNode &) {
-        return alert_ >= 1.0f ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
-      });
-  factory_.registerSimpleCondition(
-      "IsSuspicious", [this](TreeNode &) {
-        return alert_ >= 0.35f ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
-      });
-  factory_.registerSimpleAction("ChasePlayer", [this](TreeNode &) -> NodeStatus {
-    Vector3 player = ctx_.blackboard->current_player_position;
-    move_toward(ctx_.world, player, 3.2f, ctx_.dt);
+  factory_.registerSimpleCondition("IsAlerted", [this](TreeNode &) {
+    return alert_ >= 1.0f ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+  });
+  factory_.registerSimpleCondition("IsSuspicious", [this](TreeNode &) {
+    return alert_ >= 0.35f ? NodeStatus::SUCCESS : NodeStatus::FAILURE;
+  });
+  factory_.registerSimpleAction(
+      "ChasePlayer", [this](TreeNode &) -> NodeStatus {
+        Vector3 player = ctx_.blackboard->current_player_position;
+        move_toward(ctx_.world, player, 3.2f, ctx_.dt);
 
-    shoot_cooldown_ -= ctx_.dt;
-    if (ctx_.player_distance < kShootRange && ctx_.sees_player &&
-        shoot_cooldown_ <= 0.0f) {
-      shoot_cooldown_ = 1.5f;
-      tracer_from_ = {current_position.x, current_position.y + 0.8f,
-                      current_position.z};
-      tracer_to_ = player;
-      tracer_timer_ = 0.12f;
-      ctx_.blackboard->player_health -= 10.0f;
-      ctx_.blackboard->damage_flash = 1.0f;
-      Audio::get().play_at(Sfx::Shot, ctx_.blackboard->current_player_position,
-                           current_position, ctx_.blackboard->listener_right,
-                           60.0f, 0.8f);
-      Audio::get().play(Sfx::Hit, 0.7f);
-    }
-    // SyncActionNode must return SUCCESS/FAILURE; the tree re-ticks every
-    // frame from the root, so one frame of chase per tick is the unit of work.
-    return NodeStatus::SUCCESS;
-  });
-  factory_.registerSimpleAction("Investigate", [this](TreeNode &) -> NodeStatus {
-    move_toward(ctx_.world, last_seen_, 2.0f, ctx_.dt);
-    Vector3 d = {last_seen_.x - current_position.x, 0.0f,
-                 last_seen_.z - current_position.z};
-    if (sqrtf(d.x * d.x + d.z * d.z) < 1.0f)
-      return NodeStatus::SUCCESS; // arrived; alert decays back to patrol
-    return NodeStatus::SUCCESS; // not arrived yet; re-tick next frame
-  });
+        shoot_cooldown_ -= ctx_.dt;
+        if (ctx_.player_distance < kShootRange && ctx_.sees_player &&
+            shoot_cooldown_ <= 0.0f) {
+          shoot_cooldown_ = 1.5f;
+          tracer_from_ = {current_position.x, current_position.y + 0.8f,
+                          current_position.z};
+          tracer_to_ = player;
+          tracer_timer_ = 0.12f;
+          ctx_.blackboard->player_health -= 10.0f;
+          ctx_.blackboard->damage_flash = 1.0f;
+          Audio::get().play_at(
+              Sfx::Shot, ctx_.blackboard->current_player_position,
+              current_position, ctx_.blackboard->listener_right, 60.0f, 0.8f);
+          Audio::get().play(Sfx::Hit, 0.7f);
+        }
+        // SyncActionNode must return SUCCESS/FAILURE; the tree re-ticks every
+        // frame from the root, so one frame of chase per tick is the unit of
+        // work.
+        return NodeStatus::SUCCESS;
+      });
+  factory_.registerSimpleAction(
+      "Investigate", [this](TreeNode &) -> NodeStatus {
+        move_toward(ctx_.world, last_seen_, 2.0f, ctx_.dt);
+        Vector3 d = {last_seen_.x - current_position.x, 0.0f,
+                     last_seen_.z - current_position.z};
+        if (sqrtf(d.x * d.x + d.z * d.z) < 1.0f)
+          return NodeStatus::SUCCESS; // arrived; alert decays back to patrol
+        return NodeStatus::SUCCESS;   // not arrived yet; re-tick next frame
+      });
   factory_.registerSimpleAction("Patrol", [this](TreeNode &) -> NodeStatus {
     if (!has_target_ && idle_timer_ <= 0.0f)
       pick_patrol_target(ctx_.world);
@@ -161,8 +160,8 @@ void Enemy::pick_patrol_target(World *world) {
 }
 bool Enemy::can_see_player(Blackboard &blackboard) {
   World *world = blackboard.world;
-  Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
-                                      current_position);
+  Vector3 to_player =
+      Vector3Subtract(blackboard.current_player_position, current_position);
   float dist = Vector3Length(to_player);
   ctx_.player_distance = dist;
   if (dist > kVisionRange)
@@ -176,16 +175,20 @@ bool Enemy::can_see_player(Blackboard &blackboard) {
   float yaw = heading_deg_ * DEG2RAD;
   Vector3 facing = {sinf(yaw), 0.0f, cosf(yaw)};
   float h_dot = dir.x * facing.x + dir.z * facing.z;
-  if (h_dot > 1.0f) h_dot = 1.0f;
-  if (h_dot < -1.0f) h_dot = -1.0f;
+  if (h_dot > 1.0f)
+    h_dot = 1.0f;
+  if (h_dot < -1.0f)
+    h_dot = -1.0f;
   float horizontal_angle = acosf(h_dot);
   if (horizontal_angle > kVisionFovH * 0.5f)
     return false;
 
   // Vertical cone: 60 degrees — a player perched directly overhead is unseen.
   float v_sin = dir.y;
-  if (v_sin > 1.0f) v_sin = 1.0f;
-  if (v_sin < -1.0f) v_sin = -1.0f;
+  if (v_sin > 1.0f)
+    v_sin = 1.0f;
+  if (v_sin < -1.0f)
+    v_sin = -1.0f;
   float vertical_angle = asinf(v_sin);
   if (fabsf(vertical_angle) > kVisionFovV * 0.5f)
     return false;
@@ -239,9 +242,8 @@ void Enemy::move_toward(World *world, Vector3 target, float speed, float dt) {
 
   // Try the desired direction, then progressively wider detours — guards
   // skirt around pillars instead of grinding into their faces.
-  static const float detours[] = {0.0f,  0.6f,  -0.6f, 1.2f,  -1.2f,
-                                  1.8f,  -1.8f, 2.4f,  -2.4f, 2.9f,
-                                  -2.9f};
+  static const float detours[] = {0.0f,  0.6f, -0.6f, 1.2f, -1.2f, 1.8f,
+                                  -1.8f, 2.4f, -2.4f, 2.9f, -2.9f};
   for (float a : detours) {
     float c = cosf(a);
     float s = sinf(a);
@@ -293,8 +295,8 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
 
   // Contextual takedown: behind an unaware guard = incapacitate;
   // otherwise (spotted / face-to-face) = kill.
-  Vector3 to_player = Vector3Subtract(blackboard.current_player_position,
-                                      current_position);
+  Vector3 to_player =
+      Vector3Subtract(blackboard.current_player_position, current_position);
   float dist = Vector3Length(to_player);
   if (dist < kKillRange) {
     bool attack = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
@@ -306,8 +308,8 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
       bool behind = Vector3DotProduct(facing, flat) < 0.0f;
       if (behind && alert_ < 1.0f) {
         Audio::get().play_at(Sfx::Takedown, blackboard.current_player_position,
-                             current_position, blackboard.listener_right,
-                             40.0f, 0.9f);
+                             current_position, blackboard.listener_right, 40.0f,
+                             0.9f);
         incapacitate();
         return {};
       }
@@ -358,7 +360,8 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
 
   // Stuck detection: active behaviors that stop making progress trigger a
   // short perpendicular escape maneuver (works even when wedged in geometry).
-  float moved = Vector3Length(Vector3Subtract(current_position, last_position_));
+  float moved =
+      Vector3Length(Vector3Subtract(current_position, last_position_));
   bool wants_move = revive_target_ != nullptr || has_target_ || alert_ >= 0.35f;
   if (wants_move && moved < 0.015f)
     stuck_timer_ += dt;
@@ -382,8 +385,8 @@ MovementUpdate Enemy::update(float dt, Blackboard &blackboard) {
     stuck_timer_ = 0.0f;
   } else if (revive_target_ != nullptr) {
     // Revive duty overrides everything: walk to the ally, stand, lift them.
-    Vector3 d = Vector3Subtract(revive_target_->get_position(),
-                                current_position);
+    Vector3 d =
+        Vector3Subtract(revive_target_->get_position(), current_position);
     float ally_dist = Vector3Length(d);
     if (ally_dist > 2.0f) {
       move_toward(world, revive_target_->get_position(), 3.0f, dt);
@@ -450,8 +453,9 @@ void Enemy::draw() {
                 {model_scale_, model_scale_, model_scale_}, WHITE);
   } else {
     DrawCylinder(current_position, 0.35f, 0.35f, 1.2f, 10, MAROON);
-    DrawSphere({current_position.x, current_position.y + 0.95f,
-                current_position.z}, 0.3f, RED);
+    DrawSphere(
+        {current_position.x, current_position.y + 0.95f, current_position.z},
+        0.3f, RED);
   }
   draw_vision_cone();
 

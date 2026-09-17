@@ -10,10 +10,10 @@ struct MovementUpdate {
   bool blink;
   bool jump_held;
   bool sprint;
-  bool blink_held; // true every frame the blink button is held down
-  bool recall;         // LB pressed (edge) — kept for compatibility
-  bool recall_held;    // LB held down (level)
-  bool place_anchor;   // LB+RB chord
+  bool blink_held;   // true every frame the blink button is held down
+  bool recall;       // LB pressed (edge) — kept for compatibility
+  bool recall_held;  // LB held down (level)
+  bool place_anchor; // LB+RB chord
 };
 
 class MovementController {
@@ -32,4 +32,3 @@ private:
       std::make_unique<KeyboardInputProvider>();
   bool using_gamepad_ = false;
 };
-
