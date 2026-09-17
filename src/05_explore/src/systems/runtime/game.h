@@ -24,12 +24,12 @@ public:
   ~Game();
   GameInfo tick(bool);
   GameState get_current_state() { return current_state; }
+  void toggle_pause(); // public: web main loop forwards ESC-exits-lock as pause
 
 private:
   GameState current_state = GameState::RUNNING;
   GameInfo update();
   void draw();
-  void toggle_pause();
   void spawn_quest_items();
   void update_quest();
   GameState previous_state;

@@ -35,7 +35,10 @@ GameInfo Game::tick(bool debug) {
     toggle_pause();
   } else if (current_state == GameState::PAUSED) {
     // Pause menu
+    // Click also resumes: on web the click gesture lets the main loop's
+    // pending pointer-lock request engage immediately after ESC.
     if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER) ||
+        IsMouseButtonPressed(MOUSE_BUTTON_LEFT) ||
         IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
       toggle_pause(); // resume
     } else if (IsKeyPressed(KEY_R) ||
@@ -161,7 +164,7 @@ void Game::draw() {
     int tw = MeasureText(title, 50);
     DrawText(title, GetScreenWidth() / 2 - tw / 2, GetScreenHeight() / 2 - 120,
              50, WHITE);
-    const char *options[] = {"ESC / A  -  Resume", "R / Y  -  Restart",
+    const char *options[] = {"ESC / CLICK / A  -  Resume", "R / Y  -  Restart",
                              "Q / X  -  Quit to Menu"};
     for (int i = 0; i < 3; ++i) {
       int w = MeasureText(options[i], 24);

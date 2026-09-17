@@ -143,7 +143,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE BT::behaviortree_cpp)
 if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     target_link_options(${PROJECT_NAME} PRIVATE
-        -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sSAFE_HEAP=0
+        -sALLOW_MEMORY_GROWTH=1 -sASSERTIONS=1 -sASYNCIFY
         -sFORCE_FILESYSTEM=1
         --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/resources@resources
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html)

@@ -22,4 +22,8 @@ cp build-web/bin/Release/Game.html "$SITE/games/05_explore/index.html"
 for f in Game.js Game.wasm Game.data; do
   [ -f "build-web/bin/Release/$f" ] && cp "build-web/bin/Release/$f" "$SITE/games/05_explore/"
 done
-echo "Published web build -> docs/games/05_explore/"
+# Cache-bust: stamp the shell + asset URLs so browsers never serve a stale build
+STAMP=$(date +%Y%m%d%H%M%S)
+sed -i '' "s/STAMP/$STAMP/; s|src=\"Game.js\"|src=\"Game.js?v=$STAMP\"|; s|src=Game\.js|src=\"Game.js?v=$STAMP\"|" "$SITE/games/05_explore/index.html" 2>/dev/null || \
+  sed -i "s/STAMP/$STAMP/; s|src=\"Game.js\"|src=\"Game.js?v=$STAMP\"|; s|src=Game\.js|src=\"Game.js?v=$STAMP\"|" "$SITE/games/05_explore/index.html"
+echo "Published web build -> docs/games/05_explore/ (v=$STAMP)"

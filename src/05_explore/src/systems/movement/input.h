@@ -55,3 +55,14 @@ public:
 private:
   static float deadzone(float value, float threshold = 0.15f);
 };
+
+#ifdef PLATFORM_WEB
+// Web pointer-lock look deltas: raylib's web backend keeps only the LAST
+// mousemove event per GetMouseDelta() call, so with the ASYNCIFY loop pacing
+// (~60-80 Hz) and mice polling at 125-1000 Hz most motion is dropped and
+// camera look feels far too slow. JS sums movementX/Y while the canvas holds
+// the pointer lock; the main loop reads the sum once per frame and resets it.
+void InitWebLookAccumulator(); // one-time JS listener setup
+Vector2 ReadWebLookDelta();    // movement accumulated since last reset
+void ResetWebLookDelta();      // call once per frame, after reading
+#endif

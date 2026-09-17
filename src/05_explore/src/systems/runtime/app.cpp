@@ -1,6 +1,11 @@
 #include "app.h"
 #include "raylib.h"
 
+bool App::is_game_running() const {
+  return current_state == ApplicationState::GAME && game_ != nullptr &&
+         game_->get_current_state() == GameState::RUNNING;
+}
+
 bool App::run(bool debug) {
   BeginDrawing();
   ClearBackground(RAYWHITE);
@@ -11,9 +16,11 @@ bool App::run(bool debug) {
     if (IsKeyPressed(KEY_ENTER)) {
       current_state = ApplicationState::GAME;
     }
+#ifndef PLATFORM_WEB
     if (IsKeyPressed(KEY_ESCAPE)) {
       current_state = ApplicationState::QUIT;
     }
+#endif // web: there is no window to quit — closing the tab is the quit
     main_menu();
     break;
   case ApplicationState::GAME: {
@@ -48,4 +55,9 @@ void App::main_menu() {
   DrawText("EXPLORE", cx - MeasureText("EXPLORE", 60) / 2, cy - 80, 60, BLACK);
   const char *prompt = "Press ENTER to start  -  ESC to quit";
   DrawText(prompt, cx - MeasureText(prompt, 24) / 2, cy + 20, 24, GRAY);
+}
+
+void App::toggle_pause() {
+  if (game_)
+    game_->toggle_pause();
 }

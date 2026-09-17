@@ -15,8 +15,10 @@
 <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
 <div class="status" id="status">Downloading…</div>
 <script>
+  var GAME_VERSION = 'STAMP';
   var statusElement = document.getElementById('status');
   var Module = {
+    locateFile: function(p) { return p + '?v=' + GAME_VERSION; },
     preRun: [],
     postRun: [],
     print: function(){},
