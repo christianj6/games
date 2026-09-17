@@ -63,14 +63,12 @@ Build system: vcpkg, CMake, Ninja
 
 ---
 
-#### 05_explore *(in progress)*
+#### 05_explore
 Open-world stealth exploration: blink across a procedural pillar field, collect
 shards guarded by behaviour-tree enemies, and bring them home. Behaviour tree AI,
 custom GLSL shaders, and an Emscripten web build playable right in the browser.
 
 Build system: vcpkg, CMake, Ninja, Emscripten (web)
-
-[Play in the browser](https://christianj6.github.io/games/)
 
 ![05_explore](docs/img/05_explore.png)
 
