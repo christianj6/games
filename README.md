@@ -82,12 +82,13 @@ cd src/00_jump
 make
 ```
 
-Projects `03_shoot` and `04_teleport` use CMake and Ninja. Each has its own `build.sh`:
+Projects `03_shoot`, `04_teleport` and `05_explore` use CMake and Ninja. Each has
+its own `build.sh`:
 ```bash
 bash src/03_shoot/build.sh
-# or from the repo root:
-./build.sh 03_shoot
 ```
+The vcpkg toolchain path inside `build.sh` differs per machine (see the script
+for the macOS and WSL variants).
 
 `04_teleport` and later projects require [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started) installed in the parent directory of this repo.
 
