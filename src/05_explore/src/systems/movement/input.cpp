@@ -1,0 +1,146 @@
+#include "input.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten.h>
+#endif
+#include "raylib.h"
+#include <cmath>
+
+Vector3 KeyboardInputProvider::get_input_movement_vector() {
+  Vector3 movement = {0};
+
+  if (IsKeyDown(KEY_W)) {
+    movement.z += 1.0f;
+  }
+  if (IsKeyDown(KEY_S)) {
+    movement.z -= 1.0f;
+  }
+
+  if (IsKeyDown(KEY_D)) {
+    movement.x += 1.0f;
+  }
+  if (IsKeyDown(KEY_A)) {
+    movement.x -= 1.0f;
+  }
+
+  return movement;
+}
+
+Vector2 KeyboardInputProvider::get_input_look_vector() {
+#ifdef PLATFORM_WEB
+  return ReadWebLookDelta();
+#else
+  return GetMouseDelta();
+#endif
+}
+
+bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
+
+bool KeyboardInputProvider::get_input_jump_held() { return IsKeyDown(KEY_SPACE); }
+
+bool KeyboardInputProvider::get_input_sprint() {
+  return IsKeyDown(KEY_LEFT_SHIFT);
+}
+
+bool KeyboardInputProvider::get_input_blink() {
+  return IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+}
+
+bool KeyboardInputProvider::get_input_blink_held() {
+  return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+}
+
+bool KeyboardInputProvider::get_input_recall() { return IsKeyPressed(KEY_Q); }
+bool KeyboardInputProvider::get_input_recall_held() { return IsKeyDown(KEY_Q); }
+bool KeyboardInputProvider::get_input_place_anchor() {
+  return IsKeyPressed(KEY_F);
+}
+
+float ControllerInputProvider::deadzone(float value, float threshold) {
+  return fabsf(value) > threshold ? value : 0.0f;
+}
+
+Vector3 ControllerInputProvider::get_input_movement_vector() {
+  float x = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X));
+  float z = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y));
+  return {x, 0.0f, -z};
+}
+
+Vector2 ControllerInputProvider::get_input_look_vector() {
+  const float look_scale = 30.0f;
+  float x = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X));
+  float y = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y));
+  return {x * look_scale, y * look_scale};
+}
+
+bool ControllerInputProvider::get_input_jump() {
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+}
+
+bool ControllerInputProvider::get_input_jump_held() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+}
+
+bool ControllerInputProvider::get_input_sprint() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_THUMB);
+}
+
+bool ControllerInputProvider::get_input_blink() {
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_blink_held() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_recall() {
+  return IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_recall_held() {
+  return IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+}
+
+bool ControllerInputProvider::get_input_place_anchor() {
+  // Chord: either button pressed while the other is already held
+  bool lb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  bool rb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+  bool lb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+  bool rb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
+  return (lb_p && rb_h) || (lb_h && rb_p);
+}
+
+#ifdef PLATFORM_WEB
+void InitWebLookAccumulator() {
+  EM_ASM({
+    if (Module._lookInit) return;
+    Module._lookInit = true;
+    Module._lookDX = 0;
+    Module._lookDY = 0;
+    document.addEventListener('mousemove', function(e) {
+      // Sum only while the canvas holds the pointer lock; unlocked menus use
+      // raylib's CSS-mapped cursor position instead.
+      if (document.pointerLockElement === Module.canvas) {
+        Module._lookDX += e.movementX;
+        Module._lookDY += e.movementY;
+      }
+    });
+  });
+}
+
+Vector2 ReadWebLookDelta() {
+  Vector2 delta;
+  delta.x = (float)EM_ASM_DOUBLE({ return Module._lookDX || 0; });
+  delta.y = (float)EM_ASM_DOUBLE({ return Module._lookDY || 0; });
+  return delta;
+}
+
+void ResetWebLookDelta() {
+  EM_ASM({
+    if (Module._lookInit) {
+      Module._lookDX = 0;
+      Module._lookDY = 0;
+    }
+  });
+}
+#endif

@@ -2,7 +2,19 @@
 
 Learning C++ and game programming through a series of progressively more complex projects, each one adding new techniques on top of the last.
 
----
+#### Installing Dependencies
+Unix
+```
+sudo apt install clang-format cmake ninja-build pkg-config zip
+```
+
+Windows 
+```
+winget install Ninja-build.Ninja
+```
+[Visual Studio C++ Build Tools](https://visualstudio.microsoft.com/downloads/)
+
+***
 
 ## Projects
 
