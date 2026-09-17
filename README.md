@@ -23,7 +23,7 @@ Simple side-scrolling jumper. First steps with Raylib, C++ syntax, and working w
 
 Build system: Premake, Make
 
-![00_jump](./img/00_jump.png)
+![00_jump](docs/img/00_jump.png)
 
 ---
 
@@ -32,7 +32,7 @@ Top-down coin collector with a chasing enemy. Getting comfortable with C++ and R
 
 Build system: Premake, Make
 
-![01_collect](./img/01_collect.png)
+![01_collect](docs/img/01_collect.png)
 
 ---
 
@@ -41,7 +41,7 @@ Top-down stealth game — player must hide from a searching enemy. Working with 
 
 Build system: Premake, Make
 
-![02_hide](./img/02_hide.png)
+![02_hide](docs/img/02_hide.png)
 
 ---
 
@@ -50,7 +50,7 @@ First-person shooter with patrolling enemies. Refining game abstractions, switch
 
 Build system: CMake, Ninja
 
-![03_shoot](./img/03_shoot.png)
+![03_shoot](docs/img/03_shoot.png)
 
 ---
 
@@ -59,14 +59,20 @@ Larger game world with a teleportation mechanic. Introduces vcpkg, shaders, mesh
 
 Build system: vcpkg, CMake, Ninja
 
-![04_teleport](./img/04_teleport.png)
+![04_teleport](docs/img/04_teleport.png)
 
 ---
 
 #### 05_explore *(in progress)*
-Open-world exploration game with a behaviour tree AI system and custom shaders.
+Open-world stealth exploration: blink across a procedural pillar field, collect
+shards guarded by behaviour-tree enemies, and bring them home. Behaviour tree AI,
+custom GLSL shaders, and an Emscripten web build playable right in the browser.
 
-Build system: vcpkg, CMake, Ninja
+Build system: vcpkg, CMake, Ninja, Emscripten (web)
+
+[Play in the browser](https://christianj6.github.io/games/)
+
+![05_explore](docs/img/05_explore.png)
 
 ---
 
@@ -91,3 +97,13 @@ Dependencies (Linux/WSL):
 ```bash
 sudo apt install clang-format cmake ninja-build pkg-config zip
 ```
+
+#### Web build
+
+`05_explore` additionally builds for the browser with
+[Emscripten](https://emscripten.org/) (`brew install emscripten`):
+```bash
+bash src/05_explore/build-web.sh
+```
+This compiles the game to WebAssembly and publishes the bundle into
+`docs/games/05_explore/`, which is what the GitHub Pages site serves.
