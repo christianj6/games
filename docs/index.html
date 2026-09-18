@@ -20,9 +20,10 @@
            background-size: 130%; background-position: center; background-repeat: no-repeat; }
   .thumb.placeholder { display: flex; align-items: center; justify-content: center;
                        color: #4a4a58; font-size: 42px; }
-  .body { padding: 14px 18px 16px; flex: 1; min-width: 0; }
-  .title-row { display: flex; align-items: center; justify-content: space-between; }
   h2 { margin: 0; font-size: 18px; }
+  .note { margin: 10px 0 0; color: var(--dim); font-size: 13px; line-height: 1.5;
+          max-width: 620px; }
+  .title-row { display: flex; align-items: center; justify-content: space-between; }
   .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
   .badge.playable { background: #2a3d1e; color: #9fd66a; }
   .badge.soon { background: #3a3244; color: #b9a0d8; }
@@ -53,8 +54,10 @@
 
 <header>
   <h1>games</h1>
+  <p class="note">Some of the older games don't have a nice menu setup — there's
+  no way to restart or quit from inside the game. If you get stuck, just close
+  the game window (or reload the page) and start it again.</p>
 </header>
-
 <div class="list" id="list"></div>
 
 <div class="modal" id="modal">
