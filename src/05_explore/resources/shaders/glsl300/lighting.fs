@@ -25,7 +25,6 @@ struct Light {
 
 uniform Light lights[MAX_LIGHTS];
 uniform vec4 ambient;
-uniform vec3 viewPos;
 
 void main()
 {

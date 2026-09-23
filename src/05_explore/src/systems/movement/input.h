@@ -12,13 +12,8 @@ public:
   virtual bool get_input_sprint() = 0;
   virtual bool get_input_blink() = 0;
   virtual bool get_input_blink_held() = 0;
-  virtual bool get_input_recall() = 0;
   virtual bool get_input_recall_held() = 0;
   virtual bool get_input_place_anchor() = 0;
-  // virtual bool get_input_attack() = 0;
-  // virtual bool get_input_pause() = 0;
-  // virtual bool get_input_confirm() = 0;
-  // virtual bool get_input_cancel() = 0;
 };
 
 class KeyboardInputProvider : public InputProvider {
@@ -30,13 +25,8 @@ public:
   bool get_input_sprint() override;
   bool get_input_blink() override;
   bool get_input_blink_held() override;
-  bool get_input_recall() override;
   bool get_input_recall_held() override;
   bool get_input_place_anchor() override;
-  // bool get_input_attack() override;
-  // bool get_input_pause() override;
-  // bool get_input_confirm() override;
-  // bool get_input_cancel() override;
 };
 
 class ControllerInputProvider : public InputProvider {
@@ -48,12 +38,11 @@ public:
   bool get_input_sprint() override;
   bool get_input_blink() override;
   bool get_input_blink_held() override;
-  bool get_input_recall() override;
   bool get_input_recall_held() override;
   bool get_input_place_anchor() override;
-
-private:
-  static float deadzone(float value, float threshold = 0.15f);
+  // LB press edge, kept off the shared interface: only the gamepad anchor
+  // chord needs it; the keyboard path derives its edge in Player.
+  bool get_input_recall();
 };
 
 #ifdef PLATFORM_WEB
@@ -62,7 +51,7 @@ private:
 // (~60-80 Hz) and mice polling at 125-1000 Hz most motion is dropped and
 // camera look feels far too slow. JS sums movementX/Y while the canvas holds
 // the pointer lock; the main loop reads the sum once per frame and resets it.
-void InitWebLookAccumulator(); // one-time JS listener setup
-Vector2 ReadWebLookDelta();    // movement accumulated since last reset
-void ResetWebLookDelta();      // call once per frame, after reading
+void init_web_look_accumulator(); // one-time JS listener setup
+Vector2 read_web_look_delta();    // movement accumulated since last reset
+void reset_web_look_delta();      // call once per frame, after reading
 #endif

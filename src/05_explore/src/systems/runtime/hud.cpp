@@ -1,15 +1,42 @@
 #include "hud.h"
 #include "raylib.h"
+#include <algorithm>
 #include <fmt/core.h>
 
-void Hud::draw(Blackboard blackboard) {
-  DrawFPS(20, 40);
-  DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, 2, BLACK);
+namespace {
+constexpr int kFpsX = 20;
+constexpr int kFpsY = 40;
+constexpr int kCrosshairRadius = 2;
+constexpr int kHudX = 20;
+constexpr int kDebugY = 60;
+constexpr int kDebugFontSize = 20;
+constexpr int kQuestY = 85;
+constexpr int kQuestFontSize = 22;
+constexpr int kBarWidth = 200;
+constexpr int kBarHeight = 18;
+constexpr int kBarX = 20;
+constexpr int kBarBottomInset = 38;
+constexpr int kBarInset = 2;
+constexpr Color kBarBackColor = {40, 40, 40, 200};
+constexpr int kVignetteMaxAlpha = 120;
+constexpr int kVignetteThickness = 60;
+constexpr int kActionFontSize = 22;
+constexpr int kPromptFontSize = 24;
+constexpr float kPromptScreenFraction = 0.72f;
+// 0.5 (centre) + 44 px at 1080p: 0.5 + 44 / 1080 = 0.54074 — same position as
+// the old fixed offset on desktop, but scales with short browser canvases.
+constexpr float kActionPromptScreenFraction = 0.5408f;
+} // namespace
+
+void Hud::draw(const Blackboard &blackboard) {
+  DrawFPS(kFpsX, kFpsY);
+  DrawCircle(GetScreenWidth() / 2, GetScreenHeight() / 2, kCrosshairRadius,
+             BLACK);
   DrawText(fmt::format("{}, {}, {}", blackboard.current_player_position.x,
                        blackboard.current_player_position.y,
                        blackboard.current_player_position.z)
                .c_str(),
-           20, 60, 20, BLACK);
+           kHudX, kDebugY, kDebugFontSize, BLACK);
 
   // Quest tracker
   std::string quest_str;
@@ -27,44 +54,44 @@ void Hud::draw(Blackboard blackboard) {
     break;
   }
   if (!quest_str.empty())
-    DrawText(quest_str.c_str(), 20, 85, 22, DARKBLUE);
+    DrawText(quest_str.c_str(), kHudX, kQuestY, kQuestFontSize, DARKBLUE);
 
   // Health bar (damage sources arrive in Phase 2)
-  int hw = 200, hh = 18, hx = 20, hy = GetScreenHeight() - 38;
-  DrawRectangle(hx, hy, hw, hh, {40, 40, 40, 200});
-  float frac = blackboard.player_health / 100.0f;
-  if (frac < 0.0f)
-    frac = 0.0f;
-  if (frac > 1.0f)
-    frac = 1.0f;
-  DrawRectangle(hx + 2, hy + 2, (int)((hw - 4) * frac), hh - 4, RED);
+  int hy = GetScreenHeight() - kBarBottomInset;
+  DrawRectangle(kBarX, hy, kBarWidth, kBarHeight, kBarBackColor);
+  float frac =
+      std::clamp(blackboard.player_health / kMaxPlayerHealth, 0.0f, 1.0f);
+  DrawRectangle(kBarX + kBarInset, hy + kBarInset,
+                (int)((kBarWidth - 2 * kBarInset) * frac),
+                kBarHeight - 2 * kBarInset, RED);
 
   // Damage vignette
   if (blackboard.damage_flash > 0.0f) {
     Color c = RED;
-    c.a = (unsigned char)(blackboard.damage_flash * 120);
+    c.a = (unsigned char)(blackboard.damage_flash * kVignetteMaxAlpha);
     int w = GetScreenWidth(), h = GetScreenHeight();
-    const int t = 60;
-    DrawRectangle(0, 0, w, t, c);
-    DrawRectangle(0, h - t, w, t, c);
-    DrawRectangle(0, 0, t, h, c);
-    DrawRectangle(w - t, 0, t, h, c);
+    DrawRectangle(0, 0, w, kVignetteThickness, c);
+    DrawRectangle(0, h - kVignetteThickness, w, kVignetteThickness, c);
+    DrawRectangle(0, 0, kVignetteThickness, h, c);
+    DrawRectangle(w - kVignetteThickness, 0, kVignetteThickness, h, c);
   }
 
   // Contextual takedown / strike prompt
   if (blackboard.takedown_available || blackboard.attack_available) {
     const char *action =
         blackboard.takedown_available ? "[LMB] Takedown" : "[LMB] Strike";
-    int aw = MeasureText(action, 22);
-    DrawText(action, GetScreenWidth() / 2 - aw / 2, GetScreenHeight() / 2 + 44,
-             22, blackboard.takedown_available ? SKYBLUE : MAROON);
+    int aw = MeasureText(action, kActionFontSize);
+    DrawText(action, GetScreenWidth() / 2 - aw / 2,
+             (int)(GetScreenHeight() * kActionPromptScreenFraction),
+             kActionFontSize, blackboard.takedown_available ? SKYBLUE : MAROON);
   }
 
   if (blackboard.friend_nearby &&
       blackboard.quest.state == QuestState::TURN_IN) {
     const char *prompt = "[E] Talk to friend";
-    int w = MeasureText(prompt, 24);
+    int w = MeasureText(prompt, kPromptFontSize);
     DrawText(prompt, GetScreenWidth() / 2 - w / 2,
-             (int)(GetScreenHeight() * 0.72f), 24, BLACK);
+             (int)(GetScreenHeight() * kPromptScreenFraction), kPromptFontSize,
+             BLACK);
   }
 }

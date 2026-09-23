@@ -1,5 +1,10 @@
 #include "audio.h"
 #include "raymath.h"
+#include <iterator>
+
+namespace {
+constexpr float kWindVolume = 0.08f;
+} // namespace
 
 Audio &Audio::get() {
   static Audio instance;
@@ -16,12 +21,14 @@ void Audio::init() {
   static const char *names[] = {
       "blink", "anchor", "recall", "pickup",   "turnin", "win",   "lose",
       "shot",  "hit",    "kill",   "takedown", "revive", "alert", "step"};
+  static_assert(std::size(names) == (size_t)Sfx::Count,
+                "Sfx enum and filename table out of sync");
   for (int i = 0; i < (int)Sfx::Count; ++i)
     sounds_[i] = LoadSound(TextFormat("audio/%s.wav", names[i]));
 
   wind_ = LoadMusicStream("audio/wind.wav");
   wind_.looping = true;
-  SetMusicVolume(wind_, 0.08f);
+  SetMusicVolume(wind_, kWindVolume);
   initialized_ = true;
 }
 

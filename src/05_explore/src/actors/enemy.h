@@ -9,7 +9,7 @@ public:
 
   bool is_dead() const override { return dead_; }
   bool is_incapacitated() const { return incapacitated_; }
-  Vector3 get_position() const { return current_position; }
+  Vector3 get_position() const { return current_position_; }
   void incapacitate();
   void revive();
   void set_revive_target(Enemy *ally);
@@ -22,7 +22,12 @@ private:
   void pick_patrol_target(World *world);
   bool can_see_player(Blackboard &blackboard);
   void draw_vision_cone();
-  void move_toward(World *world, Vector3 target, float speed, float dt);
+  bool move_toward(World *world, Vector3 target, float speed, float dt);
+  bool update_takedown_and_attack(Blackboard &blackboard, Vector3 to_player,
+                                  float dist);
+  bool update_alert(Blackboard &blackboard, float dt);
+  void update_unstuck(World *world, float dt);
+  void update_buzz(Blackboard &blackboard, Vector3 to_player, float dist);
 
   // Per-frame inputs the BT conditions/actions read and behaviors write.
   struct FrameContext {
@@ -39,8 +44,6 @@ private:
   bool initialized_ = false;
   bool dead_ = false;
   Vector3 guard_post_ = {0, 0, 0};
-  Vector3 target_ = {0, 0, 0};
-  bool has_target_ = false;
   float leash_radius_ = 60.0f; // hard chase limit from guard_post_
   float idle_timer_ = 0.0f;
   float alert_ = 0.0f; // 0 = calm, 1 = fully alerted
@@ -58,9 +61,6 @@ private:
   float unstuck_timer_ = 0.0f;
   Vector3 unstuck_dir_ = {0, 0, 0};
   float heading_deg_ = 0.0f;
-  Model model_{};
   Sound buzz_{};
   bool buzz_ready_ = false;
-  bool model_loaded_ = false;
-  float model_scale_ = 1.0f;
 };

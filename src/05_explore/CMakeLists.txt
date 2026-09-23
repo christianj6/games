@@ -8,7 +8,7 @@ project(Game)
 
 if(EMSCRIPTEN)
     # Web build: fmt + behaviortree.cpp fetched directly (vcpkg's BT pulls
-    # ZeroMQ, which cannot run in a browser). Eigen is unused by game code.
+    # ZeroMQ, which cannot run in a browser).
     # NOTE: web compile flags MUST be set before every FetchContent target
     # is created — mixed flag compilation breaks heap growth (OOM).
     add_definitions(-DPLATFORM_WEB)
@@ -40,7 +40,6 @@ if(EMSCRIPTEN)
     FetchContent_MakeAvailable(fmt behaviortree_cpp)
 else()
     find_package(fmt REQUIRED)
-    find_package(Eigen3 REQUIRED)
     find_package(behaviortree_cpp REQUIRED)
 endif()
 
@@ -70,7 +69,7 @@ include(FetchContent)
 FetchContent_Declare(
     raylib
     GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG master
+    GIT_TAG 6f5f7acd # pinned: master moves under us between configures
 )
 if(EMSCRIPTEN)
     set(PLATFORM Web CACHE STRING "" FORCE)
@@ -135,9 +134,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
 # Link other packages
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
-if(NOT EMSCRIPTEN)
-    target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
-endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE BT::behaviortree_cpp)
 # Web (Emscripten) output: .html + .js + .wasm with resources preloaded.
 if(EMSCRIPTEN)

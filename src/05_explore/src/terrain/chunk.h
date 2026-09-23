@@ -16,7 +16,7 @@ struct MeshData {
 
 class Chunk {
 public:
-  Chunk(Vector2, int = 32, Renderer * = nullptr);
+  Chunk(Vector2 position, int size, Renderer *renderer);
   ~Chunk();
 
   void generate_mesh();
@@ -24,16 +24,15 @@ public:
   void unload();
   void draw();
 
-  void set_voxel(int, int, int);
-  void clear_voxel(int, int, int);
-  bool is_filled(int, int, int) const;
+  void set_voxel(int x, int y, int z);
+  void clear_voxel(int x, int y, int z);
+  bool is_filled(int x, int y, int z) const;
   // Topmost solid voxel + 1 for a column (0 = empty). O(1) via cache.
   int column_height(int lx, int lz) const { return heights_[lx * size_ + lz]; }
 
-  Vector2 get_position() { return position_; }
+  Vector2 get_position() const { return position_; }
 
   std::atomic<ChunkState> state{ChunkState::UNLOADED};
-  bool loaded = false;
 
 private:
   Vector2 position_;
@@ -45,5 +44,10 @@ private:
   std::mutex mesh_data_mutex_;
 
   Material material_;
-  bool is_in_bounds(int, int, int) const;
+  bool is_in_bounds(int x, int y, int z) const;
+  void build_slice_mask(std::vector<bool> &mask, int dim, int u, int v,
+                        int side, int slice) const;
+  static void compute_quad_corners(float p[4][3], int dim, int u, int v,
+                                   int side, int slice, int i, int j, int w,
+                                   int h);
 };

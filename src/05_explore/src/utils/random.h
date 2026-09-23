@@ -16,12 +16,11 @@ private:
   std::mt19937 generator;
 };
 
-// template class definitions must be in the .h file bc of compiler ish
+// template definitions live in the header — required for instantiation at
+// the use site
 template <typename T>
 RandomNumberGenerator<T>::RandomNumberGenerator(T start, T end)
-    : generator(std::random_device{}()) {
-  distribution = Distribution(start, end);
-}
+    : distribution(start, end), generator(std::random_device{}()) {}
 
 template <typename T> T RandomNumberGenerator<T>::operator()() {
   return distribution(generator);

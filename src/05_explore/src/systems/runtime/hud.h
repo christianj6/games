@@ -3,5 +3,5 @@
 
 class Hud {
 public:
-  void draw(Blackboard);
+  void draw(const Blackboard &blackboard);
 };

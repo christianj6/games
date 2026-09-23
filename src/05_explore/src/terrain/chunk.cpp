@@ -1,27 +1,26 @@
 #include "chunk.h"
-#include "raylib.h"
 #include "raymath.h"
 #include "utils/graphics/renderer.h"
 
-static Material configure_material(Renderer *renderer) {
-  Material m = LoadMaterialDefault();
-  m.shader = renderer->get_shader();
-  return m;
-}
+namespace {
+constexpr float kFloorTopEpsilon = 0.001f;
+constexpr float kHalfChunk = 0.5f;
+constexpr float kFloorHeight = 1.0f;
+constexpr Color kFloorColor{80, 72, 64, 255};
+} // namespace
 
 Chunk::Chunk(Vector2 position, int size, Renderer *renderer)
     : position_(position), size_(size) {
   voxels_.assign(size_ * size_ * size_, 0);
   heights_.assign(size_ * size_, 0);
   mesh_ = {0};
-  if (renderer == nullptr) {
-    static Material default_material = LoadMaterialDefault();
-    material_ = default_material;
-  } else {
-    material_ = configure_material(renderer);
-  }
+  material_ = LoadMaterialDefault();
+  if (renderer != nullptr)
+    material_.shader = renderer->get_shader();
 }
 
+// Releases the GPU mesh if one was uploaded; safe to call twice because
+// unload() only frees while state is LOADED.
 Chunk::~Chunk() { unload(); }
 
 bool Chunk::is_in_bounds(int x, int y, int z) const {
@@ -59,11 +58,90 @@ bool Chunk::is_filled(int x, int y, int z) const {
   return voxels_[x * size_ * size_ + y * size_ + z] != 0;
 }
 
+// Build 2D mask of exposed faces for this slice
+void Chunk::build_slice_mask(std::vector<bool> &mask, int dim, int u, int v,
+                             int side, int slice) const {
+  // At a chunk boundary the neighbor is in an adjacent chunk. We
+  // treat it as empty (neighbor=false) so the face is generated — but
+  // for the world floor (y=0 side faces only) this creates coplanar
+  // duplicates with the adjacent chunk's matching face, causing
+  // Z-fighting. For X/Z side faces: dim=0 → u=Y → i is Y; dim=2 → v=Y → j
+  // is Y.
+  bool at_boundary = (slice + side < 0 || slice + side >= size_);
+  bool is_xz_face = (dim != 1);
+
+  for (int j = 0; j < size_; j++) {
+    for (int i = 0; i < size_; i++) {
+      int a[3], b2[3];
+      a[dim] = slice;
+      a[u] = i;
+      a[v] = j;
+      b2[dim] = slice + side;
+      b2[u] = i;
+      b2[v] = j;
+      bool current = is_filled(a[0], a[1], a[2]);
+      bool neighbor = at_boundary ? false : is_filled(b2[0], b2[1], b2[2]);
+
+      // Suppress side faces of floor voxels (y=0) at chunk boundaries:
+      // the adjacent chunk always has a floor there, so these faces are
+      // always hidden and only cause Z-fighting.
+      int voxel_y = (dim == 0) ? i : (dim == 2) ? j : slice;
+      bool floor_seam = at_boundary && is_xz_face && (voxel_y == 0);
+
+      mask[i + j * size_] = current && !neighbor && !floor_seam;
+    }
+  }
+}
+
+// Compute the 4 quad corners in local voxel space.
+// Positive face: sits at slice+1, CCW from outside (+side).
+// Negative face: sits at slice,   CCW from outside (-side).
+// The floor top face (dim=1, side=+1, slice=0) is raised by a
+// tiny epsilon so it wins the depth test against coplanar pillar
+// base edges that share the exact y=1 boundary.
+void Chunk::compute_quad_corners(float p[4][3], int dim, int u, int v, int side,
+                                 int slice, int i, int j, int w, int h) {
+  float fp = (float)(slice + (side > 0 ? 1 : 0));
+  if (dim == 1 && side > 0 && slice == 0)
+    fp += kFloorTopEpsilon;
+  if (side > 0) {
+    p[0][dim] = fp;
+    p[0][u] = i;
+    p[0][v] = j;
+    p[1][dim] = fp;
+    p[1][u] = i + w;
+    p[1][v] = j;
+    p[2][dim] = fp;
+    p[2][u] = i + w;
+    p[2][v] = j + h;
+    p[3][dim] = fp;
+    p[3][u] = i;
+    p[3][v] = j + h;
+  } else {
+    p[0][dim] = fp;
+    p[0][u] = i;
+    p[0][v] = j + h;
+    p[1][dim] = fp;
+    p[1][u] = i + w;
+    p[1][v] = j + h;
+    p[2][dim] = fp;
+    p[2][u] = i + w;
+    p[2][v] = j;
+    p[3][dim] = fp;
+    p[3][u] = i;
+    p[3][v] = j;
+  }
+}
+
 void Chunk::generate_mesh() {
   if (state != ChunkState::GENERATING)
     return;
 
   std::vector<float> verts, norms, uvs;
+  // Indices are unsigned short: 65535 / 4 caps a chunk at 16384 quads.
+  // Zone generation is sparse pillars in open terrain, whose merged face
+  // count stays orders of magnitude below that ceiling, so no runtime
+  // check is warranted.
   std::vector<unsigned short> indices;
   unsigned short base = 0;
 
@@ -101,38 +179,7 @@ void Chunk::generate_mesh() {
         if (dim == 1 && slice == 0)
           continue;
 
-        // At a chunk boundary the neighbor is in an adjacent chunk. We
-        // treat it as empty (neighbor=false) so the face is generated — but
-        // for the world floor (y=0 side faces only) this creates coplanar
-        // duplicates with the adjacent chunk's matching face, causing
-        // Z-fighting. For X/Z side faces: dim=0 → u=Y → i is Y; dim=2 → v=Y → j
-        // is Y.
-        bool at_boundary = (slice + side < 0 || slice + side >= size_);
-        bool is_xz_face = (dim != 1);
-
-        // Build 2D mask of exposed faces for this slice
-        for (int j = 0; j < size_; j++) {
-          for (int i = 0; i < size_; i++) {
-            int a[3], b2[3];
-            a[dim] = slice;
-            a[u] = i;
-            a[v] = j;
-            b2[dim] = slice + side;
-            b2[u] = i;
-            b2[v] = j;
-            bool current = is_filled(a[0], a[1], a[2]);
-            bool neighbor =
-                at_boundary ? false : is_filled(b2[0], b2[1], b2[2]);
-
-            // Suppress side faces of floor voxels (y=0) at chunk boundaries:
-            // the adjacent chunk always has a floor there, so these faces are
-            // always hidden and only cause Z-fighting.
-            int voxel_y = (dim == 0) ? i : (dim == 2) ? j : slice;
-            bool floor_seam = at_boundary && is_xz_face && (voxel_y == 0);
-
-            mask[i + j * size_] = current && !neighbor && !floor_seam;
-          }
-        }
+        build_slice_mask(mask, dim, u, v, side, slice);
 
         // Greedy merge and emit quads
         for (int j = 0; j < size_; j++) {
@@ -159,43 +206,8 @@ void Chunk::generate_mesh() {
               h++;
             }
 
-            // Compute the 4 quad corners in local voxel space.
-            // Positive face: sits at slice+1, CCW from outside (+side).
-            // Negative face: sits at slice,   CCW from outside (-side).
-            // The floor top face (dim=1, side=+1, slice=0) is raised by a
-            // tiny epsilon so it wins the depth test against coplanar pillar
-            // base edges that share the exact y=1 boundary.
             float p[4][3];
-            float fp = (float)(slice + (side > 0 ? 1 : 0));
-            if (dim == 1 && side > 0 && slice == 0)
-              fp += 0.001f;
-            if (side > 0) {
-              p[0][dim] = fp;
-              p[0][u] = i;
-              p[0][v] = j;
-              p[1][dim] = fp;
-              p[1][u] = i + w;
-              p[1][v] = j;
-              p[2][dim] = fp;
-              p[2][u] = i + w;
-              p[2][v] = j + h;
-              p[3][dim] = fp;
-              p[3][u] = i;
-              p[3][v] = j + h;
-            } else {
-              p[0][dim] = fp;
-              p[0][u] = i;
-              p[0][v] = j + h;
-              p[1][dim] = fp;
-              p[1][u] = i + w;
-              p[1][v] = j + h;
-              p[2][dim] = fp;
-              p[2][u] = i + w;
-              p[2][v] = j;
-              p[3][dim] = fp;
-              p[3][u] = i;
-              p[3][v] = j;
-            }
+            compute_quad_corners(p, dim, u, v, side, slice, i, j, w, h);
 
             float n[3] = {0, 0, 0};
             n[dim] = (float)side;
@@ -236,21 +248,15 @@ void Chunk::upload_mesh() {
     mesh_.vertexCount = mesh_data_.vertices.size() / 3;
     mesh_.triangleCount = mesh_data_.indices.size() / 3;
 
-    mesh_.vertices =
-        (float *)MemAlloc(mesh_data_.vertices.size() * sizeof(float));
-    mesh_.normals =
-        (float *)MemAlloc(mesh_data_.normals.size() * sizeof(float));
-    mesh_.texcoords =
-        (float *)MemAlloc(mesh_data_.texcoords.size() * sizeof(float));
+    auto upload_channel = [](float *&dst, const std::vector<float> &src) {
+      dst = (float *)MemAlloc(src.size() * sizeof(float));
+      memcpy(dst, src.data(), src.size() * sizeof(float));
+    };
+    upload_channel(mesh_.vertices, mesh_data_.vertices);
+    upload_channel(mesh_.normals, mesh_data_.normals);
+    upload_channel(mesh_.texcoords, mesh_data_.texcoords);
     mesh_.indices = (unsigned short *)MemAlloc(mesh_data_.indices.size() *
                                                sizeof(unsigned short));
-
-    memcpy(mesh_.vertices, mesh_data_.vertices.data(),
-           mesh_data_.vertices.size() * sizeof(float));
-    memcpy(mesh_.normals, mesh_data_.normals.data(),
-           mesh_data_.normals.size() * sizeof(float));
-    memcpy(mesh_.texcoords, mesh_data_.texcoords.data(),
-           mesh_data_.texcoords.size() * sizeof(float));
     memcpy(mesh_.indices, mesh_data_.indices.data(),
            mesh_data_.indices.size() * sizeof(unsigned short));
 
@@ -262,7 +268,6 @@ void Chunk::upload_mesh() {
 
   UploadMesh(&mesh_, false);
   state = ChunkState::LOADED;
-  loaded = true;
 }
 
 void Chunk::unload() {
@@ -271,12 +276,11 @@ void Chunk::unload() {
     mesh_ = {0};
   }
   state = ChunkState::UNLOADED;
-  loaded = false;
 }
 
 void Chunk::draw() {
-  float cx = (position_.x + 0.5f) * size_;
-  float cz = (position_.y + 0.5f) * size_;
-  DrawPlane({cx, 1.0f, cz}, {(float)size_, (float)size_}, {80, 72, 64, 255});
+  float cx = (position_.x + kHalfChunk) * size_;
+  float cz = (position_.y + kHalfChunk) * size_;
+  DrawPlane({cx, kFloorHeight, cz}, {(float)size_, (float)size_}, kFloorColor);
   DrawMesh(mesh_, material_, MatrixIdentity());
 }

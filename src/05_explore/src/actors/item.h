@@ -3,7 +3,7 @@
 
 class Item : public Actor {
 public:
-  Item(Vector3 position);
+  explicit Item(Vector3 position);
 
   bool is_collected() const { return collected_; }
 

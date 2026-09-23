@@ -6,10 +6,9 @@ main
 *.dll
 _archive/
 **/bin
-# **/build
 **/build_wsl
 .aider*
-.aider.chat.history.md 
+.aider.chat.history.md
 .aider.input.history
 .env
 **/.cache

@@ -4,8 +4,7 @@
 class Renderer {
 public:
   Renderer();
-  void update(Camera camera);
-  Shader get_shader() { return shader_; }
+  Shader get_shader() const { return shader_; }
 
 private:
   Shader shader_;

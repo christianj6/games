@@ -11,15 +11,14 @@ MovementUpdate UserMovementController::tick() {
   }
 
   return {
-      input_provider->get_input_movement_vector(),
-      input_provider->get_input_look_vector(),
-      input_provider->get_input_jump(),
-      input_provider->get_input_blink(),
-      input_provider->get_input_jump_held(),
-      input_provider->get_input_sprint(),
-      input_provider->get_input_blink_held(),
-      input_provider->get_input_recall(),
-      input_provider->get_input_recall_held(),
-      input_provider->get_input_place_anchor(),
+      .position = input_provider->get_input_movement_vector(),
+      .camera = input_provider->get_input_look_vector(),
+      .jump = input_provider->get_input_jump(),
+      .blink = input_provider->get_input_blink(),
+      .jump_held = input_provider->get_input_jump_held(),
+      .sprint = input_provider->get_input_sprint(),
+      .blink_held = input_provider->get_input_blink_held(),
+      .recall_held = input_provider->get_input_recall_held(),
+      .place_anchor = input_provider->get_input_place_anchor(),
   };
 }

@@ -9,14 +9,21 @@
 // keep the desktop-style blocking loop and compile with -sASYNCIFY —
 // raylib's WindowShouldClose() yields to the browser each iteration
 // (emscripten_sleep(12) in rcore_web.c).
+// On desktop these are immediately superseded by ToggleFullscreen(); they
+// mainly set the web canvas aspect.
+namespace {
+constexpr int kWindowWidth = 1920;
+constexpr int kWindowHeight = 1080;
+// Chrome rejects re-lock for ~1.25 s after an ESC exit; margin on top.
+constexpr float kLockCooldown = 1.4f;
+} // namespace
 
 int main() {
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
-  // Initialize with a windowed mode first
-  InitWindow(1920, 1080, "Explore");
+  InitWindow(kWindowWidth, kWindowHeight, "Explore");
 #ifdef PLATFORM_WEB
-  InitWebLookAccumulator();
+  init_web_look_accumulator();
 #else
   // Toggle to fullscreen - more reliable on macOS than FLAG_FULLSCREEN_MODE
   ToggleFullscreen();
@@ -38,11 +45,15 @@ int main() {
   bool pointer_locked = false; // lock state observed last frame
   bool releasing_lock = false; // we asked for the release ourselves
   float lock_cooldown = 0.0f;  // paces re-requests after an ESC exit
-  while (app.run(false)) {
+  while (app.run()) {
     const float dt = GetFrameTime();
     bool running = app.is_game_running();
+    // The EM_ASM body is JavaScript: clang-format would rewrite `===` as `==
+    // =`.
+    // clang-format off
     const bool locked = EM_ASM_INT(
         { return document.pointerLockElement === Module.canvas ? 1 : 0; });
+    // clang-format on
     if (pointer_locked && !locked && !releasing_lock && running) {
       app.toggle_pause(); // browser exited the lock (ESC / focus loss)
       running = app.is_game_running();
@@ -52,7 +63,7 @@ int main() {
     if (running && !locked) {
       if (lock_cooldown <= 0.0f) {
         DisableCursor(); // engages on the next click/keypress (activation)
-        lock_cooldown = 1.4f;
+        lock_cooldown = kLockCooldown;
       }
     } else if (!running && locked) {
       EnableCursor(); // exits the lock; the cursor becomes visible
@@ -60,12 +71,12 @@ int main() {
     }
     if (lock_cooldown > 0.0f)
       lock_cooldown -= dt;
-    ResetWebLookDelta(); // frame's look motion was consumed by app.run()
-    WindowShouldClose(); // yields to the browser each iteration via Asyncify
+    reset_web_look_delta(); // frame's look motion was consumed by app.run()
+    WindowShouldClose();    // yields to the browser each iteration via Asyncify
   }
 #else
   // Desktop: pure blocking loop (App handles ESC itself).
-  while (app.run(false)) {
+  while (app.run()) {
     WindowShouldClose();
   }
 #endif

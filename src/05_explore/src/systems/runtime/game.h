@@ -22,20 +22,26 @@ class Game {
 public:
   Game();
   ~Game();
-  GameInfo tick(bool);
-  GameState get_current_state() { return current_state; }
+  GameInfo tick();
+  GameState get_current_state() const { return current_state_; }
   void toggle_pause(); // public: web main loop forwards ESC-exits-lock as pause
 
 private:
-  GameState current_state = GameState::RUNNING;
-  GameInfo update();
+  GameState current_state_ = GameState::RUNNING;
+  void update();
   void draw();
   void spawn_quest_items();
   void update_quest();
-  GameState previous_state;
+  Vector3 sample_shard_position(const Vector3 &player_spawn,
+                                const std::vector<Vector3> &placed);
+  void spawn_shard_guards(const Vector3 &shard_pos);
+  void update_listener();
+  void pair_revive_targets();
+  void update_health(float dt);
+  GameState previous_state_;
 
   Hud hud;
-  float last_health_ = 100.0f; // for regen damage detection
+  float last_health_ = kMaxPlayerHealth; // for regen damage detection
   float time_since_damage_ = 999.0f;
   World world;
   Player player;

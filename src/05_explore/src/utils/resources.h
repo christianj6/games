@@ -1,5 +1,3 @@
-// TODO: utility functions related to loading of assets
-
 /**********************************************************************************************
  *
  *   raylibExtras * Utilities and Shared Components for Raylib

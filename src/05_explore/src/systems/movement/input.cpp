@@ -6,20 +6,41 @@
 #include "raylib.h"
 #include <cmath>
 
+namespace {
+// Stick and look tuning.
+constexpr float kStickDeadzone = 0.15f;
+constexpr float kLookStickScale = 30.0f;
+
+// Keyboard and mouse bindings — the whole control scheme in one place.
+constexpr int kKeyForward = KEY_W;
+constexpr int kKeyBack = KEY_S;
+constexpr int kKeyRight = KEY_D;
+constexpr int kKeyLeft = KEY_A;
+constexpr int kKeyJump = KEY_SPACE;
+constexpr int kKeySprint = KEY_LEFT_SHIFT;
+constexpr int kKeyRecall = KEY_Q;
+constexpr int kKeyAnchor = KEY_F;
+constexpr int kBtnBlink = MOUSE_BUTTON_RIGHT;
+
+float deadzone(float value) {
+  return fabsf(value) > kStickDeadzone ? value : 0.0f;
+}
+} // namespace
+
 Vector3 KeyboardInputProvider::get_input_movement_vector() {
   Vector3 movement = {0};
 
-  if (IsKeyDown(KEY_W)) {
+  if (IsKeyDown(kKeyForward)) {
     movement.z += 1.0f;
   }
-  if (IsKeyDown(KEY_S)) {
+  if (IsKeyDown(kKeyBack)) {
     movement.z -= 1.0f;
   }
 
-  if (IsKeyDown(KEY_D)) {
+  if (IsKeyDown(kKeyRight)) {
     movement.x += 1.0f;
   }
-  if (IsKeyDown(KEY_A)) {
+  if (IsKeyDown(kKeyLeft)) {
     movement.x -= 1.0f;
   }
 
@@ -28,38 +49,34 @@ Vector3 KeyboardInputProvider::get_input_movement_vector() {
 
 Vector2 KeyboardInputProvider::get_input_look_vector() {
 #ifdef PLATFORM_WEB
-  return ReadWebLookDelta();
+  return read_web_look_delta();
 #else
   return GetMouseDelta();
 #endif
 }
 
-bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(KEY_SPACE); }
+bool KeyboardInputProvider::get_input_jump() { return IsKeyPressed(kKeyJump); }
 
 bool KeyboardInputProvider::get_input_jump_held() {
-  return IsKeyDown(KEY_SPACE);
+  return IsKeyDown(kKeyJump);
 }
 
-bool KeyboardInputProvider::get_input_sprint() {
-  return IsKeyDown(KEY_LEFT_SHIFT);
-}
+bool KeyboardInputProvider::get_input_sprint() { return IsKeyDown(kKeySprint); }
 
 bool KeyboardInputProvider::get_input_blink() {
-  return IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+  return IsMouseButtonPressed(kBtnBlink);
 }
 
 bool KeyboardInputProvider::get_input_blink_held() {
-  return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+  return IsMouseButtonDown(kBtnBlink);
 }
 
-bool KeyboardInputProvider::get_input_recall() { return IsKeyPressed(KEY_Q); }
-bool KeyboardInputProvider::get_input_recall_held() { return IsKeyDown(KEY_Q); }
+bool KeyboardInputProvider::get_input_recall_held() {
+  return IsKeyDown(kKeyRecall);
+}
+
 bool KeyboardInputProvider::get_input_place_anchor() {
-  return IsKeyPressed(KEY_F);
-}
-
-float ControllerInputProvider::deadzone(float value, float threshold) {
-  return fabsf(value) > threshold ? value : 0.0f;
+  return IsKeyPressed(kKeyAnchor);
 }
 
 Vector3 ControllerInputProvider::get_input_movement_vector() {
@@ -69,10 +86,9 @@ Vector3 ControllerInputProvider::get_input_movement_vector() {
 }
 
 Vector2 ControllerInputProvider::get_input_look_vector() {
-  const float look_scale = 30.0f;
   float x = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_X));
   float y = deadzone(GetGamepadAxisMovement(0, GAMEPAD_AXIS_RIGHT_Y));
-  return {x * look_scale, y * look_scale};
+  return {x * kLookStickScale, y * kLookStickScale};
 }
 
 bool ControllerInputProvider::get_input_jump() {
@@ -104,16 +120,20 @@ bool ControllerInputProvider::get_input_recall_held() {
 }
 
 bool ControllerInputProvider::get_input_place_anchor() {
-  // Chord: either button pressed while the other is already held
-  bool lb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
-  bool rb_p = IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
-  bool lb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
-  bool rb_h = IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);
-  return (lb_p && rb_h) || (lb_h && rb_p);
+  // Anchor chord: one trigger pressed while the other is already held
+  bool lb_pressed = get_input_recall();
+  bool rb_pressed = get_input_blink();
+  bool lb_held = get_input_recall_held();
+  bool rb_held = get_input_blink_held();
+  return (lb_pressed && rb_held) || (lb_held && rb_pressed);
 }
 
 #ifdef PLATFORM_WEB
-void InitWebLookAccumulator() {
+// clang-format off
+// The EM_ASM bodies below are JavaScript, not C++. clang-format lexes them as
+// C++ tokens and rewrites `===` into `== =`, which is a JS syntax error the
+// desktop build never compiles and so never catches. Leave them unformatted.
+void init_web_look_accumulator() {
   EM_ASM({
     if (Module._lookInit)
       return;
@@ -132,14 +152,14 @@ void InitWebLookAccumulator() {
   });
 }
 
-Vector2 ReadWebLookDelta() {
+Vector2 read_web_look_delta() {
   Vector2 delta;
   delta.x = (float)EM_ASM_DOUBLE({ return Module._lookDX || 0; });
   delta.y = (float)EM_ASM_DOUBLE({ return Module._lookDY || 0; });
   return delta;
 }
 
-void ResetWebLookDelta() {
+void reset_web_look_delta() {
   EM_ASM({
     if (Module._lookInit) {
       Module._lookDX = 0;
@@ -147,4 +167,5 @@ void ResetWebLookDelta() {
     }
   });
 }
+// clang-format on
 #endif
